@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/lottery.dart';
+import '../models/lottery_ticket.dart';
 import '../services/api_service.dart';
 
 class LotteryProvider extends ChangeNotifier {
@@ -7,6 +8,7 @@ class LotteryProvider extends ChangeNotifier {
 
   List<Lottery> _activeLotteries = [];
   Lottery? _selectedLottery;
+  List<LotteryTicket> _myTickets = [];
   
   bool _isLoading = false;
   bool _isPurchasing = false;
@@ -16,6 +18,7 @@ class LotteryProvider extends ChangeNotifier {
   // Getters
   List<Lottery> get activeLotteries => _activeLotteries;
   Lottery? get selectedLottery => _selectedLottery;
+  List<LotteryTicket> get myTickets => _myTickets;
   
   bool get isLoading => _isLoading;
   bool get isPurchasing => _isPurchasing;
@@ -108,7 +111,7 @@ class LotteryProvider extends ChangeNotifier {
     final cutoff = now.add(within);
     
     return _activeLotteries.where((lottery) {
-      return lottery.drawDate.isAfter(now) && lottery.drawDate.isBefore(cutoff);
+      return lottery.drawDate?.isAfter(now) == true && lottery.drawDate?.isBefore(cutoff) == true;
     }).toList();
   }
 
@@ -138,6 +141,27 @@ class LotteryProvider extends ChangeNotifier {
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();
+  }
+
+  // Get lottery details (for the mobile pages)
+  Future<Lottery?> getLotteryDetails(int lotteryId) async {
+    try {
+      _setLoading(true);
+      _clearMessages();
+
+      final lottery = await _apiService.getLottery(lotteryId);
+      return lottery;
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Get my tickets for a specific lottery
+  List<LotteryTicket> getMyTicketsForLottery(int lotteryId) {
+    return _myTickets.where((ticket) => ticket.lotteryId == lotteryId).toList();
   }
 
   String _getErrorMessage(dynamic error) {

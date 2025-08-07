@@ -259,6 +259,66 @@ class ApiService {
     return _handleResponse(response, (json) => json);
   }
 
+  // New ticket purchase system
+  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data, String? token) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+      headers: headers,
+      body: json.encode(data),
+    );
+
+    final body = utf8.decode(response.bodyBytes);
+    final jsonData = json.decode(body) as Map<String, dynamic>;
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonData;
+    } else {
+      throw ApiException(
+        message: jsonData['message'] ?? 'Une erreur est survenue',
+        statusCode: response.statusCode,
+        errors: jsonData['errors'],
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> get(String endpoint, String? token) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+      headers: headers,
+    );
+
+    final body = utf8.decode(response.bodyBytes);
+    final jsonData = json.decode(body) as Map<String, dynamic>;
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return jsonData;
+    } else {
+      throw ApiException(
+        message: jsonData['message'] ?? 'Une erreur est survenue',
+        statusCode: response.statusCode,
+        errors: jsonData['errors'],
+      );
+    }
+  }
+
   void dispose() {
     _client.close();
   }

@@ -8,19 +8,22 @@ part of 'product.dart';
 
 Product _$ProductFromJson(Map<String, dynamic> json) => Product(
   id: (json['id'] as num).toInt(),
+  name: json['name'] as String,
   title: json['title'] as String,
   description: json['description'] as String,
   price: (json['price'] as num).toDouble(),
-  ticketQuantity: (json['ticket_quantity'] as num).toInt(),
-  image: json['image'] as String,
+  ticketPrice: (json['ticket_price'] as num).toDouble(),
   merchantId: (json['merchant_id'] as num).toInt(),
   categoryId: (json['category_id'] as num).toInt(),
-  isActive: json['is_active'] as bool,
+  status: json['status'] as String,
   isFeatured: json['is_featured'] as bool,
-  drawDate:
-      json['draw_date'] == null
-          ? null
-          : DateTime.parse(json['draw_date'] as String),
+  hasActiveLottery: json['has_active_lottery'] as bool,
+  lotteryEndsSoon: json['lottery_ends_soon'] as bool,
+  popularityScore: (json['popularity_score'] as num).toDouble(),
+  minParticipants: (json['min_participants'] as num?)?.toInt(),
+  images: (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  imageUrl: json['image_url'] as String?,
+  mainImage: json['main_image'] as String?,
   createdAt:
       json['created_at'] == null
           ? null
@@ -45,16 +48,22 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
   'id': instance.id,
+  'name': instance.name,
   'title': instance.title,
   'description': instance.description,
   'price': instance.price,
-  'ticket_quantity': instance.ticketQuantity,
-  'image': instance.image,
+  'ticket_price': instance.ticketPrice,
+  'min_participants': instance.minParticipants,
+  'images': instance.images,
+  'image_url': instance.imageUrl,
+  'main_image': instance.mainImage,
   'merchant_id': instance.merchantId,
   'category_id': instance.categoryId,
-  'is_active': instance.isActive,
+  'status': instance.status,
   'is_featured': instance.isFeatured,
-  'draw_date': instance.drawDate?.toIso8601String(),
+  'has_active_lottery': instance.hasActiveLottery,
+  'lottery_ends_soon': instance.lotteryEndsSoon,
+  'popularity_score': instance.popularityScore,
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
   'merchant': instance.merchant,

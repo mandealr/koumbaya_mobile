@@ -82,7 +82,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 backgroundColor: AppConstants.primaryColor,
                 flexibleSpace: FlexibleSpaceBar(
                   background: CachedNetworkImage(
-                    imageUrl: product.image,
+                    imageUrl: product.displayImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
                       color: Colors.grey[200],

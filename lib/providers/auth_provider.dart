@@ -19,6 +19,10 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
+  Future<String?> get token async {
+    return await TokenStorage.getToken();
+  }
+
   AuthProvider() {
     _checkAuthStatus();
   }

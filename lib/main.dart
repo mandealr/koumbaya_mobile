@@ -5,6 +5,7 @@ import 'providers/app_provider.dart';
 import 'providers/products_provider.dart';
 import 'providers/lottery_provider.dart';
 import 'constants/app_constants.dart';
+import 'constants/theme.dart';
 import 'utils/router.dart';
 
 void main() {
@@ -26,48 +27,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppConstants.primaryColor,
-            primary: AppConstants.primaryColor,
-            secondary: AppConstants.secondaryColor,
-          ),
-          useMaterial3: true,
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.white,
-            foregroundColor: AppConstants.primaryColor,
-            elevation: 1,
-            titleTextStyle: TextStyle(
-              color: AppConstants.primaryColor,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppConstants.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-              ),
-            ),
-          ),
-          cardTheme: CardTheme(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-              borderSide: const BorderSide(color: AppConstants.primaryColor),
-            ),
-          ),
-        ),
+        theme: KoumbayaTheme.lightTheme,
+        darkTheme: KoumbayaTheme.darkTheme,
+        themeMode: ThemeMode.system,
         routerConfig: AppRouter.router,
       ),
     );

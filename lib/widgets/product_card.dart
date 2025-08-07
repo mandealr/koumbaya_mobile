@@ -18,131 +18,221 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
-      ),
+      elevation: AppConstants.elevationLow,
+      shadowColor: AppConstants.primaryColor.withOpacity(0.1),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
+            // Image avec overlay pour les badges
             Expanded(
               flex: 3,
               child: Container(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppConstants.cardBorderRadius),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppConstants.cardBorderRadius),
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: product.image,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: CircularProgressIndicator(),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(AppConstants.cardBorderRadius),
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: product.displayImage,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: AppConstants.lightAccentColor,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: AppConstants.lightAccentColor,
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            color: AppConstants.textSecondaryColor,
+                            size: 40,
+                          ),
+                        ),
                       ),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey,
-                        size: 40,
+                    
+                    // Badges en overlay
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Row(
+                        children: [
+                          if (product.isFeatured)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppConstants.warningColor,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                'VEDETTE',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  ),
+                    
+                    // Badge tombola active
+                    if (product.hasActiveLottery)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppConstants.primaryColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppConstants.primaryColor.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.play_arrow_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
 
-            // Content
+            // Content amélioré
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
+                    // Titre avec meilleure typographie
                     Text(
-                      product.title,
+                      product.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: AppConstants.textPrimaryColor,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
 
-                    // Price
-                    Text(
-                      product.formattedPrice,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppConstants.primaryColor,
-                        fontWeight: FontWeight.w600,
+                    // Prix avec style amélioré
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppConstants.lightAccentColor,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        product.formattedPrice,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppConstants.primaryColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
 
-                    if (showProgress && product.hasActiveLottery) ...[
-                      const SizedBox(height: 8),
-                      // Progress Bar
-                      LinearProgressIndicator(
-                        value: product.activeLottery!.completionPercentage / 100,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppConstants.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${product.activeLottery!.soldTickets}/${product.activeLottery!.totalTickets} billets',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                    const SizedBox(height: 8),
 
-                    // Badges
-                    const Spacer(),
-                    Row(
-                      children: [
-                        if (product.isFeatured)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppConstants.accentColor,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'VEDETTE',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                    // Informations tombola si active
+                    if (product.hasActiveLottery) ...[
+                      Text(
+                        'Billet: ${product.formattedTicketPrice}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppConstants.textSecondaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (showProgress) ...[
+                        const SizedBox(height: 6),
+                        // Barre de progression stylisée
+                        Container(
+                          height: 4,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            color: AppConstants.borderColor,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: product.activeLottery!.completionPercentage / 100,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppConstants.primaryColor,
                               ),
                             ),
                           ),
-                        const Spacer(),
-                        if (product.hasActiveLottery)
-                          Icon(
-                            Icons.play_circle_outline,
-                            color: AppConstants.primaryColor,
-                            size: 18,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${product.activeLottery!.soldTickets}/${product.activeLottery!.totalTickets} tickets vendus',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppConstants.textSecondaryColor,
+                            fontSize: 11,
                           ),
+                        ),
                       ],
-                    ),
+                    ],
+
+                    const Spacer(),
+                    
+                    // Badge de statut en bas
+                    if (product.lotteryEndsSoon)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppConstants.warningColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: AppConstants.warningColor.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          '⏰ Se termine bientôt',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppConstants.warningColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

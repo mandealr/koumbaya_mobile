@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/lottery.dart';
 import '../../providers/lottery_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -494,7 +495,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
             height: 48,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/login');
+                context.go('/login');
               },
               child: const Text('Se connecter pour participer'),
             ),

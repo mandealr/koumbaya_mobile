@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      context.go('/home');
     }
   }
 
@@ -50,10 +51,16 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo and Title
-                const Icon(
-                  Icons.local_play,
-                  size: 80,
-                  color: AppConstants.primaryColor,
+                Container(
+                  height: 120,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/logo.png'),
+                      fit: BoxFit.contain,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -196,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.of(context).pushNamed('/register'),
+                      onTap: () => context.go('/register'),
                       child: const Text(
                         'S\'inscrire',
                         style: TextStyle(

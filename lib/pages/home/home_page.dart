@@ -47,17 +47,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(
-              Icons.local_play,
-              color: AppConstants.primaryColor,
-              size: 28,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              AppConstants.appName,
-              style: TextStyle(
-                color: AppConstants.primaryColor,
-                fontWeight: FontWeight.bold,
+            Container(
+              height: 32,
+              width: 100,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ],

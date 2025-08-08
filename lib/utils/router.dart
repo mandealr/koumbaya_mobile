@@ -11,96 +11,96 @@ import '../pages/products/product_detail_page.dart';
 import '../pages/profile/profile_page.dart';
 
 class AppRouter {
-  static final GoRouter _router = GoRouter(
-    initialLocation: '/login',
-    routes: [
-      // Authentication Routes
-      GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => const LoginPage(),
-      ),
-      GoRoute(
-        path: '/register',
-        name: 'register',
-        builder: (context, state) => const RegisterPage(),
-      ),
+  static GoRouter? _router;
 
-      // Main App Routes (Protected)
-      ShellRoute(
-        builder: (context, state, child) {
-          return MainScaffold(child: child);
-        },
-        routes: [
-          GoRoute(
-            path: '/home',
-            name: 'home',
-            builder: (context, state) => const HomePage(),
-          ),
-          GoRoute(
-            path: '/categories',
-            name: 'categories',
-            builder: (context, state) => const CategoriesPage(),
-          ),
-          GoRoute(
-            path: '/products',
-            name: 'products',
-            builder: (context, state) {
-              final categoryId = state.pathParameters['categoryId'];
-              return ProductsPage(
-                categoryId: categoryId != null ? int.parse(categoryId) : null,
-              );
-            },
-          ),
-          GoRoute(
-            path: '/category-products/:categoryId',
-            name: 'category-products',
-            builder: (context, state) {
-              final categoryId = int.parse(state.pathParameters['categoryId']!);
-              return ProductsPage(categoryId: categoryId);
-            },
-          ),
-          GoRoute(
-            path: '/product/:productId',
-            name: 'product',
-            builder: (context, state) {
-              final productId = int.parse(state.pathParameters['productId']!);
-              return ProductDetailPage(productId: productId);
-            },
-          ),
-          GoRoute(
-            path: '/profile',
-            name: 'profile',
-            builder: (context, state) => const ProfilePage(),
-          ),
-        ],
-      ),
-    ],
-    redirect: (context, state) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final isAuthenticated = authProvider.isAuthenticated;
-      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+  static GoRouter get router {
+    return _router ??= GoRouter(
+      navigatorKey: NavigatorKeys.rootNavigatorKey,
+      initialLocation: '/login',
+      routes: [
+        // Authentication Routes
+        GoRoute(
+          path: '/login',
+          name: 'login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: '/register',
+          name: 'register',
+          builder: (context, state) => const RegisterPage(),
+        ),
 
-      // Redirect to home if authenticated and trying to access auth pages
-      if (isAuthenticated && isAuthRoute) {
-        return '/home';
-      }
+        // Main App Routes (Protected)
+        ShellRoute(
+          navigatorKey: NavigatorKeys.shellNavigatorKey,
+          builder: (context, state, child) {
+            return MainScaffold(child: child);
+          },
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomePage(),
+            ),
+            GoRoute(
+              path: '/categories',
+              name: 'categories',
+              builder: (context, state) => const CategoriesPage(),
+            ),
+            GoRoute(
+              path: '/products',
+              name: 'products',
+              builder: (context, state) {
+                final categoryId = state.pathParameters['categoryId'];
+                return ProductsPage(
+                  categoryId: categoryId != null ? int.parse(categoryId) : null,
+                );
+              },
+            ),
+            GoRoute(
+              path: '/category-products/:categoryId',
+              name: 'category-products',
+              builder: (context, state) {
+                final categoryId = int.parse(state.pathParameters['categoryId']!);
+                return ProductsPage(categoryId: categoryId);
+              },
+            ),
+            GoRoute(
+              path: '/product/:productId',
+              name: 'product',
+              builder: (context, state) {
+                final productId = int.parse(state.pathParameters['productId']!);
+                return ProductDetailPage(productId: productId);
+              },
+            ),
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              builder: (context, state) => const ProfilePage(),
+            ),
+          ],
+        ),
+      ],
+      redirect: (context, state) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final isAuthenticated = authProvider.isAuthenticated;
+        final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
-      // Redirect to login if not authenticated and trying to access protected pages
-      if (!isAuthenticated && !isAuthRoute) {
-        return '/login';
-      }
+        // Redirect to home if authenticated and trying to access auth pages
+        if (isAuthenticated && isAuthRoute) {
+          return '/home';
+        }
 
-      // No redirect needed
-      return null;
-    },
-    refreshListenable: Provider.of<AuthProvider>(
-      NavigatorKeys.rootNavigatorKey.currentContext!,
-      listen: false,
-    ),
-  );
+        // Redirect to login if not authenticated and trying to access protected pages
+        if (!isAuthenticated && !isAuthRoute) {
+          return '/login';
+        }
 
-  static GoRouter get router => _router;
+        // No redirect needed
+        return null;
+      },
+    );
+  }
 }
 
 class NavigatorKeys {
@@ -161,7 +161,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF2E7D32),
+        selectedItemColor: const Color(0xFF0099CC), // Koumbaya primary color
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(

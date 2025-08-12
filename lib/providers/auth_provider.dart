@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
-import '../utils/token_storage.dart';
+import '../utils/secure_token_storage.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
@@ -21,7 +21,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
   Future<String?> get token async {
-    return await TokenStorage.getToken();
+    return await SecureTokenStorage.getToken();
   }
 
   AuthProvider() {
@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _checkAuthStatus() async {
     try {
       _setLoading(true);
-      final hasToken = await TokenStorage.hasToken();
+      final hasToken = await SecureTokenStorage.hasToken();
       
       if (kDebugMode) {
         print('🔍 AuthProvider: Checking auth status...');
@@ -53,7 +53,7 @@ class AuthProvider extends ChangeNotifier {
           // Ne supprimer le token que si c'est une erreur d'authentification (401)
           if (e is ApiException && e.statusCode == 401) {
             _status = AuthStatus.unauthenticated;
-            await TokenStorage.removeToken();
+            await SecureTokenStorage.removeToken();
             _user = null;
             if (kDebugMode) {
               print('🚫 AuthProvider: Token expired/invalid, user needs to login again');
@@ -77,7 +77,7 @@ class AuthProvider extends ChangeNotifier {
         print('💥 AuthProvider: General error - $e');
       }
       // Erreur générale, ne pas supprimer le token
-      if (await TokenStorage.hasToken()) {
+      if (await SecureTokenStorage.hasToken()) {
         _status = AuthStatus.authenticated;
       } else {
         _status = AuthStatus.unauthenticated;
@@ -99,14 +99,12 @@ class AuthProvider extends ChangeNotifier {
       final response = await _apiService.login(email, password);
       
       if (response.isSuccess && response.user != null) {
-        // Si un token est fourni, on l'utilise
-        if (response.token != null) {
-          await TokenStorage.saveToken(response.token!);
+        // Vérifier qu'un token valide est fourni par l'API
+        if (response.token != null && !response.token!.startsWith('temp_')) {
+          await SecureTokenStorage.saveToken(response.token!);
         } else {
-          // Sinon, on génère un token temporaire basé sur l'email
-          // En attendant que l'API soit corrigée pour retourner un vrai token
-          final tempToken = 'temp_${response.user!.email}_${DateTime.now().millisecondsSinceEpoch}';
-          await TokenStorage.saveToken(tempToken);
+          _setError('Token d\'authentification invalide reçu du serveur');
+          return false;
         }
         
         _user = response.user;
@@ -151,7 +149,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (response.isSuccess && response.token != null && response.user != null) {
-        await TokenStorage.saveToken(response.token!);
+        await SecureTokenStorage.saveToken(response.token!);
         _user = response.user;
         _status = AuthStatus.authenticated;
         notifyListeners();
@@ -176,7 +174,7 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _user = null;
       _status = AuthStatus.unauthenticated;
-      await TokenStorage.removeToken();
+      await SecureTokenStorage.removeTokens();
       notifyListeners();
     }
   }

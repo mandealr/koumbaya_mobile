@@ -66,7 +66,7 @@ class LotteryProvider extends ChangeNotifier {
 
       await _apiService.buyLotteryTicket(lotteryId, quantity);
       
-      _setSuccess('Billet(s) acheté(s) avec succès!');
+      _setSuccess('Ticket(s) acheté(s) avec succès!');
       
       // Refresh the lottery data
       await loadLottery(lotteryId);

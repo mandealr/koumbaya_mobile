@@ -80,7 +80,7 @@ class Transaction {
   String get typeText {
     switch (type) {
       case 'lottery_ticket':
-        return 'Achat de billets';
+        return 'Achat de tickets';
       case 'product_purchase':
         return 'Achat direct';
       case 'refund':
@@ -116,9 +116,9 @@ class Transaction {
 
   String get displayTitle {
     if (product != null) {
-      return isRefund ? 'Remboursement - ${product!.name}' : product!.name;
+      return isRefund ? 'Remboursement - ${product!.displayName}' : product!.displayName;
     } else if (type == 'lottery_ticket') {
-      return 'Achat de billets de tombola';
+      return 'Achat de tickets de tombola';
     }
     return typeText;
   }

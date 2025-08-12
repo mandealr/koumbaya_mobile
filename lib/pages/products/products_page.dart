@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/products_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../widgets/product_card.dart';
@@ -193,10 +194,8 @@ class _ProductsPageState extends State<ProductsPage> {
                                 showProgress: true,
                                 onTap: () {
                                   productsProvider.selectProduct(product);
-                                  Navigator.of(context).pushNamed(
-                                    '/product',
-                                    arguments: product.id,
-                                  );
+                                  context.pushNamed('product',
+                                    pathParameters: {'productId': product.id.toString()});
                                 },
                               );
                             },

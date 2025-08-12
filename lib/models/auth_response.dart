@@ -5,6 +5,7 @@ part 'auth_response.g.dart';
 
 @JsonSerializable()
 class AuthResponse {
+  @JsonKey(name: 'access_token')
   final String? token;
   final User? user;
   final String? message;

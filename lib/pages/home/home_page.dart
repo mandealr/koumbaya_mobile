@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/lottery_provider.dart';
@@ -178,9 +179,8 @@ class _HomePageState extends State<HomePage>
                         showProgress: true,
                         onTap: () {
                           productsProvider.selectProduct(product);
-                          Navigator.of(
-                            context,
-                          ).pushNamed('/product', arguments: product.id);
+                          context.pushNamed('product', 
+                            pathParameters: {'productId': product.id.toString()});
                         },
                       );
                     },
@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage>
                     const Spacer(),
                     TextButton.icon(
                       onPressed: () {
-                        Navigator.of(context).pushNamed('/categories');
+                        context.pushNamed('categories');
                       },
                       icon: const Icon(Icons.category),
                       label: const Text('Catégories'),
@@ -262,9 +262,8 @@ class _HomePageState extends State<HomePage>
                         showProgress: true,
                         onTap: () {
                           productsProvider.selectProduct(product);
-                          Navigator.of(
-                            context,
-                          ).pushNamed('/product', arguments: product.id);
+                          context.pushNamed('product', 
+                            pathParameters: {'productId': product.id.toString()});
                         },
                       );
                     },
@@ -374,9 +373,8 @@ class _HomePageState extends State<HomePage>
                           ),
                           onTap: () {
                             lotteryProvider.selectLottery(lottery);
-                            Navigator.of(
-                              context,
-                            ).pushNamed('/lottery', arguments: lottery.id);
+                            context.pushNamed('lottery', 
+                              pathParameters: {'lotteryId': lottery.id.toString()});
                           },
                         ),
                       );

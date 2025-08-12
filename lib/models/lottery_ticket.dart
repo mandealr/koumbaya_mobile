@@ -29,21 +29,87 @@ class LotteryTicket {
 
   factory LotteryTicket.fromJson(Map<String, dynamic> json) {
     return LotteryTicket(
-      id: json['id'] as int,
-      ticketNumber: json['ticket_number'] as String,
-      lotteryId: json['lottery_id'] as int,
-      userId: json['user_id'] as int,
-      transactionId: json['transaction_id'] as int?,
-      pricePaid: (json['price_paid'] as num).toDouble(),
-      paymentReference: json['payment_reference'] as String?,
-      status: json['status'] as String,
-      isWinner: json['is_winner'] as bool? ?? false,
-      purchasedAt: json['purchased_at'] != null 
-          ? DateTime.parse(json['purchased_at'] as String)
-          : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      id: _parseInt(json['id']),
+      ticketNumber: _parseString(json['ticket_number']),
+      lotteryId: _parseInt(json['lottery_id']),
+      userId: _parseInt(json['user_id']),
+      transactionId: _parseNullableInt(json['transaction_id']),
+      pricePaid: _parseDouble(json['price_paid']),
+      paymentReference: _parseNullableString(json['payment_reference']),
+      status: _parseString(json['status']),
+      isWinner: _parseBool(json['is_winner']),
+      purchasedAt: _parseNullableDateTime(json['purchased_at']),
+      createdAt: _parseDateTime(json['created_at']),
+      updatedAt: _parseDateTime(json['updated_at']),
     );
+  }
+
+  // Helper functions for safe parsing
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static int? _parseNullableInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static String _parseString(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
+
+  static String? _parseNullableString(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value.isEmpty ? null : value;
+    return value.toString();
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) return value.toLowerCase() == 'true' || value == '1';
+    return false;
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+    return DateTime.now();
+  }
+
+  static DateTime? _parseNullableDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() {

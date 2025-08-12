@@ -8,20 +8,14 @@ part of 'category.dart';
 
 Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  description: json['description'] as String?,
-  image: json['image'] as String?,
-  parentId: (json['parent_id'] as num?)?.toInt(),
+  name: _parseString(json['name']),
+  description: _parseNullableString(json['description']),
+  image: _parseNullableString(json['image']),
+  parentId: _parseNullableInt(json['parent_id']),
   isActive: Category._intToBool(json['is_active']),
-  sortOrder: (json['sort_order'] as num?)?.toInt(),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  sortOrder: _parseNullableInt(json['sort_order']),
+  createdAt: _parseNullableDateTime(json['created_at']),
+  updatedAt: _parseNullableDateTime(json['updated_at']),
   children:
       (json['children'] as List<dynamic>?)
           ?.map((e) => Category.fromJson(e as Map<String, dynamic>))

@@ -232,7 +232,7 @@ class ProfilePage extends StatelessWidget {
           _buildQuickActionTile(
             context,
             Icons.confirmation_number,
-            'Mes billets',
+            'Mes tickets',
             'Voir mes participations',
             () => context.go('/my-tickets'),
           ),

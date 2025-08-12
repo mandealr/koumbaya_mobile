@@ -132,7 +132,7 @@ class TransactionService {
     );
   }
 
-  /// Récupère les transactions de tombola (achat de billets)
+  /// Récupère les transactions de tombola (achat de tickets)
   Future<List<Transaction>> getLotteryTransactions({
     int page = 1,
     int perPage = 20,

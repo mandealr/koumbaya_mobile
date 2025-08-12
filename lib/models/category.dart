@@ -2,21 +2,59 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'category.g.dart';
 
+// Helper function for parsing String
+String _parseString(dynamic value) {
+  if (value == null) return '';
+  return value.toString();
+}
+
+// Helper function for parsing nullable String
+String? _parseNullableString(dynamic value) {
+  if (value == null) return null;
+  if (value is String) return value.isEmpty ? null : value;
+  return value.toString();
+}
+
+// Helper function for parsing nullable DateTime
+DateTime? _parseNullableDateTime(dynamic value) {
+  if (value == null) return null;
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+// Helper function for parsing nullable int
+int? _parseNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 @JsonSerializable(explicitToJson: true)
 class Category {
   final int id;
+  @JsonKey(fromJson: _parseString)
   final String name;
+  @JsonKey(fromJson: _parseNullableString)
   final String? description;
+  @JsonKey(fromJson: _parseNullableString)
   final String? image;
-  @JsonKey(name: 'parent_id')
+  @JsonKey(name: 'parent_id', fromJson: _parseNullableInt)
   final int? parentId;
   @JsonKey(name: 'is_active', fromJson: _intToBool, toJson: _boolToInt)
   final bool isActive;
-  @JsonKey(name: 'sort_order')
+  @JsonKey(name: 'sort_order', fromJson: _parseNullableInt)
   final int? sortOrder;
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'created_at', fromJson: _parseNullableDateTime)
   final DateTime? createdAt;
-  @JsonKey(name: 'updated_at')
+  @JsonKey(name: 'updated_at', fromJson: _parseNullableDateTime)
   final DateTime? updatedAt;
 
   // Relations (optional, loaded when needed)

@@ -8,22 +8,16 @@ part of 'country.dart';
 
 Country _$CountryFromJson(Map<String, dynamic> json) => Country(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  isoCode2: json['iso_code_2'] as String,
-  isoCode3: json['iso_code_3'] as String,
-  phoneCode: json['phone_code'] as String?,
-  currencyCode: json['currency_code'] as String?,
-  currencySymbol: json['currency_symbol'] as String?,
-  flag: json['flag'] as String?,
-  isActive: json['is_active'] as bool,
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  name: _parseString(json['name']),
+  isoCode2: _parseString(json['iso_code_2']),
+  isoCode3: _parseString(json['iso_code_3']),
+  phoneCode: _parseNullableString(json['phone_code']),
+  currencyCode: _parseNullableString(json['currency_code']),
+  currencySymbol: _parseNullableString(json['currency_symbol']),
+  flag: _parseNullableString(json['flag']),
+  isActive: _parseBool(json['is_active']),
+  createdAt: _parseNullableDateTime(json['created_at']),
+  updatedAt: _parseNullableDateTime(json['updated_at']),
 );
 
 Map<String, dynamic> _$CountryToJson(Country instance) => <String, dynamic>{

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/products_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../widgets/category_card.dart';
@@ -94,9 +95,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           category: category,
                           onTap: () {
                             productsProvider.selectCategory(category);
-                            Navigator.of(context).pushNamed(
-                              '/category-products',
-                              arguments: category.id,
+                            context.pushNamed(
+                              'category-products',
+                              pathParameters: {'categoryId': category.id.toString()},
+                              queryParameters: {'name': category.name},
                             );
                           },
                         );

@@ -8,56 +8,41 @@ part of 'user.dart';
 
 User _$UserFromJson(Map<String, dynamic> json) => User(
   id: (json['id'] as num).toInt(),
-  firstName: json['first_name'] as String,
-  lastName: json['last_name'] as String,
-  email: json['email'] as String,
-  phone: json['phone'] as String?,
-  address: json['address'] as String?,
-  city: json['city'] as String?,
+  firstName: _parseString(json['first_name']),
+  lastName: _parseString(json['last_name']),
+  email: _parseString(json['email']),
+  phone: _parseNullableString(json['phone']),
+  address: _parseNullableString(json['address']),
+  city: _parseNullableString(json['city']),
   latitude: (json['latitude'] as num?)?.toDouble(),
   longitude: (json['longitude'] as num?)?.toDouble(),
-  businessName: json['business_name'] as String?,
-  businessEmail: json['business_email'] as String?,
-  businessDescription: json['business_description'] as String?,
+  businessName: _parseNullableString(json['business_name']),
+  businessEmail: _parseNullableString(json['business_email']),
+  businessDescription: _parseNullableString(json['business_description']),
   canSell: User._intToBool(json['can_sell']),
   canBuy: User._intToBool(json['can_buy']),
-  rating: json['rating'] as String?,
+  rating: _parseNullableString(json['rating']),
   ratingCount: (json['rating_count'] as num?)?.toInt(),
-  facebookId: json['facebook_id'] as String?,
-  googleId: json['google_id'] as String?,
-  appleId: json['apple_id'] as String?,
+  facebookId: _parseNullableString(json['facebook_id']),
+  googleId: _parseNullableString(json['google_id']),
+  appleId: _parseNullableString(json['apple_id']),
   emailNotifications: User._intToBool(json['email_notifications']),
   smsNotifications: User._intToBool(json['sms_notifications']),
   pushNotifications: User._intToBool(json['push_notifications']),
-  role: json['role'] as String?,
-  accountType: json['account_type'] as String?,
-  lastLoginDate:
-      json['last_login_date'] == null
-          ? null
-          : DateTime.parse(json['last_login_date'] as String),
-  verifiedAt:
-      json['verified_at'] == null
-          ? null
-          : DateTime.parse(json['verified_at'] as String),
-  sourceIpAddress: json['source_ip_address'] as String?,
-  sourceServerInfo: json['source_server_info'] as String?,
+  role: _parseNullableString(json['role']),
+  accountType: _parseNullableString(json['account_type']),
+  lastLoginDate: _parseNullableDateTime(json['last_login_date']),
+  verifiedAt: _parseNullableDateTime(json['verified_at']),
+  sourceIpAddress: _parseNullableString(json['source_ip_address']),
+  sourceServerInfo: _parseNullableString(json['source_server_info']),
   isActive: json['is_active'] as bool,
   mfaIsActive: json['mfa_is_active'] as bool,
   userTypeId: (json['user_type_id'] as num?)?.toInt(),
   countryId: (json['country_id'] as num?)?.toInt(),
   languageId: (json['language_id'] as num?)?.toInt(),
-  lastOtpRequest:
-      json['last_otp_request'] == null
-          ? null
-          : DateTime.parse(json['last_otp_request'] as String),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  lastOtpRequest: _parseNullableDateTime(json['last_otp_request']),
+  createdAt: _parseNullableDateTime(json['created_at']),
+  updatedAt: _parseNullableDateTime(json['updated_at']),
   country:
       json['country'] == null
           ? null

@@ -67,7 +67,7 @@ class ProductCard extends StatelessWidget {
                       left: 8,
                       child: Row(
                         children: [
-                          if (product.isFeatured)
+                          if (product.isFeatureProduct)
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -99,7 +99,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     
                     // Badge tombola active
-                    if (product.hasActiveLottery)
+                    if (product.hasLottery)
                       Positioned(
                         top: 8,
                         right: 8,
@@ -132,13 +132,14 @@ class ProductCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Titre avec meilleure typographie
                     Text(
-                      product.name,
+                      product.displayName,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppConstants.textPrimaryColor,
@@ -151,84 +152,55 @@ class ProductCard extends StatelessWidget {
 
                     // Prix avec style amélioré
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color: AppConstants.lightAccentColor,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         product.formattedPrice,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppConstants.primaryColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
 
-                    // Informations tombola si active
-                    if (product.hasActiveLottery) ...[
+                    // Informations tombola si active (simplifiées)
+                    if (product.hasLottery) 
                       Text(
-                        'Billet: ${product.formattedTicketPrice}',
+                        'Ticket: ${product.formattedTicketPrice}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppConstants.textSecondaryColor,
                           fontWeight: FontWeight.w500,
+                          fontSize: 11,
                         ),
                       ),
-                      if (showProgress) ...[
-                        const SizedBox(height: 6),
-                        // Barre de progression stylisée
-                        Container(
-                          height: 4,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2),
-                            color: AppConstants.borderColor,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
-                            child: LinearProgressIndicator(
-                              value: product.activeLottery!.completionPercentage / 100,
-                              backgroundColor: Colors.transparent,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppConstants.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${product.activeLottery!.soldTickets}/${product.activeLottery!.totalTickets} tickets vendus',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppConstants.textSecondaryColor,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ],
 
                     const Spacer(),
                     
-                    // Badge de statut en bas
-                    if (product.lotteryEndsSoon)
+                    // Badge de statut en bas (compact)
+                    if (product.endsLotterySoon)
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppConstants.warningColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          color: AppConstants.warningColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: AppConstants.warningColor.withOpacity(0.3),
+                            color: AppConstants.warningColor.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
                         child: Text(
-                          '⏰ Se termine bientôt',
+                          '⏰ Bientôt',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppConstants.warningColor,
-                            fontSize: 11,
+                            fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

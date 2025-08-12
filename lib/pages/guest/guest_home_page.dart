@@ -487,7 +487,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      product.name,
+                      product.displayName,
                       style: AppTextStyles.h6.copyWith(fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

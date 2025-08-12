@@ -8,42 +8,27 @@ part of 'product.dart';
 
 Product _$ProductFromJson(Map<String, dynamic> json) => Product(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  title: json['title'] as String,
-  description: json['description'] as String,
-  price: (json['price'] as num).toDouble(),
-  ticketPrice: (json['ticket_price'] as num).toDouble(),
-  merchantId: (json['merchant_id'] as num).toInt(),
-  categoryId: (json['category_id'] as num).toInt(),
-  status: json['status'] as String,
-  isFeatured: json['is_featured'] as bool,
-  hasActiveLottery: json['has_active_lottery'] as bool,
-  lotteryEndsSoon: json['lottery_ends_soon'] as bool,
-  popularityScore: (json['popularity_score'] as num).toDouble(),
-  minParticipants: (json['min_participants'] as num?)?.toInt(),
-  images: (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
-  imageUrl: json['image_url'] as String?,
-  mainImage: json['main_image'] as String?,
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-  merchant:
-      json['merchant'] == null
-          ? null
-          : User.fromJson(json['merchant'] as Map<String, dynamic>),
-  category:
-      json['category'] == null
-          ? null
-          : Category.fromJson(json['category'] as Map<String, dynamic>),
-  activeLottery:
-      json['active_lottery'] == null
-          ? null
-          : Lottery.fromJson(json['active_lottery'] as Map<String, dynamic>),
+  name: _parseNullableString(json['name']),
+  title: _parseNullableString(json['title']),
+  description: _parseNullableString(json['description']),
+  price: _parseDouble(json['price']),
+  ticketPrice: _parseDouble(json['ticket_price']),
+  merchantId: _parseNullableInt(json['merchant_id']),
+  categoryId: _parseNullableInt(json['category_id']),
+  status: _parseNullableString(json['status']),
+  isFeatured: _parseNullableBool(json['is_featured']),
+  hasActiveLottery: _parseNullableBool(json['has_active_lottery']),
+  lotteryEndsSoon: _parseNullableBool(json['lottery_ends_soon']),
+  popularityScore: _parseNullableDouble(json['popularity_score']),
+  minParticipants: _parseNullableInt(json['min_participants']),
+  images: _parseImageList(json['images']),
+  imageUrl: _parseNullableString(json['image_url']),
+  mainImage: _parseNullableString(json['main_image']),
+  createdAt: _parseDateTime(json['created_at']),
+  updatedAt: _parseDateTime(json['updated_at']),
+  merchant: _parseUser(json['merchant']),
+  category: _parseCategory(json['category']),
+  activeLottery: _parseLottery(json['active_lottery']),
 );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{

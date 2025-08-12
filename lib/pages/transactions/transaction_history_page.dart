@@ -74,7 +74,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
           controller: _tabController,
           tabs: const [
             Tab(text: 'Toutes'),
-            Tab(text: 'Billets'),
+            Tab(text: 'Tickets'),
             Tab(text: 'Achats'),
             Tab(text: 'Remboursements'),
           ],

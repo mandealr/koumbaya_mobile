@@ -11,7 +11,7 @@ import '../models/product.dart';
 import '../models/lottery.dart';
 import '../models/lottery_ticket.dart';
 import '../models/ticket_with_details.dart';
-import '../utils/token_storage.dart';
+import '../utils/secure_token_storage.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -27,7 +27,7 @@ class ApiService {
     };
 
     if (includeAuth) {
-      final token = await TokenStorage.getToken();
+      final token = await SecureTokenStorage.getToken();
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
         if (kDebugMode) {
@@ -49,14 +49,14 @@ class ApiService {
   ) async {
     final body = utf8.decode(response.bodyBytes);
     
-    // Logging pour debugging en mode debug uniquement (désactivé)
-    // if (kDebugMode) {
-    //   print('=== API DEBUG ===');
-    //   print('URL: ${response.request?.url}');
-    //   print('Status: ${response.statusCode}');
-    //   print('Body: $body');
-    //   print('================');
-    // }
+    // Logging pour debugging en mode debug uniquement
+    if (kDebugMode) {
+      print('=== API DEBUG ===');
+      print('URL: ${response.request?.url}');
+      print('Status: ${response.statusCode}');
+      print('Body: $body');
+      print('================');
+    }
     
     if (response.statusCode >= 200 && response.statusCode < 300) {
       try {
@@ -156,7 +156,7 @@ class ApiService {
     } catch (e) {
       if (e is ApiException && e.statusCode == 401 && autoRemoveTokenOn401) {
         // Token expiré ou invalide, on le supprime
-        await TokenStorage.removeToken();
+        await SecureTokenStorage.removeToken();
       }
       rethrow;
     }
@@ -169,7 +169,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      await TokenStorage.removeToken();
+      await SecureTokenStorage.removeToken();
     }
   }
 
@@ -270,6 +270,18 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
+      // Check if it's the new API structure with "success" and "data"
+      if (json.containsKey('success') && json.containsKey('data')) {
+        final data = json['data'];
+        if (data is Map<String, dynamic> && data.containsKey('products')) {
+          final products = data['products'];
+          if (products is List) {
+            return products.map((p) => Product.fromJson(p)).toList();
+          }
+        }
+      }
+      
+      // Fallback to old structure
       final productsData = json['products'];
       if (productsData == null || productsData is! Map<String, dynamic>) {
         return <Product>[];
@@ -278,7 +290,22 @@ class ApiService {
       final products = productsData['data'];
       if (products == null || products is! List) return <Product>[];
       
-      return products.map((p) => Product.fromJson(p)).toList();
+      return products.map((p) {
+        try {
+          final productMap = p as Map<String, dynamic>;
+          if (kDebugMode) {
+            print('🔍 Parsing product: ${productMap['name']} (ID: ${productMap['id']})');
+          }
+          return Product.fromJson(productMap);
+        } catch (e, stackTrace) {
+          if (kDebugMode) {
+            print('❌ Error parsing product in getProducts: $e');
+            print('📋 Product data: $p');
+            print('📍 Stack trace: $stackTrace');
+          }
+          return null;
+        }
+      }).where((p) => p != null).cast<Product>().toList();
     });
   }
 
@@ -289,10 +316,46 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
-      final products = json['products'];
-      if (products == null || products is! List) return <Product>[];
-      
-      return products.map((p) => Product.fromJson(p)).toList();
+      try {
+        // Check if it's the new API structure with "success" and "data"
+        if (json.containsKey('success') && json.containsKey('data')) {
+          final data = json['data'];
+          if (data is List) {
+            return data.map((p) {
+              try {
+                return Product.fromJson(p as Map<String, dynamic>);
+              } catch (e) {
+                if (kDebugMode) {
+                  print('Error parsing featured product: $e');
+                  print('Product data: $p');
+                }
+                return null;
+              }
+            }).where((p) => p != null).cast<Product>().toList();
+          }
+        }
+        
+        // Fallback to old structure
+        final products = json['products'];
+        if (products == null || products is! List) return <Product>[];
+        
+        return products.map((p) {
+          try {
+            return Product.fromJson(p as Map<String, dynamic>);
+          } catch (e) {
+            if (kDebugMode) {
+              print('Error parsing featured product: $e');
+              print('Product data: $p');
+            }
+            return null;
+          }
+        }).where((p) => p != null).cast<Product>().toList();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error in getFeaturedProducts parsing: $e');
+        }
+        return <Product>[];
+      }
     });
   }
 
@@ -313,10 +376,42 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
+      // Check if it's the new API structure with "success" and "data"
+      if (json.containsKey('success') && json.containsKey('data')) {
+        final data = json['data'];
+        if (data is Map<String, dynamic> && data.containsKey('lotteries')) {
+          final lotteries = data['lotteries'];
+          if (lotteries is List) {
+            return lotteries.map((l) {
+              try {
+                return Lottery.fromJson(l as Map<String, dynamic>);
+              } catch (e) {
+                if (kDebugMode) {
+                  print('Error parsing lottery: $e');
+                  print('Lottery data: $l');
+                }
+                return null;
+              }
+            }).where((l) => l != null).cast<Lottery>().toList();
+          }
+        }
+      }
+      
+      // Fallback to old structure
       final lotteries = json['lotteries'];
       if (lotteries == null || lotteries is! List) return <Lottery>[];
       
-      return lotteries.map((l) => Lottery.fromJson(l)).toList();
+      return lotteries.map((l) {
+        try {
+          return Lottery.fromJson(l as Map<String, dynamic>);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error parsing lottery fallback: $e');
+            print('Lottery data: $l');
+          }
+          return null;
+        }
+      }).where((l) => l != null).cast<Lottery>().toList();
     });
   }
 
@@ -416,7 +511,7 @@ class ApiService {
     } catch (e) {
       if (e is ApiException && e.statusCode == 401) {
         // Token expiré ou invalide, on le supprime
-        await TokenStorage.removeToken();
+        await SecureTokenStorage.removeToken();
       }
       rethrow;
     }

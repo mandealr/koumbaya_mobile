@@ -18,6 +18,8 @@ import '../pages/guest/about_page.dart';
 import '../pages/guest/contact_page.dart';
 import '../pages/guest/help_page.dart';
 import '../pages/splash/splash_page.dart';
+import '../pages/lottery/lottery_detail_page.dart';
+import '../pages/categories/category_products_page.dart';
 
 class AppRouter {
   static GoRouter? _router;
@@ -100,7 +102,11 @@ class AppRouter {
               name: 'category-products',
               builder: (context, state) {
                 final categoryId = int.parse(state.pathParameters['categoryId']!);
-                return ProductsPage(categoryId: categoryId);
+                final categoryName = state.uri.queryParameters['name'];
+                return CategoryProductsPage(
+                  categoryId: categoryId,
+                  categoryName: categoryName,
+                );
               },
             ),
             GoRoute(
@@ -109,6 +115,14 @@ class AppRouter {
               builder: (context, state) {
                 final productId = int.parse(state.pathParameters['productId']!);
                 return ProductDetailPage(productId: productId);
+              },
+            ),
+            GoRoute(
+              path: '/lottery/:lotteryId',
+              name: 'lottery',
+              builder: (context, state) {
+                final lotteryId = int.parse(state.pathParameters['lotteryId']!);
+                return LotteryDetailPage(lotteryId: lotteryId);
               },
             ),
             GoRoute(
@@ -249,7 +263,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_number),
-            label: 'Mes Billets',
+            label: 'Mes Tickets',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

@@ -8,36 +8,27 @@ part of 'lottery.dart';
 
 Lottery _$LotteryFromJson(Map<String, dynamic> json) => Lottery(
   id: (json['id'] as num).toInt(),
-  lotteryNumber: json['lottery_number'] as String,
+  lotteryNumber: _parseString(json['lottery_number']),
   productId: (json['product_id'] as num).toInt(),
   totalTickets: (json['total_tickets'] as num).toInt(),
   soldTickets: (json['sold_tickets'] as num).toInt(),
   remainingTicketsCount: (json['remaining_tickets'] as num).toInt(),
-  ticketPrice: (json['ticket_price'] as num).toDouble(),
-  startDate: DateTime.parse(json['start_date'] as String),
-  endDate: DateTime.parse(json['end_date'] as String),
-  status: json['status'] as String,
+  ticketPrice: _parseDouble(json['ticket_price']),
+  startDate: _parseDateTime(json['start_date']),
+  endDate: _parseDateTime(json['end_date']),
+  status: _parseString(json['status']),
   isDrawn: json['is_drawn'] as bool,
   isExpired: json['is_expired'] as bool,
   canDraw: json['can_draw'] as bool,
-  progressPercentage: (json['progress_percentage'] as num).toDouble(),
-  participationRate: (json['participation_rate'] as num).toDouble(),
+  progressPercentage: _parseDouble(json['progress_percentage']),
+  participationRate: _parseDouble(json['participation_rate']),
   isEndingSoon: json['is_ending_soon'] as bool,
-  totalRevenue: (json['total_revenue'] as num).toDouble(),
-  drawDate:
-      json['draw_date'] == null
-          ? null
-          : DateTime.parse(json['draw_date'] as String),
-  winnerTicketNumber: json['winner_ticket_number'] as String?,
+  totalRevenue: _parseDouble(json['total_revenue']),
+  drawDate: _parseNullableDateTime(json['draw_date']),
+  winnerTicketNumber: _parseNullableString(json['winner_ticket_number']),
   winnerUserId: (json['winner_user_id'] as num?)?.toInt(),
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  createdAt: _parseNullableDateTime(json['created_at']),
+  updatedAt: _parseNullableDateTime(json['updated_at']),
   product:
       json['product'] == null
           ? null

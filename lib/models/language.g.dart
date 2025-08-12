@@ -8,19 +8,13 @@ part of 'language.dart';
 
 Language _$LanguageFromJson(Map<String, dynamic> json) => Language(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
-  code: json['code'] as String,
-  nativeName: json['native_name'] as String?,
-  isActive: json['is_active'] as bool,
-  isDefault: json['is_default'] as bool,
-  createdAt:
-      json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-  updatedAt:
-      json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+  name: _parseString(json['name']),
+  code: _parseString(json['code']),
+  nativeName: _parseNullableString(json['native_name']),
+  isActive: _parseBool(json['is_active']),
+  isDefault: _parseBool(json['is_default']),
+  createdAt: _parseNullableDateTime(json['created_at']),
+  updatedAt: _parseNullableDateTime(json['updated_at']),
 );
 
 Map<String, dynamic> _$LanguageToJson(Language instance) => <String, dynamic>{

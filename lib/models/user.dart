@@ -4,37 +4,66 @@ import 'language.dart';
 
 part 'user.g.dart';
 
+// Helper functions for safe parsing
+String _parseString(dynamic value) {
+  if (value == null) return '';
+  return value.toString();
+}
+
+String? _parseNullableString(dynamic value) {
+  if (value == null) return null;
+  if (value is String) return value.isEmpty ? null : value;
+  return value.toString();
+}
+
+DateTime? _parseNullableDateTime(dynamic value) {
+  if (value == null) return null;
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
 @JsonSerializable()
 class User {
   final int id;
-  @JsonKey(name: 'first_name')
+  @JsonKey(name: 'first_name', fromJson: _parseString)
   final String firstName;
-  @JsonKey(name: 'last_name')
+  @JsonKey(name: 'last_name', fromJson: _parseString)
   final String lastName;
+  @JsonKey(fromJson: _parseString)
   final String email;
+  @JsonKey(fromJson: _parseNullableString)
   final String? phone;
+  @JsonKey(fromJson: _parseNullableString)
   final String? address;
+  @JsonKey(fromJson: _parseNullableString)
   final String? city;
   final double? latitude;
   final double? longitude;
-  @JsonKey(name: 'business_name')
+  @JsonKey(name: 'business_name', fromJson: _parseNullableString)
   final String? businessName;
-  @JsonKey(name: 'business_email')
+  @JsonKey(name: 'business_email', fromJson: _parseNullableString)
   final String? businessEmail;
-  @JsonKey(name: 'business_description')
+  @JsonKey(name: 'business_description', fromJson: _parseNullableString)
   final String? businessDescription;
   @JsonKey(name: 'can_sell', fromJson: _intToBool, toJson: _boolToInt)
   final bool? canSell;
   @JsonKey(name: 'can_buy', fromJson: _intToBool, toJson: _boolToInt)
   final bool? canBuy;
+  @JsonKey(fromJson: _parseNullableString)
   final String? rating;
   @JsonKey(name: 'rating_count')
   final int? ratingCount;
-  @JsonKey(name: 'facebook_id')
+  @JsonKey(name: 'facebook_id', fromJson: _parseNullableString)
   final String? facebookId;
-  @JsonKey(name: 'google_id')
+  @JsonKey(name: 'google_id', fromJson: _parseNullableString)
   final String? googleId;
-  @JsonKey(name: 'apple_id')
+  @JsonKey(name: 'apple_id', fromJson: _parseNullableString)
   final String? appleId;
   @JsonKey(name: 'email_notifications', fromJson: _intToBool, toJson: _boolToInt)
   final bool? emailNotifications;
@@ -42,16 +71,17 @@ class User {
   final bool? smsNotifications;
   @JsonKey(name: 'push_notifications', fromJson: _intToBool, toJson: _boolToInt)
   final bool? pushNotifications;
+  @JsonKey(fromJson: _parseNullableString)
   final String? role;
-  @JsonKey(name: 'account_type')
+  @JsonKey(name: 'account_type', fromJson: _parseNullableString)
   final String? accountType;
-  @JsonKey(name: 'last_login_date')
+  @JsonKey(name: 'last_login_date', fromJson: _parseNullableDateTime)
   final DateTime? lastLoginDate;
-  @JsonKey(name: 'verified_at')
+  @JsonKey(name: 'verified_at', fromJson: _parseNullableDateTime)
   final DateTime? verifiedAt;
-  @JsonKey(name: 'source_ip_address')
+  @JsonKey(name: 'source_ip_address', fromJson: _parseNullableString)
   final String? sourceIpAddress;
-  @JsonKey(name: 'source_server_info')
+  @JsonKey(name: 'source_server_info', fromJson: _parseNullableString)
   final String? sourceServerInfo;
   @JsonKey(name: 'is_active')
   final bool isActive;
@@ -63,11 +93,11 @@ class User {
   final int? countryId;
   @JsonKey(name: 'language_id')
   final int? languageId;
-  @JsonKey(name: 'last_otp_request')
+  @JsonKey(name: 'last_otp_request', fromJson: _parseNullableDateTime)
   final DateTime? lastOtpRequest;
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'created_at', fromJson: _parseNullableDateTime)
   final DateTime? createdAt;
-  @JsonKey(name: 'updated_at')
+  @JsonKey(name: 'updated_at', fromJson: _parseNullableDateTime)
   final DateTime? updatedAt;
 
   // Relations (optional, loaded when needed)

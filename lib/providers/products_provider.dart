@@ -121,8 +121,8 @@ class ProductsProvider extends ChangeNotifier {
     if (query.isEmpty) return _products;
     
     return _products.where((product) {
-      return product.title.toLowerCase().contains(query.toLowerCase()) ||
-             product.description.toLowerCase().contains(query.toLowerCase());
+      return product.title?.toLowerCase().contains(query.toLowerCase()) == true ||
+             product.description?.toLowerCase().contains(query.toLowerCase()) == true;
     }).toList();
   }
 

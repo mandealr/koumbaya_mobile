@@ -14,7 +14,8 @@ class MyTicketsPage extends StatefulWidget {
   State<MyTicketsPage> createState() => _MyTicketsPageState();
 }
 
-class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProviderStateMixin {
+class _MyTicketsPageState extends State<MyTicketsPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
   String _selectedStatus = 'all';
@@ -43,10 +44,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(
-          'Mes Billets',
-          style: AppTextStyles.appBarTitle,
-        ),
+        title: Text('Mes Billets', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -61,8 +59,10 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
           indicatorColor: Colors.white,
           labelStyle: const TextStyle(
             fontFamily: 'AmazonEmberDisplay',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
+          labelColor: Colors.white,
         ),
       ),
       body: Column(
@@ -83,9 +83,15 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
                   controller: _tabController,
                   children: [
                     _buildTicketsList(provider.userTickets),
-                    _buildTicketsList(_filterTicketsByStatus(provider.userTickets, 'active')),
-                    _buildTicketsList(_filterTicketsByStatus(provider.userTickets, 'winner')),
-                    _buildTicketsList(_filterTicketsByStatus(provider.userTickets, 'completed')),
+                    _buildTicketsList(
+                      _filterTicketsByStatus(provider.userTickets, 'active'),
+                    ),
+                    _buildTicketsList(
+                      _filterTicketsByStatus(provider.userTickets, 'winner'),
+                    ),
+                    _buildTicketsList(
+                      _filterTicketsByStatus(provider.userTickets, 'completed'),
+                    ),
                   ],
                 );
               },
@@ -102,11 +108,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -146,7 +148,10 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
         final totalTickets = tickets.length;
         final activeTickets = _filterTicketsByStatus(tickets, 'active').length;
         final winnerTickets = _filterTicketsByStatus(tickets, 'winner').length;
-        final totalSpent = tickets.fold<double>(0, (sum, t) => sum + t.ticket.pricePaid);
+        final totalSpent = tickets.fold<double>(
+          0,
+          (sum, t) => sum + t.ticket.pricePaid,
+        );
 
         return Row(
           children: [
@@ -191,7 +196,12 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
@@ -227,11 +237,16 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
   }
 
   Widget _buildTicketsList(List<TicketWithDetails> tickets) {
-    final filteredTickets = _searchQuery.isEmpty
-        ? tickets
-        : tickets.where((t) => 
-            t.productName.toLowerCase().contains(_searchQuery.toLowerCase())
-          ).toList();
+    final filteredTickets =
+        _searchQuery.isEmpty
+            ? tickets
+            : tickets
+                .where(
+                  (t) => t.productName.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ),
+                )
+                .toList();
 
     if (filteredTickets.isEmpty) {
       return _buildEmptyState();
@@ -252,7 +267,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
 
   Widget _buildTicketCard(TicketWithDetails ticketDetail) {
     final ticket = ticketDetail.ticket;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -274,17 +289,19 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[200],
                     ),
-                    child: ticketDetail.productImage.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              ticketDetail.productImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.image_not_supported),
-                            ),
-                          )
-                        : const Icon(Icons.card_giftcard, size: 30),
+                    child:
+                        ticketDetail.productImage.isNotEmpty
+                            ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                ticketDetail.productImage,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) =>
+                                        const Icon(Icons.image_not_supported),
+                              ),
+                            )
+                            : const Icon(Icons.card_giftcard, size: 30),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -328,11 +345,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 16,
-                    color: Colors.grey[500],
-                  ),
+                  Icon(Icons.calendar_today, size: 16, color: Colors.grey[500]),
                   const SizedBox(width: 4),
                   Text(
                     'Acheté le ${_formatDate(ticket.createdAt)}',
@@ -344,11 +357,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
                   ),
                   const Spacer(),
                   if (ticketDetail.drawDate != null) ...[
-                    Icon(
-                      Icons.event,
-                      size: 16,
-                      color: Colors.grey[500],
-                    ),
+                    Icon(Icons.event, size: 16, color: Colors.grey[500]),
                     const SizedBox(width: 4),
                     Text(
                       'Tirage: ${_formatDate(ticketDetail.drawDate!)}',
@@ -371,7 +380,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
   Widget _buildStatusChip(TicketWithDetails ticketDetail) {
     Color chipColor;
     Color textColor;
-    
+
     if (ticketDetail.ticket.isWinner) {
       chipColor = Colors.amber;
       textColor = Colors.white;
@@ -452,7 +461,10 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
     );
   }
 
-  List<TicketWithDetails> _filterTicketsByStatus(List<TicketWithDetails> tickets, String status) {
+  List<TicketWithDetails> _filterTicketsByStatus(
+    List<TicketWithDetails> tickets,
+    String status,
+  ) {
     switch (status) {
       case 'active':
         return tickets.where((t) => t.isLotteryActive).toList();
@@ -476,7 +488,7 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
 
   Widget _buildTicketDetailModal(TicketWithDetails ticketDetail) {
     final ticket = ticketDetail.ticket;
-    
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       maxChildSize: 0.9,
@@ -520,12 +532,24 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
                     const SizedBox(height: 24),
                     _buildDetailRow('Numéro du billet', ticket.ticketNumber),
                     _buildDetailRow('Produit', ticketDetail.productName),
-                    _buildDetailRow('Prix payé', '${ticket.pricePaid.toInt()} FCFA'),
-                    _buildDetailRow('Date d\'achat', _formatDate(ticket.createdAt)),
+                    _buildDetailRow(
+                      'Prix payé',
+                      '${ticket.pricePaid.toInt()} FCFA',
+                    ),
+                    _buildDetailRow(
+                      'Date d\'achat',
+                      _formatDate(ticket.createdAt),
+                    ),
                     if (ticket.paymentReference != null)
-                      _buildDetailRow('Référence paiement', ticket.paymentReference!),
+                      _buildDetailRow(
+                        'Référence paiement',
+                        ticket.paymentReference!,
+                      ),
                     if (ticketDetail.drawDate != null)
-                      _buildDetailRow('Date de tirage', _formatDate(ticketDetail.drawDate!)),
+                      _buildDetailRow(
+                        'Date de tirage',
+                        _formatDate(ticketDetail.drawDate!),
+                      ),
                     const SizedBox(height: 24),
                     if (ticket.isWinner) ...[
                       Container(
@@ -586,9 +610,10 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProductDetailPage(
-                                      productId: ticketDetail.product!.id,
-                                    ),
+                                    builder:
+                                        (context) => ProductDetailPage(
+                                          productId: ticketDetail.product!.id,
+                                        ),
                                   ),
                                 );
                               }
@@ -656,41 +681,40 @@ class _MyTicketsPageState extends State<MyTicketsPage> with SingleTickerProvider
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/'
-           '${date.month.toString().padLeft(2, '0')}/'
-           '${date.year}';
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
   }
 
   void _claimPrize(TicketWithDetails ticketDetail) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Réclamer votre prix'),
-        content: const Text(
-          'Pour réclamer votre prix, veuillez contacter notre service client avec votre numéro de billet.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Réclamer votre prix'),
+            content: const Text(
+              'Pour réclamer votre prix, veuillez contacter notre service client avec votre numéro de billet.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Fermer'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // TODO: Implémenter contact service client
+                },
+                child: const Text('Contacter'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implémenter contact service client
-            },
-            child: const Text('Contacter'),
-          ),
-        ],
-      ),
     );
   }
 
   void _shareTicket(TicketWithDetails ticketDetail) {
     // TODO: Implémenter partage
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Fonctionnalité de partage à venir !'),
-      ),
+      const SnackBar(content: Text('Fonctionnalité de partage à venir !')),
     );
   }
 }

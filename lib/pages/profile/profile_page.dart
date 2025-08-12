@@ -12,18 +12,16 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mon Profil'),
-        backgroundColor: Colors.white,
+        backgroundColor: AppConstants.primaryColor,
         elevation: 1,
         foregroundColor: AppConstants.primaryColor,
       ),
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.user;
-          
+
           if (user == null) {
-            return const Center(
-              child: Text('Aucun utilisateur connecté'),
-            );
+            return const Center(child: Text('Aucun utilisateur connecté'));
           }
 
           return SingleChildScrollView(
@@ -36,7 +34,9 @@ class ProfilePage extends StatelessWidget {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: AppConstants.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.cardBorderRadius,
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -45,7 +45,8 @@ class ProfilePage extends StatelessWidget {
                         radius: 50,
                         backgroundColor: AppConstants.primaryColor,
                         child: Text(
-                          user.firstName[0].toUpperCase() + user.lastName[0].toUpperCase(),
+                          user.firstName[0].toUpperCase() +
+                              user.lastName[0].toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 32,
@@ -54,17 +55,19 @@ class ProfilePage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Name
                       Text(
                         user.fullName,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppConstants.primaryColor,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Email
                       Text(
                         user.email,
@@ -72,7 +75,7 @@ class ProfilePage extends StatelessWidget {
                           color: Colors.grey[600],
                         ),
                       ),
-                      
+
                       // Role Badge
                       const SizedBox(height: 8),
                       Container(
@@ -81,9 +84,10 @@ class ProfilePage extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: user.isMerchant 
-                              ? AppConstants.accentColor 
-                              : AppConstants.primaryColor,
+                          color:
+                              user.isMerchant
+                                  ? AppConstants.accentColor
+                                  : AppConstants.primaryColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -98,67 +102,63 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
 
                 // Profile Information
-                _buildInfoSection(
-                  context,
-                  'Informations personnelles',
-                  [
-                    _buildInfoItem(Icons.person, 'Prénom', user.firstName),
-                    _buildInfoItem(Icons.person_outline, 'Nom', user.lastName),
-                    _buildInfoItem(Icons.email, 'Email', user.email),
-                    if (user.phone != null)
-                      _buildInfoItem(Icons.phone, 'Téléphone', user.phone!),
-                    if (user.country != null)
-                      _buildInfoItem(Icons.flag, 'Pays', user.country!.name),
-                    if (user.language != null)
-                      _buildInfoItem(Icons.language, 'Langue', user.language!.toString()),
-                  ],
-                ),
+                _buildInfoSection(context, 'Informations personnelles', [
+                  _buildInfoItem(Icons.person, 'Prénom', user.firstName),
+                  _buildInfoItem(Icons.person_outline, 'Nom', user.lastName),
+                  _buildInfoItem(Icons.email, 'Email', user.email),
+                  if (user.phone != null)
+                    _buildInfoItem(Icons.phone, 'Téléphone', user.phone!),
+                  if (user.country != null)
+                    _buildInfoItem(Icons.flag, 'Pays', user.country!.name),
+                  if (user.language != null)
+                    _buildInfoItem(
+                      Icons.language,
+                      'Langue',
+                      user.language!.toString(),
+                    ),
+                ]),
 
                 const SizedBox(height: 24),
 
                 // Account Status
-                _buildInfoSection(
-                  context,
-                  'État du compte',
-                  [
-                    _buildStatusItem(
-                      Icons.verified_user,
-                      'Compte vérifié',
-                      user.isVerified,
-                    ),
-                    _buildStatusItem(
-                      Icons.security,
-                      'Authentification 2FA',
-                      user.mfaIsActive,
-                    ),
-                    _buildStatusItem(
-                      Icons.check_circle,
-                      'Compte actif',
-                      user.isActive,
-                    ),
-                  ],
-                ),
+                _buildInfoSection(context, 'État du compte', [
+                  _buildStatusItem(
+                    Icons.verified_user,
+                    'Compte vérifié',
+                    user.isVerified,
+                  ),
+                  _buildStatusItem(
+                    Icons.security,
+                    'Authentification 2FA',
+                    user.mfaIsActive,
+                  ),
+                  _buildStatusItem(
+                    Icons.check_circle,
+                    'Compte actif',
+                    user.isActive,
+                  ),
+                ]),
 
                 const SizedBox(height: 24),
 
                 // Action Buttons
                 _buildQuickActions(context),
-                
+
                 const SizedBox(height: 16),
-                
+
                 _buildActionButton(
                   context,
                   Icons.edit,
                   'Modifier le profil',
                   () => context.go('/edit-profile'),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 _buildActionButton(
                   context,
                   Icons.lock,
@@ -167,9 +167,9 @@ class ProfilePage extends StatelessWidget {
                     // TODO: Navigate to change password
                   },
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 _buildActionButton(
                   context,
                   Icons.history,
@@ -191,7 +191,9 @@ class ProfilePage extends StatelessWidget {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.buttonBorderRadius,
+                        ),
                       ),
                     ),
                     child: const Row(
@@ -287,11 +289,7 @@ class ProfilePage extends StatelessWidget {
                 color: AppConstants.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: AppConstants.primaryColor,
-                size: 24,
-              ),
+              child: Icon(icon, color: AppConstants.primaryColor, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -308,19 +306,12 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
       ),
@@ -336,7 +327,11 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection(BuildContext context, String title, List<Widget> items) {
+  Widget _buildInfoSection(
+    BuildContext context,
+    String title,
+    List<Widget> items,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -354,9 +349,7 @@ class ProfilePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
             border: Border.all(color: Colors.grey[200]!),
           ),
-          child: Column(
-            children: items,
-          ),
+          child: Column(children: items),
         ),
       ],
     );
@@ -366,27 +359,18 @@ class ProfilePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: AppConstants.primaryColor,
-            size: 20,
-          ),
+          Icon(icon, color: AppConstants.primaryColor, size: 20),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               Text(
                 value,
@@ -406,25 +390,16 @@ class ProfilePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: isActive ? Colors.green : Colors.grey,
-            size: 20,
-          ),
+          Icon(icon, color: isActive ? Colors.green : Colors.grey, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
           Icon(
@@ -451,16 +426,15 @@ class ProfilePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           side: BorderSide(color: AppConstants.primaryColor),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+            borderRadius: BorderRadius.circular(
+              AppConstants.buttonBorderRadius,
+            ),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: AppConstants.primaryColor,
-            ),
+            Icon(icon, color: AppConstants.primaryColor),
             const SizedBox(width: 8),
             Text(
               text,
@@ -494,13 +468,15 @@ class ProfilePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                final authProvider = Provider.of<AuthProvider>(
+                  context,
+                  listen: false,
+                );
                 await authProvider.logout();
                 if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (route) => false,
-                  );
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
                 }
               },
               style: ElevatedButton.styleFrom(

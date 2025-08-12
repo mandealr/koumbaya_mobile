@@ -30,6 +30,13 @@ class ApiService {
       final token = await TokenStorage.getToken();
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
+        if (kDebugMode) {
+          print('🔐 Token envoyé: Bearer ${token.substring(0, 20)}...');
+        }
+      } else {
+        if (kDebugMode) {
+          print('⚠️ Aucun token trouvé pour authentification');
+        }
       }
     }
 
@@ -42,14 +49,14 @@ class ApiService {
   ) async {
     final body = utf8.decode(response.bodyBytes);
     
-    // Logging pour debugging en mode debug uniquement
-    if (kDebugMode && false) { // Désactivé par défaut, changez en 'true' pour debug
-      print('=== API DEBUG ===');
-      print('URL: ${response.request?.url}');
-      print('Status: ${response.statusCode}');
-      print('Body: $body');
-      print('================');
-    }
+    // Logging pour debugging en mode debug uniquement (désactivé)
+    // if (kDebugMode) {
+    //   print('=== API DEBUG ===');
+    //   print('URL: ${response.request?.url}');
+    //   print('Status: ${response.statusCode}');
+    //   print('Body: $body');
+    //   print('================');
+    // }
     
     if (response.statusCode >= 200 && response.statusCode < 300) {
       try {
@@ -138,13 +145,21 @@ class ApiService {
     return _handleResponse(response, (json) => AuthResponse.fromJson(json));
   }
 
-  Future<User> getMe() async {
-    final response = await _client.get(
-      Uri.parse(ApiConstants.me),
-      headers: await _getHeaders(),
-    );
+  Future<User> getMe({bool autoRemoveTokenOn401 = true}) async {
+    try {
+      final response = await _client.get(
+        Uri.parse(ApiConstants.me),
+        headers: await _getHeaders(),
+      );
 
-    return _handleResponse(response, (json) => User.fromJson(json['user']));
+      return _handleResponse(response, (json) => User.fromJson(json['user']));
+    } catch (e) {
+      if (e is ApiException && e.statusCode == 401 && autoRemoveTokenOn401) {
+        // Token expiré ou invalide, on le supprime
+        await TokenStorage.removeToken();
+      }
+      rethrow;
+    }
   }
 
   Future<void> logout() async {
@@ -202,12 +217,23 @@ class ApiService {
   }
 
   Future<Language> getDefaultLanguage() async {
-    final response = await _client.get(
-      Uri.parse(ApiConstants.defaultLanguage),
-      headers: await _getHeaders(includeAuth: false),
-    );
+    try {
+      final response = await _client.get(
+        Uri.parse(ApiConstants.defaultLanguage),
+        headers: await _getHeaders(includeAuth: false),
+      );
 
-    return _handleResponse(response, (json) => Language.fromJson(json['language']));
+      return _handleResponse(response, (json) => Language.fromJson(json['language']));
+    } catch (e) {
+      if (e is ApiException && e.statusCode == 404) {
+        // Si pas de langue par défaut configurée, on récupère la première langue disponible
+        final languages = await getLanguages();
+        if (languages.isNotEmpty) {
+          return languages.first;
+        }
+      }
+      rethrow;
+    }
   }
 
   // Categories Methods
@@ -377,15 +403,23 @@ class ApiService {
 
   // User Tickets Methods
   Future<List<TicketWithDetails>> getUserTicketsWithDetails() async {
-    final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/tickets/my-tickets'),
-      headers: await _getHeaders(),
-    );
+    try {
+      final response = await _client.get(
+        Uri.parse(ApiConstants.userTickets),
+        headers: await _getHeaders(),
+      );
 
-    return _handleResponse(response, (json) {
-      final tickets = json['data'] as List? ?? json['tickets'] as List? ?? [];
-      return tickets.map((t) => TicketWithDetails.fromJson(t)).toList();
-    });
+      return _handleResponse(response, (json) {
+        final tickets = json['data'] as List? ?? json['tickets'] as List? ?? [];
+        return tickets.map((t) => TicketWithDetails.fromJson(t)).toList();
+      });
+    } catch (e) {
+      if (e is ApiException && e.statusCode == 401) {
+        // Token expiré ou invalide, on le supprime
+        await TokenStorage.removeToken();
+      }
+      rethrow;
+    }
   }
 
   Future<List<LotteryTicket>> getUserTickets() async {

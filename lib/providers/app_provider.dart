@@ -79,6 +79,11 @@ class AppProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Erreur lors du chargement de la langue par défaut: $e');
+      // En cas d'erreur, utiliser une langue par défaut en dur
+      if (_languages.isNotEmpty) {
+        _selectedLanguage = _languages.first;
+        notifyListeners();
+      }
     }
   }
 

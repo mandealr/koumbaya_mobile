@@ -47,4 +47,7 @@ class ApiConstants {
   
   // User endpoint
   static const String user = '$baseUrl/user';
+  
+  // Tickets endpoints
+  static const String userTickets = '$baseUrl/tickets/my-tickets';
 }

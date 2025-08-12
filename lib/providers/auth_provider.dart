@@ -33,18 +33,61 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(true);
       final hasToken = await TokenStorage.hasToken();
       
+      if (kDebugMode) {
+        print('🔍 AuthProvider: Checking auth status...');
+        print('🔑 Has token: $hasToken');
+      }
+      
       if (hasToken) {
-        final user = await _apiService.getMe();
-        _user = user;
+        try {
+          final user = await _apiService.getMe(autoRemoveTokenOn401: false);
+          _user = user;
+          _status = AuthStatus.authenticated;
+          if (kDebugMode) {
+            print('✅ AuthProvider: User authenticated - ${user.email}');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('❌ AuthProvider: Error getting user - $e');
+          }
+          // Ne supprimer le token que si c'est une erreur d'authentification (401)
+          if (e is ApiException && e.statusCode == 401) {
+            _status = AuthStatus.unauthenticated;
+            await TokenStorage.removeToken();
+            _user = null;
+            if (kDebugMode) {
+              print('🚫 AuthProvider: Token expired/invalid, user needs to login again');
+            }
+          } else {
+            // Pour les autres erreurs (réseau, serveur), garder le token et rester connecté
+            _status = AuthStatus.authenticated;
+            if (kDebugMode) {
+              print('⚠️ AuthProvider: Network error, keeping authenticated state');
+            }
+          }
+        }
+      } else {
+        _status = AuthStatus.unauthenticated;
+        if (kDebugMode) {
+          print('🔓 AuthProvider: No token, unauthenticated');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('💥 AuthProvider: General error - $e');
+      }
+      // Erreur générale, ne pas supprimer le token
+      if (await TokenStorage.hasToken()) {
         _status = AuthStatus.authenticated;
       } else {
         _status = AuthStatus.unauthenticated;
       }
-    } catch (e) {
-      _status = AuthStatus.unauthenticated;
-      await TokenStorage.removeToken();
     } finally {
       _setLoading(false);
+      if (kDebugMode) {
+        print('🏁 AuthProvider: Final status - $_status');
+      }
+      notifyListeners();
     }
   }
 
@@ -142,11 +185,16 @@ class AuthProvider extends ChangeNotifier {
     if (!isAuthenticated) return;
 
     try {
-      final user = await _apiService.getMe();
+      final user = await _apiService.getMe(autoRemoveTokenOn401: false);
       _user = user;
       notifyListeners();
     } catch (e) {
-      debugPrint('Erreur lors du rafraîchissement de l\'utilisateur: $e');
+      if (e is ApiException && e.statusCode == 401) {
+        // Token expiré, déconnecter l'utilisateur
+        await logout();
+      } else {
+        debugPrint('Erreur lors du rafraîchissement de l\'utilisateur: $e');
+      }
     }
   }
 

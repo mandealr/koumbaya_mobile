@@ -41,6 +41,14 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppConstants.primaryColor),
+          onPressed: () => context.go('/guest'),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -54,12 +62,10 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   height: 120,
                   width: 120,
-                  decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/logo.png'),
-                      fit: BoxFit.contain,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.all(16),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -75,9 +81,9 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   'Connectez-vous à votre compte',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 48),
 
@@ -89,14 +95,18 @@ class _LoginPageState extends State<LoginPage> {
                     labelText: 'Email',
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                      borderRadius: BorderRadius.circular(
+                        AppConstants.buttonBorderRadius,
+                      ),
                     ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez saisir votre email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(value)) {
                       return 'Veuillez saisir un email valide';
                     }
                     return null;
@@ -113,7 +123,9 @@ class _LoginPageState extends State<LoginPage> {
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -122,7 +134,9 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                      borderRadius: BorderRadius.circular(
+                        AppConstants.buttonBorderRadius,
+                      ),
                     ),
                   ),
                   validator: (value) {
@@ -147,22 +161,30 @@ class _LoginPageState extends State<LoginPage> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.buttonBorderRadius,
+                          ),
                         ),
                       ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      child:
+                          authProvider.isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : const Text(
+                                'Se connecter',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              'Se connecter',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
                     );
                   },
                 ),
@@ -177,12 +199,18 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: AppConstants.errorColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-                            border: Border.all(color: AppConstants.errorColor.withOpacity(0.3)),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.buttonBorderRadius,
+                            ),
+                            border: Border.all(
+                              color: AppConstants.errorColor.withOpacity(0.3),
+                            ),
                           ),
                           child: Text(
                             authProvider.errorMessage!,
-                            style: const TextStyle(color: AppConstants.errorColor),
+                            style: const TextStyle(
+                              color: AppConstants.errorColor,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ),

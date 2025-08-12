@@ -16,14 +16,17 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   @override
@@ -33,8 +36,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _loadData() async {
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    final lotteryProvider = Provider.of<LotteryProvider>(context, listen: false);
+    final productsProvider = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    );
+    final lotteryProvider = Provider.of<LotteryProvider>(
+      context,
+      listen: false,
+    );
 
     await Future.wait([
       productsProvider.loadFeaturedProducts(),
@@ -50,18 +59,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         title: Row(
           children: [
             Container(
-              height: 32,
-              width: 100,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/logo.png'),
-                  fit: BoxFit.contain,
-                ),
+              height: 50,
+              padding: const EdgeInsets.all(2),
+              child: Image.asset(
+                'assets/images/logo_white.png',
+                fit: BoxFit.contain,
               ),
             ),
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
         elevation: 1,
         actions: [
           Consumer<AuthProvider>(
@@ -73,19 +80,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     children: [
                       Text(
                         'Salut ${authProvider.user!.firstName}!',
-                        style: TextStyle(
-                          color: Colors.grey[600],
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 14,
                         ),
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(
                         radius: 16,
-                        backgroundColor: AppConstants.primaryColor,
+                        backgroundColor: Colors.white,
                         child: Text(
                           authProvider.user!.firstName[0].toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -100,22 +107,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppConstants.primaryColor,
-          unselectedLabelColor: Colors.grey[600],
-          indicatorColor: AppConstants.primaryColor,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.7),
+          indicatorColor: Colors.white,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.star),
-              text: 'Vedettes',
-            ),
-            Tab(
-              icon: Icon(Icons.grid_view),
-              text: 'Produits',
-            ),
-            Tab(
-              icon: Icon(Icons.casino),
-              text: 'Tombolas',
-            ),
+            Tab(icon: Icon(Icons.star), text: 'Vedettes'),
+            Tab(icon: Icon(Icons.grid_view), text: 'Produits'),
+            Tab(icon: Icon(Icons.casino), text: 'Tombolas'),
           ],
         ),
       ),
@@ -135,8 +133,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       onRefresh: _loadData,
       child: Consumer<ProductsProvider>(
         builder: (context, productsProvider, child) {
-          if (productsProvider.isFeaturedLoading && productsProvider.featuredProducts.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des produits vedettes...');
+          if (productsProvider.isFeaturedLoading &&
+              productsProvider.featuredProducts.isEmpty) {
+            return const LoadingWidget(
+              message: 'Chargement des produits vedettes...',
+            );
           }
 
           if (productsProvider.featuredProducts.isEmpty) {
@@ -162,12 +163,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.8,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.8,
+                        ),
                     itemCount: productsProvider.featuredProducts.length,
                     itemBuilder: (context, index) {
                       final product = productsProvider.featuredProducts[index];
@@ -176,10 +178,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         showProgress: true,
                         onTap: () {
                           productsProvider.selectProduct(product);
-                          Navigator.of(context).pushNamed(
-                            '/product',
-                            arguments: product.id,
-                          );
+                          Navigator.of(
+                            context,
+                          ).pushNamed('/product', arguments: product.id);
                         },
                       );
                     },
@@ -195,8 +196,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildProductsTab() {
     return RefreshIndicator(
-      onRefresh: () => Provider.of<ProductsProvider>(context, listen: false)
-          .loadProducts(refresh: true),
+      onRefresh:
+          () => Provider.of<ProductsProvider>(
+            context,
+            listen: false,
+          ).loadProducts(refresh: true),
       child: Consumer<ProductsProvider>(
         builder: (context, productsProvider, child) {
           if (productsProvider.isLoading && productsProvider.products.isEmpty) {
@@ -220,7 +224,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   children: [
                     Text(
                       'Tous les produits',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppConstants.primaryColor,
                       ),
@@ -241,12 +247,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.8,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.8,
+                        ),
                     itemCount: productsProvider.products.length,
                     itemBuilder: (context, index) {
                       final product = productsProvider.products[index];
@@ -255,10 +262,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         showProgress: true,
                         onTap: () {
                           productsProvider.selectProduct(product);
-                          Navigator.of(context).pushNamed(
-                            '/product',
-                            arguments: product.id,
-                          );
+                          Navigator.of(
+                            context,
+                          ).pushNamed('/product', arguments: product.id);
                         },
                       );
                     },
@@ -274,11 +280,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildLotteriesTab() {
     return RefreshIndicator(
-      onRefresh: () => Provider.of<LotteryProvider>(context, listen: false)
-          .loadActiveLotteries(),
+      onRefresh:
+          () =>
+              Provider.of<LotteryProvider>(
+                context,
+                listen: false,
+              ).loadActiveLotteries(),
       child: Consumer<LotteryProvider>(
         builder: (context, lotteryProvider, child) {
-          if (lotteryProvider.isLoading && lotteryProvider.activeLotteries.isEmpty) {
+          if (lotteryProvider.isLoading &&
+              lotteryProvider.activeLotteries.isEmpty) {
             return const LoadingWidget(message: 'Chargement des tombolas...');
           }
 
@@ -312,7 +323,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         margin: const EdgeInsets.only(bottom: 16),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.cardBorderRadius,
+                          ),
                         ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.all(16),
@@ -327,7 +340,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             ),
                           ),
                           title: Text(
-                            lottery.product?.title ?? 'Produit #${lottery.productId}',
+                            lottery.product?.title ??
+                                'Produit #${lottery.productId}',
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Column(
@@ -360,10 +374,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           ),
                           onTap: () {
                             lotteryProvider.selectLottery(lottery);
-                            Navigator.of(context).pushNamed(
-                              '/lottery',
-                              arguments: lottery.id,
-                            );
+                            Navigator.of(
+                              context,
+                            ).pushNamed('/lottery', arguments: lottery.id);
                           },
                         ),
                       );

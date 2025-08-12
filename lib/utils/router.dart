@@ -18,7 +18,6 @@ import '../pages/guest/about_page.dart';
 import '../pages/guest/contact_page.dart';
 import '../pages/guest/help_page.dart';
 import '../pages/splash/splash_page.dart';
-import '../pages/debug/debug_api_page.dart';
 
 class AppRouter {
   static GoRouter? _router;
@@ -55,11 +54,6 @@ class AppRouter {
           path: '/guest/help',
           name: 'guest-help',
           builder: (context, state) => const HelpPage(),
-        ),
-        GoRoute(
-          path: '/debug',
-          name: 'debug-api',
-          builder: (context, state) => const DebugApiPage(),
         ),
 
         // Authentication Routes
@@ -147,19 +141,24 @@ class AppRouter {
       ],
       redirect: (context, state) {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final authStatus = authProvider.status;
         final isAuthenticated = authProvider.isAuthenticated;
         final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
         final isGuestRoute = state.matchedLocation.startsWith('/guest');
         final isSplashRoute = state.matchedLocation == '/splash';
-        final isDebugRoute = state.matchedLocation == '/debug';
-
+        
+        // Si le statut d'authentification est encore inconnu, rediriger vers splash
+        if (authStatus == AuthStatus.unknown && !isSplashRoute) {
+          return '/splash';
+        }
+        
         // Redirect to home if authenticated and trying to access auth pages
         if (isAuthenticated && isAuthRoute) {
           return '/home';
         }
 
-        // Redirect to guest if not authenticated and trying to access protected pages (but not auth, guest, splash or debug routes)
-        if (!isAuthenticated && !isAuthRoute && !isGuestRoute && !isSplashRoute && !isDebugRoute) {
+        // Redirect to guest if not authenticated and trying to access protected pages (but not auth, guest, splash routes)
+        if (!isAuthenticated && authStatus == AuthStatus.unauthenticated && !isAuthRoute && !isGuestRoute && !isSplashRoute) {
           return '/guest';
         }
 

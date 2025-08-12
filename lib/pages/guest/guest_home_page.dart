@@ -103,9 +103,6 @@ class _GuestHomePageState extends State<GuestHomePage> {
               case 'login':
                 context.go('/login');
                 break;
-              case 'debug':
-                context.go('/debug');
-                break;
             }
           },
           itemBuilder: (BuildContext context) => [
@@ -147,17 +144,6 @@ class _GuestHomePageState extends State<GuestHomePage> {
                   Icon(Icons.login, size: 20),
                   SizedBox(width: 12),
                   Text('Connexion'),
-                ],
-              ),
-            ),
-            const PopupMenuDivider(),
-            const PopupMenuItem<String>(
-              value: 'debug',
-              child: Row(
-                children: [
-                  Icon(Icons.bug_report, size: 20),
-                  SizedBox(width: 12),
-                  Text('Debug API'),
                 ],
               ),
             ),

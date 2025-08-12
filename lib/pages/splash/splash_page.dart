@@ -104,7 +104,7 @@ class _SplashPageState extends State<SplashPage>
                               (context, error, stackTrace) => const Icon(
                                 Icons.store,
                                 size: 60,
-                                color: AppColors.primary,
+                                color: Colors.white,
                               ),
                         ),
                       ),

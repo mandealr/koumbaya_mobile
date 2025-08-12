@@ -7,7 +7,7 @@ import '../../widgets/loading_widget.dart';
 
 class ProductsPage extends StatefulWidget {
   final int? categoryId;
-  
+
   const ProductsPage({super.key, this.categoryId});
 
   @override
@@ -33,7 +33,10 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   Future<void> _loadProducts() async {
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
+    final productsProvider = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    );
     await productsProvider.loadProducts(refresh: true);
   }
 
@@ -41,8 +44,12 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryId != null ? 'Produits de la catégorie' : 'Tous les produits'),
-        backgroundColor: Colors.white,
+        title: Text(
+          widget.categoryId != null
+              ? 'Produits de la catégorie'
+              : 'Tous les produits',
+        ),
+        backgroundColor: AppConstants.primaryColor,
         elevation: 1,
         foregroundColor: AppConstants.primaryColor,
       ),
@@ -57,28 +64,37 @@ class _ProductsPageState extends State<ProductsPage> {
                 hintText: 'Rechercher des produits...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.buttonBorderRadius,
+                  ),
                   borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.buttonBorderRadius,
+                  ),
                   borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-                  borderSide: const BorderSide(color: AppConstants.primaryColor),
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.buttonBorderRadius,
+                  ),
+                  borderSide: const BorderSide(
+                    color: AppConstants.primaryColor,
+                  ),
                 ),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
+                suffixIcon:
+                    _searchQuery.isNotEmpty
+                        ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                        : null,
               ),
               onChanged: (value) {
                 setState(() {
@@ -94,8 +110,11 @@ class _ProductsPageState extends State<ProductsPage> {
               onRefresh: _loadProducts,
               child: Consumer<ProductsProvider>(
                 builder: (context, productsProvider, child) {
-                  if (productsProvider.isLoading && productsProvider.products.isEmpty) {
-                    return const LoadingWidget(message: 'Chargement des produits...');
+                  if (productsProvider.isLoading &&
+                      productsProvider.products.isEmpty) {
+                    return const LoadingWidget(
+                      message: 'Chargement des produits...',
+                    );
                   }
 
                   if (productsProvider.errorMessage != null) {
@@ -109,24 +128,31 @@ class _ProductsPageState extends State<ProductsPage> {
                   List<dynamic> filteredProducts = productsProvider.products;
 
                   if (widget.categoryId != null) {
-                    filteredProducts = productsProvider.getProductsByCategory(widget.categoryId!);
+                    filteredProducts = productsProvider.getProductsByCategory(
+                      widget.categoryId!,
+                    );
                   }
 
                   if (_searchQuery.isNotEmpty) {
-                    filteredProducts = productsProvider.searchProducts(_searchQuery);
+                    filteredProducts = productsProvider.searchProducts(
+                      _searchQuery,
+                    );
                   }
 
                   if (filteredProducts.isEmpty) {
                     return EmptyStateWidget(
-                      title: _searchQuery.isNotEmpty 
-                          ? 'Aucun résultat trouvé'
-                          : 'Aucun produit',
-                      subtitle: _searchQuery.isNotEmpty
-                          ? 'Essayez avec d\'autres mots-clés'
-                          : 'Les produits apparaîtront ici',
-                      icon: _searchQuery.isNotEmpty 
-                          ? Icons.search_off
-                          : Icons.shopping_bag_outlined,
+                      title:
+                          _searchQuery.isNotEmpty
+                              ? 'Aucun résultat trouvé'
+                              : 'Aucun produit',
+                      subtitle:
+                          _searchQuery.isNotEmpty
+                              ? 'Essayez avec d\'autres mots-clés'
+                              : 'Les produits apparaîtront ici',
+                      icon:
+                          _searchQuery.isNotEmpty
+                              ? Icons.search_off
+                              : Icons.shopping_bag_outlined,
                       buttonText: 'Actualiser',
                       onButtonPressed: _loadProducts,
                     );
@@ -144,21 +170,21 @@ class _ProductsPageState extends State<ProductsPage> {
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Text(
                             '${filteredProducts.length} produit${filteredProducts.length > 1 ? 's' : ''} trouvé${filteredProducts.length > 1 ? 's' : ''}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ),
 
                         // Products Grid
                         Expanded(
                           child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.8,
-                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.8,
+                                ),
                             itemCount: filteredProducts.length,
                             itemBuilder: (context, index) {
                               final product = filteredProducts[index];

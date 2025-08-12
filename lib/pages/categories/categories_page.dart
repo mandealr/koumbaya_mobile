@@ -22,7 +22,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   Future<void> _loadCategories() async {
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
+    final productsProvider = Provider.of<ProductsProvider>(
+      context,
+      listen: false,
+    );
     await productsProvider.loadCategories(parentOnly: true);
   }
 
@@ -31,7 +34,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Catégories'),
-        backgroundColor: Colors.white,
+        backgroundColor: AppConstants.primaryColor,
         elevation: 1,
         foregroundColor: AppConstants.primaryColor,
       ),
@@ -39,8 +42,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
         onRefresh: _loadCategories,
         child: Consumer<ProductsProvider>(
           builder: (context, productsProvider, child) {
-            if (productsProvider.isCategoriesLoading && productsProvider.categories.isEmpty) {
-              return const LoadingWidget(message: 'Chargement des catégories...');
+            if (productsProvider.isCategoriesLoading &&
+                productsProvider.categories.isEmpty) {
+              return const LoadingWidget(
+                message: 'Chargement des catégories...',
+              );
             }
 
             if (productsProvider.errorMessage != null) {
@@ -74,12 +80,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   const SizedBox(height: 16),
                   Expanded(
                     child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1.0,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.0,
+                          ),
                       itemCount: productsProvider.categories.length,
                       itemBuilder: (context, index) {
                         final category = productsProvider.categories[index];

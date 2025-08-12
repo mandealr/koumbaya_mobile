@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
   // App Info
-  static const String appName = 'Koumbaya';
+  static const String appName = 'Koumbaya MarketPlace';
   static const String appVersion = '1.0.0';
   
   // Storage Keys

@@ -1,5 +1,9 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:8000/api';
+  // Production API URL
+  static const String baseUrl = 'https://koumbaya.com/api';
+  
+  // Development/Local API URL (uncomment for local development)
+  // static const String baseUrl = 'http://localhost:8000/api';
   
   // Authentication endpoints
   static const String login = '$baseUrl/auth/login';

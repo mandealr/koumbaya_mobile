@@ -13,7 +13,38 @@ class User {
   final String lastName;
   final String email;
   final String? phone;
-  final String role;
+  final String? address;
+  final String? city;
+  final double? latitude;
+  final double? longitude;
+  @JsonKey(name: 'business_name')
+  final String? businessName;
+  @JsonKey(name: 'business_email')
+  final String? businessEmail;
+  @JsonKey(name: 'business_description')
+  final String? businessDescription;
+  @JsonKey(name: 'can_sell', fromJson: _intToBool, toJson: _boolToInt)
+  final bool? canSell;
+  @JsonKey(name: 'can_buy', fromJson: _intToBool, toJson: _boolToInt)
+  final bool? canBuy;
+  final String? rating;
+  @JsonKey(name: 'rating_count')
+  final int? ratingCount;
+  @JsonKey(name: 'facebook_id')
+  final String? facebookId;
+  @JsonKey(name: 'google_id')
+  final String? googleId;
+  @JsonKey(name: 'apple_id')
+  final String? appleId;
+  @JsonKey(name: 'email_notifications', fromJson: _intToBool, toJson: _boolToInt)
+  final bool? emailNotifications;
+  @JsonKey(name: 'sms_notifications', fromJson: _intToBool, toJson: _boolToInt)
+  final bool? smsNotifications;
+  @JsonKey(name: 'push_notifications', fromJson: _intToBool, toJson: _boolToInt)
+  final bool? pushNotifications;
+  final String? role;
+  @JsonKey(name: 'account_type')
+  final String? accountType;
   @JsonKey(name: 'last_login_date')
   final DateTime? lastLoginDate;
   @JsonKey(name: 'verified_at')
@@ -49,7 +80,25 @@ class User {
     required this.lastName,
     required this.email,
     this.phone,
-    required this.role,
+    this.address,
+    this.city,
+    this.latitude,
+    this.longitude,
+    this.businessName,
+    this.businessEmail,
+    this.businessDescription,
+    this.canSell,
+    this.canBuy,
+    this.rating,
+    this.ratingCount,
+    this.facebookId,
+    this.googleId,
+    this.appleId,
+    this.emailNotifications,
+    this.smsNotifications,
+    this.pushNotifications,
+    this.role,
+    this.accountType,
     this.lastLoginDate,
     this.verifiedAt,
     this.sourceIpAddress,
@@ -75,4 +124,18 @@ class User {
 
   @override
   String toString() => fullName;
+
+  // Convertisseurs pour les booléens stockés comme int (0/1)
+  static bool? _intToBool(dynamic value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) return value == '1' || value.toLowerCase() == 'true';
+    return null;
+  }
+
+  static int? _boolToInt(bool? value) {
+    if (value == null) return null;
+    return value ? 1 : 0;
+  }
 }

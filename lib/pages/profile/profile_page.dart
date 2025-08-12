@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 
@@ -145,13 +146,15 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Action Buttons
+                _buildQuickActions(context),
+                
+                const SizedBox(height: 16),
+                
                 _buildActionButton(
                   context,
                   Icons.edit,
                   'Modifier le profil',
-                  () {
-                    // TODO: Navigate to edit profile
-                  },
+                  () => context.go('/edit-profile'),
                 ),
                 
                 const SizedBox(height: 8),
@@ -212,6 +215,124 @@ class ProfilePage extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          _buildQuickActionTile(
+            context,
+            Icons.confirmation_number,
+            'Mes billets',
+            'Voir mes participations',
+            () => context.go('/my-tickets'),
+          ),
+          _buildDivider(),
+          _buildQuickActionTile(
+            context,
+            Icons.receipt_long,
+            'Historique',
+            'Mes transactions',
+            () => context.go('/transaction-history'),
+          ),
+          _buildDivider(),
+          _buildQuickActionTile(
+            context,
+            Icons.keyboard_return,
+            'Remboursements',
+            'Demandes de remboursement',
+            () => context.go('/refunds'),
+          ),
+          _buildDivider(),
+          _buildQuickActionTile(
+            context,
+            Icons.help_outline,
+            'Aide',
+            'FAQ et support',
+            () {
+              // TODO: Navigate to help page
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Page d\'aide à venir !')),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionTile(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppConstants.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: AppConstants.primaryColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      color: Colors.grey[200],
+      indent: 16,
+      endIndent: 16,
     );
   }
 

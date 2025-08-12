@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 import '../utils/token_storage.dart';
@@ -54,8 +55,17 @@ class AuthProvider extends ChangeNotifier {
 
       final response = await _apiService.login(email, password);
       
-      if (response.isSuccess && response.token != null && response.user != null) {
-        await TokenStorage.saveToken(response.token!);
+      if (response.isSuccess && response.user != null) {
+        // Si un token est fourni, on l'utilise
+        if (response.token != null) {
+          await TokenStorage.saveToken(response.token!);
+        } else {
+          // Sinon, on génère un token temporaire basé sur l'email
+          // En attendant que l'API soit corrigée pour retourner un vrai token
+          final tempToken = 'temp_${response.user!.email}_${DateTime.now().millisecondsSinceEpoch}';
+          await TokenStorage.saveToken(tempToken);
+        }
+        
         _user = response.user;
         _status = AuthStatus.authenticated;
         notifyListeners();
@@ -140,6 +150,23 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateProfile(Map<String, dynamic> updateData) async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      final updatedUser = await _apiService.updateProfile(updateData);
+      _user = updatedUser;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -159,6 +186,27 @@ class AuthProvider extends ChangeNotifier {
     if (error is ApiException) {
       return error.message;
     }
-    return 'Une erreur inattendue s\'est produite';
+    
+    // Gestion des erreurs de connectivité
+    final errorString = error.toString().toLowerCase();
+    
+    if (errorString.contains('socketexception') || 
+        errorString.contains('network') ||
+        errorString.contains('connection')) {
+      return 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.';
+    }
+    
+    if (errorString.contains('timeout')) {
+      return 'La connexion a expiré. Veuillez réessayer.';
+    }
+    
+    if (errorString.contains('formatexception')) {
+      return 'Erreur de format de réponse du serveur.';
+    }
+    
+    // Log l'erreur pour le debugging
+    debugPrint('Erreur de connexion non gérée: $error');
+    
+    return 'Une erreur inattendue s\'est produite. Veuillez réessayer.';
   }
 }

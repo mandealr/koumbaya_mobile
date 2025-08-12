@@ -172,7 +172,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Text(
-                                'LOTERIE ACTIVE',
+                                'TOMBOLA ACTIVE',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -208,7 +208,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
                         
                         Text(
-                          'Information Loterie',
+                          'Information Tombola',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),

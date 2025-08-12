@@ -20,5 +20,5 @@ class AuthResponse {
   factory AuthResponse.fromJson(Map<String, dynamic> json) => _$AuthResponseFromJson(json);
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
 
-  bool get isSuccess => success == true && token != null && user != null;
+  bool get isSuccess => (success == true || message == "Connexion réussie") && user != null;
 }

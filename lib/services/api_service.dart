@@ -1,14 +1,16 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
-import '../models/api_response.dart';
 import '../models/auth_response.dart';
 import '../models/user.dart';
 import '../models/country.dart';
 import '../models/language.dart';
-import '../models/category.dart';
+import '../models/category.dart' as cat;
 import '../models/product.dart';
 import '../models/lottery.dart';
+import '../models/lottery_ticket.dart';
+import '../models/ticket_with_details.dart';
 import '../utils/token_storage.dart';
 
 class ApiService {
@@ -40,31 +42,72 @@ class ApiService {
   ) async {
     final body = utf8.decode(response.bodyBytes);
     
+    // Logging pour debugging en mode debug uniquement
+    if (kDebugMode && false) { // Désactivé par défaut, changez en 'true' pour debug
+      print('=== API DEBUG ===');
+      print('URL: ${response.request?.url}');
+      print('Status: ${response.statusCode}');
+      print('Body: $body');
+      print('================');
+    }
+    
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final jsonData = json.decode(body) as Map<String, dynamic>;
-      return fromJson(jsonData);
+      try {
+        final jsonData = json.decode(body) as Map<String, dynamic>;
+        final result = fromJson(jsonData);
+        return result;
+      } catch (e) {
+        if (kDebugMode) {
+          print('JSON Parsing Error: $e');
+          print('Error type: ${e.runtimeType}');
+        }
+        throw ApiException(
+          message: 'Erreur de format de réponse du serveur: $e',
+          statusCode: response.statusCode,
+        );
+      }
     } else {
-      final errorData = json.decode(body) as Map<String, dynamic>;
-      throw ApiException(
-        message: errorData['message'] ?? 'Une erreur est survenue',
-        statusCode: response.statusCode,
-        errors: errorData['errors'],
-      );
+      try {
+        final errorData = json.decode(body) as Map<String, dynamic>;
+        throw ApiException(
+          message: errorData['message'] ?? errorData['error'] ?? 'Une erreur est survenue',
+          statusCode: response.statusCode,
+          errors: errorData['errors'],
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error JSON Parsing Error: $e');
+        }
+        throw ApiException(
+          message: 'Erreur du serveur (${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
     }
   }
 
   // Authentication Methods
   Future<AuthResponse> login(String email, String password) async {
-    final response = await _client.post(
-      Uri.parse(ApiConstants.login),
-      headers: await _getHeaders(includeAuth: false),
-      body: json.encode({
-        'email': email,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await _client.post(
+        Uri.parse(ApiConstants.login),
+        headers: await _getHeaders(includeAuth: false),
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
+      ).timeout(const Duration(seconds: 10));
 
-    return _handleResponse(response, (json) => AuthResponse.fromJson(json));
+      return _handleResponse(response, (json) => AuthResponse.fromJson(json));
+    } catch (e) {
+      if (e.toString().contains('TimeoutException')) {
+        throw ApiException(
+          message: 'La connexion a expiré. Veuillez réessayer.',
+          statusCode: 408,
+        );
+      }
+      rethrow;
+    }
   }
 
   Future<AuthResponse> register({
@@ -168,7 +211,7 @@ class ApiService {
   }
 
   // Categories Methods
-  Future<List<Category>> getCategories({bool parentOnly = false}) async {
+  Future<List<cat.Category>> getCategories({bool parentOnly = false}) async {
     final uri = Uri.parse(ApiConstants.categories).replace(
       queryParameters: parentOnly ? {'parent_only': 'true'} : null,
     );
@@ -179,8 +222,10 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
-      final categories = json['categories'] as List;
-      return categories.map((c) => Category.fromJson(c)).toList();
+      final categories = json['categories'];
+      if (categories == null || categories is! List) return <cat.Category>[];
+      
+      return categories.map((c) => cat.Category.fromJson(c)).toList();
     });
   }
 
@@ -199,7 +244,14 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
-      final products = json['products']['data'] as List;
+      final productsData = json['products'];
+      if (productsData == null || productsData is! Map<String, dynamic>) {
+        return <Product>[];
+      }
+      
+      final products = productsData['data'];
+      if (products == null || products is! List) return <Product>[];
+      
       return products.map((p) => Product.fromJson(p)).toList();
     });
   }
@@ -211,7 +263,9 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
-      final products = json['products'] as List;
+      final products = json['products'];
+      if (products == null || products is! List) return <Product>[];
+      
       return products.map((p) => Product.fromJson(p)).toList();
     });
   }
@@ -233,7 +287,9 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) {
-      final lotteries = json['lotteries'] as List;
+      final lotteries = json['lotteries'];
+      if (lotteries == null || lotteries is! List) return <Lottery>[];
+      
       return lotteries.map((l) => Lottery.fromJson(l)).toList();
     });
   }
@@ -317,6 +373,45 @@ class ApiService {
         errors: jsonData['errors'],
       );
     }
+  }
+
+  // User Tickets Methods
+  Future<List<TicketWithDetails>> getUserTicketsWithDetails() async {
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/tickets/my-tickets'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      final tickets = json['data'] as List? ?? json['tickets'] as List? ?? [];
+      return tickets.map((t) => TicketWithDetails.fromJson(t)).toList();
+    });
+  }
+
+  Future<List<LotteryTicket>> getUserTickets() async {
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}/api/user/tickets'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      final tickets = json['data'] as List? ?? json['tickets'] as List? ?? [];
+      return tickets.map((t) => LotteryTicket.fromJson(t)).toList();
+    });
+  }
+
+  // Profile Management
+  Future<User> updateProfile(Map<String, dynamic> updateData) async {
+    final response = await _client.put(
+      Uri.parse('${ApiConstants.baseUrl}/api/user/profile'),
+      headers: await _getHeaders(),
+      body: json.encode(updateData),
+    );
+
+    return _handleResponse(response, (json) {
+      final userData = json['data'] ?? json['user'];
+      return User.fromJson(userData);
+    });
   }
 
   void dispose() {

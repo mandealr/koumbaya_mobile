@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/lottery.dart';
 import '../models/lottery_ticket.dart';
+import '../models/ticket_with_details.dart';
 import '../services/api_service.dart';
 
 class LotteryProvider extends ChangeNotifier {
@@ -9,6 +10,7 @@ class LotteryProvider extends ChangeNotifier {
   List<Lottery> _activeLotteries = [];
   Lottery? _selectedLottery;
   List<LotteryTicket> _myTickets = [];
+  List<TicketWithDetails> _userTickets = [];
   
   bool _isLoading = false;
   bool _isPurchasing = false;
@@ -19,6 +21,7 @@ class LotteryProvider extends ChangeNotifier {
   List<Lottery> get activeLotteries => _activeLotteries;
   Lottery? get selectedLottery => _selectedLottery;
   List<LotteryTicket> get myTickets => _myTickets;
+  List<TicketWithDetails> get userTickets => _userTickets;
   
   bool get isLoading => _isLoading;
   bool get isPurchasing => _isPurchasing;
@@ -162,6 +165,36 @@ class LotteryProvider extends ChangeNotifier {
   // Get my tickets for a specific lottery
   List<LotteryTicket> getMyTicketsForLottery(int lotteryId) {
     return _myTickets.where((ticket) => ticket.lotteryId == lotteryId).toList();
+  }
+
+  // Load user tickets with details
+  Future<void> getUserTickets() async {
+    try {
+      _setLoading(true);
+      _clearMessages();
+
+      final response = await _apiService.getUserTicketsWithDetails();
+      _userTickets = response;
+      notifyListeners();
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Get tickets by status
+  List<TicketWithDetails> getTicketsByStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return _userTickets.where((t) => t.isLotteryActive).toList();
+      case 'winner':
+        return _userTickets.where((t) => t.ticket.isWinner).toList();
+      case 'completed':
+        return _userTickets.where((t) => t.isLotteryCompleted).toList();
+      default:
+        return _userTickets;
+    }
   }
 
   String _getErrorMessage(dynamic error) {

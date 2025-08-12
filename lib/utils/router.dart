@@ -9,6 +9,16 @@ import '../pages/categories/categories_page.dart';
 import '../pages/products/products_page.dart';
 import '../pages/products/product_detail_page.dart';
 import '../pages/profile/profile_page.dart';
+import '../pages/profile/edit_profile_page.dart';
+import '../pages/tickets/my_tickets_page.dart';
+import '../pages/transactions/transaction_history_page.dart';
+import '../pages/refunds/refund_management_page.dart';
+import '../pages/guest/guest_home_page.dart';
+import '../pages/guest/about_page.dart';
+import '../pages/guest/contact_page.dart';
+import '../pages/guest/help_page.dart';
+import '../pages/splash/splash_page.dart';
+import '../pages/debug/debug_api_page.dart';
 
 class AppRouter {
   static GoRouter? _router;
@@ -16,8 +26,42 @@ class AppRouter {
   static GoRouter get router {
     return _router ??= GoRouter(
       navigatorKey: NavigatorKeys.rootNavigatorKey,
-      initialLocation: '/login',
+      initialLocation: '/splash',
       routes: [
+        // Splash Route
+        GoRoute(
+          path: '/splash',
+          name: 'splash',
+          builder: (context, state) => const SplashPage(),
+        ),
+
+        // Guest Routes
+        GoRoute(
+          path: '/guest',
+          name: 'guest-home',
+          builder: (context, state) => const GuestHomePage(),
+        ),
+        GoRoute(
+          path: '/guest/about',
+          name: 'guest-about',
+          builder: (context, state) => const AboutPage(),
+        ),
+        GoRoute(
+          path: '/guest/contact',
+          name: 'guest-contact',
+          builder: (context, state) => const ContactPage(),
+        ),
+        GoRoute(
+          path: '/guest/help',
+          name: 'guest-help',
+          builder: (context, state) => const HelpPage(),
+        ),
+        GoRoute(
+          path: '/debug',
+          name: 'debug-api',
+          builder: (context, state) => const DebugApiPage(),
+        ),
+
         // Authentication Routes
         GoRoute(
           path: '/login',
@@ -78,6 +122,26 @@ class AppRouter {
               name: 'profile',
               builder: (context, state) => const ProfilePage(),
             ),
+            GoRoute(
+              path: '/my-tickets',
+              name: 'my-tickets',
+              builder: (context, state) => const MyTicketsPage(),
+            ),
+            GoRoute(
+              path: '/edit-profile',
+              name: 'edit-profile',
+              builder: (context, state) => const EditProfilePage(),
+            ),
+            GoRoute(
+              path: '/transaction-history',
+              name: 'transaction-history',
+              builder: (context, state) => const TransactionHistoryPage(),
+            ),
+            GoRoute(
+              path: '/refunds',
+              name: 'refunds',
+              builder: (context, state) => const RefundManagementPage(),
+            ),
           ],
         ),
       ],
@@ -85,15 +149,18 @@ class AppRouter {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final isAuthenticated = authProvider.isAuthenticated;
         final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+        final isGuestRoute = state.matchedLocation.startsWith('/guest');
+        final isSplashRoute = state.matchedLocation == '/splash';
+        final isDebugRoute = state.matchedLocation == '/debug';
 
         // Redirect to home if authenticated and trying to access auth pages
         if (isAuthenticated && isAuthRoute) {
           return '/home';
         }
 
-        // Redirect to login if not authenticated and trying to access protected pages
-        if (!isAuthenticated && !isAuthRoute) {
-          return '/login';
+        // Redirect to guest if not authenticated and trying to access protected pages (but not auth, guest, splash or debug routes)
+        if (!isAuthenticated && !isAuthRoute && !isGuestRoute && !isSplashRoute && !isDebugRoute) {
+          return '/guest';
         }
 
         // No redirect needed
@@ -136,6 +203,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         context.go('/products');
         break;
       case 3:
+        context.go('/my-tickets');
+        break;
+      case 4:
         context.go('/profile');
         break;
     }
@@ -151,8 +221,10 @@ class _MainScaffoldState extends State<MainScaffold> {
       _selectedIndex = 1;
     } else if (location.startsWith('/products') || location.startsWith('/category-products')) {
       _selectedIndex = 2;
-    } else if (location.startsWith('/profile')) {
+    } else if (location.startsWith('/my-tickets')) {
       _selectedIndex = 3;
+    } else if (location.startsWith('/profile')) {
+      _selectedIndex = 4;
     }
 
     return Scaffold(
@@ -175,6 +247,10 @@ class _MainScaffoldState extends State<MainScaffold> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Produits',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.confirmation_number),
+            label: 'Mes Billets',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

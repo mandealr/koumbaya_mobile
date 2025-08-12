@@ -4,6 +4,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/lottery_provider.dart';
 import '../../constants/app_constants.dart';
+import '../../constants/app_colors.dart';
+import '../../constants/app_text_styles.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -112,7 +114,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             Tab(
               icon: Icon(Icons.casino),
-              text: 'Loteries',
+              text: 'Tombolas',
             ),
           ],
         ),
@@ -277,13 +279,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       child: Consumer<LotteryProvider>(
         builder: (context, lotteryProvider, child) {
           if (lotteryProvider.isLoading && lotteryProvider.activeLotteries.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des loteries...');
+            return const LoadingWidget(message: 'Chargement des tombolas...');
           }
 
           if (lotteryProvider.activeLotteries.isEmpty) {
             return const EmptyStateWidget(
-              title: 'Aucune loterie active',
-              subtitle: 'Les loteries actives apparaîtront ici',
+              title: 'Aucune tombola active',
+              subtitle: 'Les tombolas actives apparaîtront ici',
               icon: Icons.casino_outlined,
             );
           }
@@ -294,7 +296,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Loteries actives',
+                  'Tombolas actives',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppConstants.primaryColor,

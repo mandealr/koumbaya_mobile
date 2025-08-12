@@ -1,5 +1,5 @@
 name: koumbaya_mobile
-description: "Koumbaya Marketplace"
+description: "Koumbaya MarketPlace"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -52,6 +52,9 @@ dependencies:
   
   # Image handling
   cached_network_image: ^3.3.0
+  
+  # URL launcher
+  url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_test:

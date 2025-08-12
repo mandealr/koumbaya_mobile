@@ -12,8 +12,8 @@ Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
   description: json['description'] as String?,
   image: json['image'] as String?,
   parentId: (json['parent_id'] as num?)?.toInt(),
-  isActive: json['is_active'] as bool,
-  sortOrder: (json['sort_order'] as num).toInt(),
+  isActive: Category._intToBool(json['is_active']),
+  sortOrder: (json['sort_order'] as num?)?.toInt(),
   createdAt:
       json['created_at'] == null
           ? null
@@ -38,10 +38,10 @@ Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{
   'description': instance.description,
   'image': instance.image,
   'parent_id': instance.parentId,
-  'is_active': instance.isActive,
+  'is_active': Category._boolToInt(instance.isActive),
   'sort_order': instance.sortOrder,
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
-  'children': instance.children,
-  'parent': instance.parent,
+  'children': instance.children?.map((e) => e.toJson()).toList(),
+  'parent': instance.parent?.toJson(),
 };

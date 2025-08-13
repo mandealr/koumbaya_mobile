@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'country.dart';
 import 'language.dart';
+import 'role.dart';
 
 part 'user.g.dart';
 
@@ -26,6 +27,19 @@ DateTime? _parseNullableDateTime(dynamic value) {
     }
   }
   return null;
+}
+
+// Helper function for parsing roles list
+List<Role> _parseRoles(dynamic value) {
+  if (value == null) return [];
+  if (value is List) {
+    try {
+      return value.map((item) => Role.fromJson(item as Map<String, dynamic>)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
 }
 
 @JsonSerializable()
@@ -71,8 +85,8 @@ class User {
   final bool? smsNotifications;
   @JsonKey(name: 'push_notifications', fromJson: _intToBool, toJson: _boolToInt)
   final bool? pushNotifications;
-  @JsonKey(fromJson: _parseNullableString)
-  final String? role;
+  @JsonKey(fromJson: _parseRoles)
+  final List<Role> roles;
   @JsonKey(name: 'account_type', fromJson: _parseNullableString)
   final String? accountType;
   @JsonKey(name: 'last_login_date', fromJson: _parseNullableDateTime)
@@ -127,7 +141,7 @@ class User {
     this.emailNotifications,
     this.smsNotifications,
     this.pushNotifications,
-    this.role,
+    this.roles = const [],
     this.accountType,
     this.lastLoginDate,
     this.verifiedAt,
@@ -149,7 +163,34 @@ class User {
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
   String get fullName => '$firstName $lastName';
-  bool get isMerchant => role == 'MERCHANT';
+  // Méthodes pour la gestion des rôles
+  bool hasRole(String roleName) {
+    return roles.any((role) => role.name == roleName);
+  }
+
+  bool get isMerchant => hasRole('Business');
+  bool get isCustomer => hasRole('Particulier');
+  bool get isManager => hasRole('Agent') || hasRole('Agent Back Office') || hasRole('Admin') || hasRole('Super Admin');
+  bool get isAdmin => hasRole('Admin') || hasRole('Super Admin');
+  
+  String get primaryRole {
+    if (roles.isNotEmpty) {
+      // Prioriser les rôles administratifs
+      if (hasRole('Super Admin')) return 'Super Admin';
+      if (hasRole('Admin')) return 'Admin';
+      if (hasRole('Agent Back Office')) return 'Agent Back Office';
+      if (hasRole('Agent')) return 'Agent';
+      if (hasRole('Business')) return 'Business';
+      if (hasRole('Particulier')) return 'Particulier';
+      return roles.first.name;
+    }
+    if (canSell == true) return 'Business';
+    return 'Particulier';
+  }
+  
+  List<String> get roleNames {
+    return roles.map((role) => role.name).toList();
+  }
   bool get isVerified => verifiedAt != null;
 
   @override

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
+import '../pages/auth/verify_otp_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/categories/categories_page.dart';
 import '../pages/products/products_page.dart';
@@ -68,6 +69,18 @@ class AppRouter {
           path: '/register',
           name: 'register',
           builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          path: '/verify-otp',
+          name: 'verify-otp',
+          builder: (context, state) {
+            final email = state.uri.queryParameters['email'] ?? '';
+            final maskedEmail = state.uri.queryParameters['masked_email'] ?? email;
+            return VerifyOtpPage(
+              email: email,
+              maskedEmail: maskedEmail,
+            );
+          },
         ),
 
         // Main App Routes (Protected)

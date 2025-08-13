@@ -185,7 +185,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                 'Remboursements',
                 '${totalRefunded.toInt()} F',
                 Icons.trending_down,
-                Colors.green,
+                AppColors.primary,
               ),
             ),
             const SizedBox(width: 8),
@@ -325,7 +325,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                           fontFamily: 'AmazonEmberDisplay',
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: transaction.isRefund ? Colors.green : Colors.red,
+                          color: transaction.isRefund ? AppColors.primary : Colors.red,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -409,7 +409,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
         break;
       case 'product_purchase':
         icon = Icons.shopping_cart;
-        color = Colors.green;
+        color = AppColors.primary;
         break;
       case 'refund':
         icon = Icons.keyboard_return;
@@ -438,7 +438,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
     
     switch (transaction.status) {
       case 'completed':
-        chipColor = Colors.green;
+        chipColor = AppColors.primary;
         textColor = Colors.white;
         break;
       case 'pending':
@@ -799,7 +799,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Transaction annulée avec succès'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppColors.primary,
                   ),
                 );
               }

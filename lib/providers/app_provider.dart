@@ -33,8 +33,10 @@ class AppProvider extends ChangeNotifier {
     await Future.wait([
       loadCountries(),
       loadLanguages(),
-      loadDefaultLanguage(),
     ]);
+    
+    // Charger la langue par défaut après avoir chargé toutes les langues
+    await loadDefaultLanguage();
   }
 
   // Countries Methods
@@ -73,17 +75,74 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> loadDefaultLanguage() async {
+    // Si on a déjà des langues chargées, essayer de trouver le français par défaut
+    if (_languages.isNotEmpty) {
+      // Chercher d'abord le français dans la liste
+      Language? frenchLang;
+      try {
+        frenchLang = _languages.firstWhere((lang) => 
+          lang.code.toLowerCase() == 'fr' || 
+          lang.name.toLowerCase().contains('français'));
+      } catch (e) {
+        // Si pas de français trouvé, prendre la première langue
+        frenchLang = _languages.first;
+      }
+      
+      _selectedLanguage = frenchLang;
+      notifyListeners();
+      debugPrint('Langue par défaut sélectionnée localement: ${frenchLang.name}');
+      return;
+    }
+
+    // Si pas de langues chargées, essayer d'initialiser les langues par défaut sur le serveur
+    try {
+      debugPrint('Tentative d\'initialisation des langues par défaut...');
+      await _apiService.initializeLanguages();
+      
+      // Recharger les langues après initialisation
+      await loadLanguages();
+      
+      // Maintenant essayer de sélectionner la langue par défaut
+      if (_languages.isNotEmpty) {
+        Language? frenchLang;
+        try {
+          frenchLang = _languages.firstWhere((lang) => 
+            lang.code.toLowerCase() == 'fr' || 
+            lang.name.toLowerCase().contains('français'));
+        } catch (e) {
+          frenchLang = _languages.first;
+        }
+        
+        _selectedLanguage = frenchLang;
+        notifyListeners();
+        debugPrint('Langue par défaut sélectionnée après initialisation: ${frenchLang.name}');
+        return;
+      }
+    } catch (initError) {
+      debugPrint('Erreur lors de l\'initialisation des langues: $initError');
+    }
+
+    // Fallback: essayer l'API directement si l'initialisation échoue
     try {
       final defaultLanguage = await _apiService.getDefaultLanguage();
       _selectedLanguage = defaultLanguage;
       notifyListeners();
+      debugPrint('Langue par défaut chargée depuis API: ${defaultLanguage.name}');
     } catch (e) {
       debugPrint('Erreur lors du chargement de la langue par défaut: $e');
-      // En cas d'erreur, utiliser une langue par défaut en dur
-      if (_languages.isNotEmpty) {
-        _selectedLanguage = _languages.first;
-        notifyListeners();
-      }
+      // En cas d'erreur totale, créer une langue par défaut en dur
+      _selectedLanguage = Language(
+        id: -1,
+        name: 'Français',
+        code: 'fr',
+        nativeName: 'Français',
+        isActive: true,
+        isDefault: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      notifyListeners();
+      debugPrint('Langue par défaut créée en dur: Français');
     }
   }
 

@@ -17,7 +17,7 @@ class AppConstants {
   static const Color accentColor = Color(0xFF0099CC);      // Bleu accent
   static const Color lightAccentColor = Color(0xFFE6F7FF); // Bleu clair
   static const Color errorColor = Color(0xFFF44336);       // Rouge erreur
-  static const Color successColor = Color(0xFF4CAF50);     // Vert succès
+  static const Color successColor = Color(0xFF0099CC);     // Bleu succès
   static const Color warningColor = Color(0xFFFF9800);     // Orange avertissement
   static const Color backgroundColor = Color(0xFFFAFBFC);  // Gris très clair
   static const Color surfaceColor = Color(0xFFFFFFFF);     // Blanc surface

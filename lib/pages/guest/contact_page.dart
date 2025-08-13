@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 
 class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
@@ -103,7 +104,7 @@ class ContactPage extends StatelessWidget {
           icon: Icons.phone,
           title: 'Téléphone',
           subtitle: '+241 01 23 45 67',
-          color: Colors.green,
+          color: AppConstants.primaryColor,
           onTap: () => _launchPhone(),
         ),
         const SizedBox(height: 12),
@@ -111,7 +112,7 @@ class ContactPage extends StatelessWidget {
           icon: Icons.chat,
           title: 'WhatsApp',
           subtitle: '+241 07 12 34 56',
-          color: Colors.green[600]!,
+          color: AppConstants.primaryColor,
           onTap: () => _launchWhatsApp(),
         ),
         const SizedBox(height: 12),

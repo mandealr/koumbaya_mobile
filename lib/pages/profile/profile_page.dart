@@ -394,7 +394,7 @@ class ProfilePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: isActive ? Colors.green : Colors.grey, size: 20),
+          Icon(icon, color: isActive ? AppConstants.primaryColor : Colors.grey, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -404,7 +404,7 @@ class ProfilePage extends StatelessWidget {
           ),
           Icon(
             isActive ? Icons.check_circle : Icons.cancel,
-            color: isActive ? Colors.green : Colors.red,
+            color: isActive ? AppConstants.primaryColor : Colors.red,
             size: 20,
           ),
         ],
@@ -474,9 +474,7 @@ class ProfilePage extends StatelessWidget {
                 );
                 await authProvider.logout();
                 if (context.mounted) {
-                  Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                  context.go('/login');
                 }
               },
               style: ElevatedButton.styleFrom(

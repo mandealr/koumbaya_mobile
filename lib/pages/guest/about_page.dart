@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -157,9 +158,9 @@ class AboutPage extends StatelessWidget {
         _buildProcessStep(
           2,
           'Participation',
-          'Achetez des billets de tombola avec Mobile Money (Airtel, Moov, GT Money).',
+          'Achetez des tickets de tombola avec Mobile Money (Airtel, Moov, GT Money).',
           Icons.confirmation_number,
-          Colors.green,
+          AppConstants.primaryColor,
         ),
         const SizedBox(height: 16),
         _buildProcessStep(
@@ -269,7 +270,7 @@ class AboutPage extends StatelessWidget {
                 'Équité',
                 'Chaque participant a une chance égale de gagner.',
                 Icons.balance,
-                Colors.green,
+                AppConstants.primaryColor,
               ),
             ),
           ],

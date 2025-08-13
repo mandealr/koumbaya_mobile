@@ -563,7 +563,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'active':
-        return Colors.green;
+        return AppConstants.primaryColor;
       case 'completed':
         return Colors.blue;
       case 'cancelled':

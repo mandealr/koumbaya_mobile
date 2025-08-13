@@ -247,7 +247,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                   '50+',
                   'Produits gagnés',
                   Icons.card_giftcard,
-                  Colors.green,
+                  AppConstants.primaryColor,
                 ),
               ),
               Expanded(
@@ -316,8 +316,8 @@ class _GuestHomePageState extends State<GuestHomePage> {
           const SizedBox(height: 24),
           _buildHowItWorksStep(
             2,
-            'Achetez vos billets',
-            'Participez aux tombolas en achetant des billets via Mobile Money.',
+            'Achetez vos tickets',
+            'Participez aux tombolas en achetant des tickets via Mobile Money.',
             Icons.confirmation_number,
           ),
           const SizedBox(height: 24),
@@ -499,7 +499,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Billet: ${product.ticketPrice?.toInt() ?? 0} FCFA',
+                      'Ticket: ${product.ticketPrice?.toInt() ?? 0} FCFA',
                       style: AppTextStyles.priceSecondary.copyWith(fontSize: 12),
                     ),
                     const Spacer(),
@@ -798,7 +798,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
           style: AppTextStyles.h5,
         ),
         content: Text(
-          'Vous devez vous connecter pour participer aux tombolas et acheter des billets.',
+          'Vous devez vous connecter pour participer aux tombolas et acheter des tickets.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [

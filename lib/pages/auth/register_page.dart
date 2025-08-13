@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/app_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../models/country.dart';
-import '../../models/language.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -26,7 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   Country? _selectedCountry;
-  Language? _selectedLanguage;
+  String _completePhoneNumber = '';
 
   @override
   void dispose() {
@@ -49,17 +49,33 @@ class _RegisterPageState extends State<RegisterPage> {
       email: _emailController.text.trim(),
       password: _passwordController.text,
       passwordConfirmation: _confirmPasswordController.text,
-      phone:
-          _phoneController.text.trim().isEmpty
-              ? null
-              : _phoneController.text.trim(),
+      phone: _completePhoneNumber.trim(),
       countryId: _selectedCountry?.id,
-      languageId: _selectedLanguage?.id,
+      languageId: null,
     );
 
     if (success && mounted) {
-      context.go('/home');
+      // Rediriger vers la page de vérification OTP
+      final email = _emailController.text.trim();
+      final maskedEmail = _maskEmail(email);
+      
+      context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
     }
+  }
+
+  String _maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2) return email;
+    
+    final localPart = parts[0];
+    final domain = parts[1];
+    
+    if (localPart.length <= 2) {
+      return '${'*' * localPart.length}@$domain';
+    }
+    
+    final maskedLocal = localPart.substring(0, 2) + '*' * (localPart.length - 2);
+    return '$maskedLocal@$domain';
   }
 
   @override
@@ -172,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       return 'Veuillez saisir votre email';
                     }
                     if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      r'^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
                       return 'Veuillez saisir un email valide';
                     }
@@ -181,29 +197,90 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Phone (Optional)
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
+                // Phone (Required)
+                IntlPhoneField(
                   decoration: InputDecoration(
-                    labelText: 'Téléphone (optionnel)',
-                    prefixIcon: const Icon(Icons.phone_outlined),
+                    labelText: 'Téléphone *',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(
                         AppConstants.buttonBorderRadius,
                       ),
                     ),
                   ),
+                  initialCountryCode: 'GA', // Gabon par défaut
+                  onChanged: (phone) {
+                    _completePhoneNumber = phone.completeNumber;
+                  },
+                  validator: (phone) {
+                    if (phone == null || phone.number.isEmpty) {
+                      return 'Veuillez saisir votre numéro de téléphone';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
+
+                // Info note about phone/country independence
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Votre pays de résidence peut être différent de votre indicatif téléphonique.',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
                 // Country Dropdown
                 Consumer<AppProvider>(
                   builder: (context, appProvider, child) {
+                    if (appProvider.isCountriesLoading) {
+                      return TextFormField(
+                        enabled: false,
+                        decoration: InputDecoration(
+                          labelText: 'Pays',
+                          prefixIcon: const Icon(Icons.flag_outlined),
+                          suffixIcon: const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Padding(
+                              padding: EdgeInsets.all(12),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.buttonBorderRadius,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
                     return DropdownButtonFormField<Country>(
                       value: _selectedCountry,
                       decoration: InputDecoration(
-                        labelText: 'Pays',
+                        labelText: 'Sélectionner votre pays',
+                        hintText: 'Choisissez votre pays de résidence',
                         prefixIcon: const Icon(Icons.flag_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -211,47 +288,28 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                       ),
-                      items:
-                          appProvider.countries.map((country) {
+                      items: appProvider.countries.isEmpty 
+                        ? [
+                            const DropdownMenuItem<Country>(
+                              value: null,
+                              child: Text('Chargement des pays...'),
+                            )
+                          ]
+                        : appProvider.countries.map((country) {
                             return DropdownMenuItem<Country>(
                               value: country,
-                              child: Text(country.name),
+                              child: Row(
+                                children: [
+                                  Text(country.flag ?? '🏳️'),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(country.name)),
+                                ],
+                              ),
                             );
                           }).toList(),
-                      onChanged: (country) {
+                      onChanged: appProvider.countries.isEmpty ? null : (country) {
                         setState(() {
                           _selectedCountry = country;
-                        });
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Language Dropdown
-                Consumer<AppProvider>(
-                  builder: (context, appProvider, child) {
-                    return DropdownButtonFormField<Language>(
-                      value: _selectedLanguage ?? appProvider.selectedLanguage,
-                      decoration: InputDecoration(
-                        labelText: 'Langue',
-                        prefixIcon: const Icon(Icons.language_outlined),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.buttonBorderRadius,
-                          ),
-                        ),
-                      ),
-                      items:
-                          appProvider.languages.map((language) {
-                            return DropdownMenuItem<Language>(
-                              value: language,
-                              child: Text(language.toString()),
-                            );
-                          }).toList(),
-                      onChanged: (language) {
-                        setState(() {
-                          _selectedLanguage = language;
                         });
                       },
                     );
@@ -389,12 +447,25 @@ class _RegisterPageState extends State<RegisterPage> {
                               color: AppConstants.errorColor.withOpacity(0.3),
                             ),
                           ),
-                          child: Text(
-                            authProvider.errorMessage!,
-                            style: const TextStyle(
-                              color: AppConstants.errorColor,
-                            ),
-                            textAlign: TextAlign.center,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppConstants.errorColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  authProvider.errorMessage!,
+                                  style: const TextStyle(
+                                    color: AppConstants.errorColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );

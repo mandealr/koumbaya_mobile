@@ -64,7 +64,9 @@ class _SplashPageState extends State<SplashPage>
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
-      context.go('/home');
+      // Rediriger selon les rôles de l'utilisateur
+      final homeRoute = authProvider.getHomeRoute();
+      context.go(homeRoute);
     } else {
       context.go('/guest');
     }

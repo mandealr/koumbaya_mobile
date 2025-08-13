@@ -51,7 +51,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$_ticketQuantity billet(s) acheté(s) avec succès!'),
+          content: Text('$_ticketQuantity ticket(s) acheté(s) avec succès!'),
           backgroundColor: AppConstants.primaryColor,
         ),
       );
@@ -73,16 +73,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     final product = productsProvider.selectedProduct;
     if (product?.hasLottery != true) return;
 
-    // Acheter un seul billet pour "tenter sa chance"
+    // Acheter un seul ticket pour "tenter sa chance"
     final success = await lotteryProvider.buyTicket(
       product!.activeLottery!.id,
-      1, // Un seul billet pour "tenter sa chance"
+      1, // Un seul ticket pour "tenter sa chance"
     );
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('🍀 Bonne chance ! Votre billet a été acheté !'),
+          content: const Text('🍀 Bonne chance ! Votre ticket a été acheté !'),
           backgroundColor: AppConstants.primaryColor,
           duration: const Duration(seconds: 3),
         ),
@@ -294,7 +294,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
 
                         _buildStatCard(
-                          'Prix par billet',
+                          'Prix par ticket',
                           product.activeLottery!.formattedTicketPrice,
                           Icons.local_offer,
                           fullWidth: true,
@@ -306,7 +306,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         Row(
                           children: [
                             Text(
-                              'Nombre de billets:',
+                              'Nombre de tickets:',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const Spacer(),
@@ -431,7 +431,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     ),
                                   )
                                 : Text(
-                                    'Acheter $_ticketQuantity billet${_ticketQuantity > 1 ? 's' : ''}',
+                                    'Acheter $_ticketQuantity ticket${_ticketQuantity > 1 ? 's' : ''}',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,

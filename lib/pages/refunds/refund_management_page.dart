@@ -5,6 +5,7 @@ import '../../models/transaction.dart';
 import '../../providers/refund_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 import '../../widgets/loading_widget.dart';
 
 class RefundManagementPage extends StatefulWidget {
@@ -179,7 +180,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
                 'Montant reçu',
                 '${provider.totalRefundAmount.toInt()} F',
                 Icons.account_balance_wallet,
-                Colors.green,
+                AppConstants.primaryColor,
               ),
             ),
             const SizedBox(width: 8),
@@ -329,7 +330,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
                           fontFamily: 'AmazonEmberDisplay',
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: Colors.green,
+                          color: AppConstants.primaryColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -362,7 +363,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
                     Icon(
                       Icons.verified,
                       size: 16,
-                      color: Colors.green[600],
+                      color: AppConstants.primaryColor,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -370,7 +371,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
                       style: TextStyle(
                         fontFamily: 'AmazonEmberDisplay',
                         fontSize: 12,
-                        color: Colors.green[600],
+                        color: AppConstants.primaryColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -403,7 +404,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
         break;
       case 'completed':
         icon = Icons.check_circle;
-        color = Colors.green;
+        color = AppConstants.primaryColor;
         break;
       case 'rejected':
         icon = Icons.cancel;
@@ -432,7 +433,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
 
     switch (refund.status) {
       case 'completed':
-        chipColor = Colors.green;
+        chipColor = AppConstants.primaryColor;
         textColor = Colors.white;
         break;
       case 'approved':
@@ -780,7 +781,7 @@ class _RefundManagementPageState extends State<RefundManagementPage>
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Demande annulée avec succès'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppConstants.primaryColor,
                   ),
                 );
               }
@@ -1088,7 +1089,7 @@ class _CreateRefundModalState extends State<_CreateRefundModal> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Demande de remboursement créée avec succès !'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppConstants.primaryColor,
         ),
       );
     }

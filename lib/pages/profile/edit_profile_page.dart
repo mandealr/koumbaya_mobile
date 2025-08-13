@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/app_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 import '../../services/api_service.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -334,14 +335,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'Email vérifié',
           user?.verifiedAt != null ? 'Vérifié' : 'Non vérifié',
           user?.verifiedAt != null ? Icons.verified : Icons.warning,
-          user?.verifiedAt != null ? Colors.green : Colors.orange,
+          user?.verifiedAt != null ? AppConstants.primaryColor : Colors.orange,
         ),
         const SizedBox(height: 12),
         _buildSecurityItem(
           'Authentification à 2 facteurs',
           user?.mfaIsActive == true ? 'Activée' : 'Désactivée',
           user?.mfaIsActive == true ? Icons.security : Icons.security_outlined,
-          user?.mfaIsActive == true ? Colors.green : Colors.grey,
+          user?.mfaIsActive == true ? AppConstants.primaryColor : Colors.grey,
           onTap: _toggle2FA,
         ),
         const SizedBox(height: 12),
@@ -712,7 +713,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppConstants.primaryColor,
         duration: const Duration(seconds: 3),
       ),
     );

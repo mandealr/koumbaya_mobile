@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
@@ -95,7 +96,7 @@ class HelpPage extends StatelessWidget {
             Expanded(
               child: _buildQuickHelpCard(
                 'Comment participer',
-                'Guide d\'inscription et d\'achat de billets',
+                'Guide d\'inscription et d\'achat de tickets',
                 Icons.how_to_reg,
                 AppColors.primary,
               ),
@@ -106,7 +107,7 @@ class HelpPage extends StatelessWidget {
                 'Paiements',
                 'Méthodes de paiement acceptées',
                 Icons.payment,
-                Colors.green,
+                AppConstants.primaryColor,
               ),
             ),
           ],
@@ -194,19 +195,19 @@ class HelpPage extends StatelessWidget {
         ),
         _buildFAQItem(
           'Quelles sont les méthodes de paiement acceptées ?',
-          'Nous acceptons Airtel Money, Moov Money et GT Money pour tous vos achats de billets de tombola.',
+          'Nous acceptons Airtel Money, Moov Money et GT Money pour tous vos achats de tickets de tombola.',
         ),
         _buildFAQItem(
           'Comment savoir si j\'ai gagné ?',
-          'Vous recevrez une notification push et un email. Vous pouvez aussi vérifier dans la section "Mes billets".',
+          'Vous recevrez une notification push et un email. Vous pouvez aussi vérifier dans la section "Mes tickets".',
         ),
         _buildFAQItem(
           'Combien de temps pour recevoir mon prix ?',
           'Les prix sont livrés sous 3-7 jours ouvrables après confirmation du gain.',
         ),
         _buildFAQItem(
-          'Puis-je annuler un achat de billet ?',
-          'Les achats de billets ne peuvent pas être annulés une fois confirmés. Assurez-vous avant de valider.',
+          'Puis-je annuler un achat de ticket ?',
+          'Les achats de tickets ne peuvent pas être annulés une fois confirmés. Assurez-vous avant de valider.',
         ),
       ],
     );
@@ -256,7 +257,7 @@ class HelpPage extends StatelessWidget {
           [
             '1. Créez votre compte',
             '2. Explorez les produits disponibles',
-            '3. Achetez vos premiers billets',
+            '3. Achetez vos premiers tickets',
             '4. Suivez les tirages en direct',
             '5. Récupérez vos gains',
           ],
@@ -266,7 +267,7 @@ class HelpPage extends StatelessWidget {
           'Sécurité et protection',
           'Comment protéger votre compte',
           Icons.shield,
-          Colors.green,
+          AppConstants.primaryColor,
           [
             '• Utilisez un mot de passe fort',
             '• Ne partagez jamais vos identifiants',

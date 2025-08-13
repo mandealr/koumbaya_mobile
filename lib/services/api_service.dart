@@ -123,7 +123,7 @@ class ApiService {
     required String email,
     required String password,
     required String passwordConfirmation,
-    String? phone,
+    required String phone,
     int? countryId,
     int? languageId,
   }) async {
@@ -139,6 +139,10 @@ class ApiService {
         'phone': phone,
         'country_id': countryId,
         'language_id': languageId,
+        // Le rôle sera déterminé côté serveur selon account_type
+        'account_type': 'personal',
+        'can_sell': false,
+        'can_buy': true,
       }),
     );
 
@@ -231,9 +235,31 @@ class ApiService {
         if (languages.isNotEmpty) {
           return languages.first;
         }
+        
+        // Si aucune langue n'existe, essayer d'initialiser les langues par défaut
+        try {
+          await initializeLanguages();
+          final newLanguages = await getLanguages();
+          if (newLanguages.isNotEmpty) {
+            return newLanguages.first;
+          }
+        } catch (initError) {
+          if (kDebugMode) {
+            print('Erreur lors de l\'initialisation des langues: $initError');
+          }
+        }
       }
       rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> initializeLanguages() async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/languages/initialize'),
+      headers: await _getHeaders(includeAuth: false),
+    );
+
+    return _handleResponse(response, (json) => json);
   }
 
   // Categories Methods

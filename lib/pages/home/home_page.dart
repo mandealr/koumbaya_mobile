@@ -9,6 +9,7 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/verification_required_banner.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -118,12 +119,19 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildFeaturedTab(),
-          _buildProductsTab(),
-          _buildLotteriesTab(),
+          const VerificationRequiredBanner(),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildFeaturedTab(),
+                _buildProductsTab(),
+                _buildLotteriesTab(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -358,7 +366,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${lottery.soldTickets}/${lottery.totalTickets} billets vendus',
+                                '${lottery.soldTickets}/${lottery.totalTickets} tickets vendus',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 12,

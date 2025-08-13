@@ -34,7 +34,9 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (success && mounted) {
-      context.go('/home');
+      // Rediriger selon les rôles de l'utilisateur
+      final homeRoute = authProvider.getHomeRoute();
+      context.go(homeRoute);
     }
   }
 
@@ -105,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Veuillez saisir votre email';
                     }
                     if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      r'^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
                       return 'Veuillez saisir un email valide';
                     }

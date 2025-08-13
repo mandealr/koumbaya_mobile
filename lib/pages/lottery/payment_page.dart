@@ -369,13 +369,13 @@ class _PaymentPageState extends State<PaymentPage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.green[100],
+              color: AppConstants.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.check_circle,
               size: 64,
-              color: Colors.green[700],
+              color: AppConstants.primaryColor,
             ),
           ),
           const SizedBox(height: 24),
@@ -383,7 +383,7 @@ class _PaymentPageState extends State<PaymentPage> {
             'Paiement réussi !',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.green[700],
+              color: AppConstants.primaryColor,
             ),
           ),
           const SizedBox(height: 16),

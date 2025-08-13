@@ -4,6 +4,7 @@ import '../../models/ticket_with_details.dart';
 import '../../providers/lottery_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/app_constants.dart';
 import '../../widgets/loading_widget.dart';
 import '../products/product_detail_page.dart';
 
@@ -44,7 +45,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text('Mes Billets', style: AppTextStyles.appBarTitle),
+        title: Text('Mes Tickets', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -187,7 +188,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                 'Dépensé',
                 '${totalSpent.toInt()} F',
                 Icons.account_balance_wallet,
-                Colors.green,
+                AppConstants.primaryColor,
               ),
             ),
           ],
@@ -320,7 +321,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Billet #${ticket.ticketNumber}',
+                          'Ticket #${ticket.ticketNumber}',
                           style: TextStyle(
                             fontFamily: 'AmazonEmberDisplay',
                             fontSize: 14,
@@ -425,7 +426,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucun billet trouvé',
+            'Aucun ticket trouvé',
             style: TextStyle(
               fontFamily: 'AmazonEmberDisplay',
               fontSize: 18,
@@ -435,7 +436,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Participez à des tombolas pour voir vos billets ici',
+            'Participez à des tombolas pour voir vos tickets ici',
             style: TextStyle(
               fontFamily: 'AmazonEmberDisplay',
               fontSize: 14,
@@ -518,7 +519,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                     Row(
                       children: [
                         const Text(
-                          'Détails du billet',
+                          'Détails du ticket',
                           style: TextStyle(
                             fontFamily: 'AmazonEmberDisplay',
                             fontSize: 24,
@@ -530,7 +531,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                       ],
                     ),
                     const SizedBox(height: 24),
-                    _buildDetailRow('Numéro du billet', ticket.ticketNumber),
+                    _buildDetailRow('Numéro du ticket', ticket.ticketNumber),
                     _buildDetailRow('Produit', ticketDetail.productName),
                     _buildDetailRow(
                       'Prix payé',
@@ -692,7 +693,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
           (context) => AlertDialog(
             title: const Text('Réclamer votre prix'),
             content: const Text(
-              'Pour réclamer votre prix, veuillez contacter notre service client avec votre numéro de billet.',
+              'Pour réclamer votre prix, veuillez contacter notre service client avec votre numéro de ticket.',
             ),
             actions: [
               TextButton(

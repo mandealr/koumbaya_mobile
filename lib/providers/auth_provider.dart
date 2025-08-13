@@ -19,6 +19,7 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+  bool get isVerified => _user?.verifiedAt != null;
 
   Future<String?> get token async {
     return await SecureTokenStorage.getToken();
@@ -129,7 +130,7 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
     required String passwordConfirmation,
-    String? phone,
+    required String phone,
     int? countryId,
     int? languageId,
   }) async {
@@ -196,6 +197,28 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Détermine la route d'accueil selon les rôles de l'utilisateur
+  String getHomeRoute() {
+    if (_user == null) return '/guest';
+    
+    debugPrint('🔄 Détermination de la route selon les rôles:');
+    debugPrint('   - Utilisateur: ${_user!.fullName}');
+    debugPrint('   - Rôles: ${_user!.roleNames}');
+    debugPrint('   - isMerchant: ${_user!.isMerchant}');
+    debugPrint('   - hasParticulier: ${_user!.hasRole("Particulier")}');
+    debugPrint('   - hasBusiness: ${_user!.hasRole("Business")}');
+    
+    // Logique simplifiée : Business = espace marchand, Particulier = espace client
+    if (_user!.isMerchant) {
+      debugPrint('   → Redirection vers espace marchand (Business)');
+      return '/home'; // Temporairement /home, plus tard /merchant-home
+    }
+    
+    debugPrint('   → Redirection vers espace client (Particulier)');
+    // Par défaut, espace client
+    return '/home';
+  }
+
   Future<bool> updateProfile(Map<String, dynamic> updateData) async {
     try {
       _setLoading(true);
@@ -230,6 +253,16 @@ class AuthProvider extends ChangeNotifier {
 
   String _getErrorMessage(dynamic error) {
     if (error is ApiException) {
+      // Gérer spécifiquement les erreurs de validation 422
+      if (error.statusCode == 422 && error.errors != null) {
+        return _formatValidationErrors(error.errors!);
+      }
+      // Gérer l'erreur de vérification 403
+      if (error.statusCode == 403 && error.errors != null && 
+          error.errors!['error_code'] == 'EMAIL_NOT_VERIFIED') {
+        _setError('Veuillez vérifier votre compte pour continuer.');
+        return 'Veuillez vérifier votre compte pour continuer.';
+      }
       return error.message;
     }
     
@@ -254,5 +287,56 @@ class AuthProvider extends ChangeNotifier {
     debugPrint('Erreur de connexion non gérée: $error');
     
     return 'Une erreur inattendue s\'est produite. Veuillez réessayer.';
+  }
+
+  String _formatValidationErrors(Map<String, dynamic> errors) {
+    List<String> errorMessages = [];
+    
+    for (String field in errors.keys) {
+      List<dynamic> fieldErrors = errors[field] as List<dynamic>;
+      
+      for (String errorKey in fieldErrors) {
+        String friendlyMessage = _translateValidationError(field, errorKey);
+        if (!errorMessages.contains(friendlyMessage)) {
+          errorMessages.add(friendlyMessage);
+        }
+      }
+    }
+    
+    if (errorMessages.isEmpty) {
+      return 'Erreur de validation. Veuillez vérifier vos informations.';
+    }
+    
+    return '• ' + errorMessages.join('\n• ');
+  }
+
+  String _translateValidationError(String field, String errorKey) {
+    // Traduction des noms de champs
+    Map<String, String> fieldNames = {
+      'email': 'Email',
+      'phone': 'Numéro de téléphone',
+      'first_name': 'Prénom',
+      'last_name': 'Nom',
+      'password': 'Mot de passe',
+      'password_confirmation': 'Confirmation du mot de passe',
+      'country_id': 'Pays',
+      'language_id': 'Langue',
+    };
+
+    // Traduction des messages d'erreur
+    Map<String, String> errorMessages = {
+      'validation.required': 'est obligatoire',
+      'validation.email': 'doit être une adresse email valide',
+      'validation.unique': 'est déjà utilisé par un autre compte',
+      'validation.min.string': 'est trop court',
+      'validation.max.string': 'est trop long',
+      'validation.confirmed': 'et sa confirmation ne correspondent pas',
+      'validation.regex': 'a un format invalide',
+    };
+
+    String fieldName = fieldNames[field] ?? field;
+    String errorMessage = errorMessages[errorKey] ?? errorKey;
+    
+    return '$fieldName $errorMessage';
   }
 }

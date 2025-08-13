@@ -13,7 +13,7 @@ class AppColors {
   static const Color primaryUltraLight = Color(0xFFE6F7FF); // Bleu très clair pour backgrounds
   
   // Couleurs de statut
-  static const Color success = Color(0xFF4CAF50);     // Vert succès
+  static const Color success = Color(0xFF0099CC);     // Vert succès
   static const Color error = Color(0xFFF44336);       // Rouge erreur
   static const Color warning = Color(0xFFFF9800);     // Orange avertissement
   static const Color info = Color(0xFF2196F3);        // Bleu information
@@ -41,7 +41,7 @@ class AppColors {
   
   // Couleurs pour les statuts de transaction/ticket
   static const Color statusPending = Color(0xFFFF9800);    // Orange
-  static const Color statusCompleted = Color(0xFF4CAF50);  // Vert
+  static const Color statusCompleted = Color(0xFF0099CC);  // Vert
   static const Color statusFailed = Color(0xFFF44336);     // Rouge
   static const Color statusCancelled = Color(0xFF757575);  // Gris
   static const Color statusActive = Color(0xFF2196F3);     // Bleu

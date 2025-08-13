@@ -80,7 +80,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Tickets achetés avec succès !'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppConstants.primaryColor,
           ),
         );
       }

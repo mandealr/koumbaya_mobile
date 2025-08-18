@@ -4,6 +4,7 @@ import 'providers/auth_provider.dart';
 import 'providers/app_provider.dart';
 import 'providers/products_provider.dart';
 import 'providers/lottery_provider.dart';
+import 'providers/purchase_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/refund_provider.dart';
 import 'constants/app_constants.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
         ChangeNotifierProvider(create: (_) => LotteryProvider()),
+        ChangeNotifierProvider(create: (_) => PurchaseProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => RefundProvider()),
       ],

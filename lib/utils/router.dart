@@ -11,6 +11,8 @@ import '../pages/products/products_page.dart';
 import '../pages/products/product_detail_page.dart';
 import '../pages/profile/profile_page.dart';
 import '../pages/profile/edit_profile_page.dart';
+import '../pages/profile/update_profile_page.dart';
+import '../pages/profile/change_password_page.dart';
 import '../pages/tickets/my_tickets_page.dart';
 import '../pages/transactions/transaction_history_page.dart';
 import '../pages/refunds/refund_management_page.dart';
@@ -152,6 +154,16 @@ class AppRouter {
               path: '/edit-profile',
               name: 'edit-profile',
               builder: (context, state) => const EditProfilePage(),
+            ),
+            GoRoute(
+              path: '/update-profile',
+              name: 'update-profile',
+              builder: (context, state) => const UpdateProfilePage(),
+            ),
+            GoRoute(
+              path: '/change-password',
+              name: 'change-password',
+              builder: (context, state) => const ChangePasswordPage(),
             ),
             GoRoute(
               path: '/transaction-history',

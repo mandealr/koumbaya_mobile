@@ -154,7 +154,7 @@ class ProfilePage extends StatelessWidget {
                   context,
                   Icons.edit,
                   'Modifier le profil',
-                  () => context.go('/edit-profile'),
+                  () => context.go('/update-profile'),
                 ),
 
                 const SizedBox(height: 8),
@@ -163,9 +163,7 @@ class ProfilePage extends StatelessWidget {
                   context,
                   Icons.lock,
                   'Changer le mot de passe',
-                  () {
-                    // TODO: Navigate to change password
-                  },
+                  () => context.go('/change-password'),
                 ),
 
                 const SizedBox(height: 8),

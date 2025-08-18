@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../models/product.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/lottery_provider.dart';
+import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../widgets/loading_widget.dart';
@@ -17,7 +19,6 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  int _ticketQuantity = 1;
 
   @override
   void initState() {
@@ -30,35 +31,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     await productsProvider.loadProduct(widget.productId);
   }
 
-  Future<void> _buyTickets() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (!authProvider.isAuthenticated) {
-      Navigator.of(context).pushNamed('/login');
-      return;
-    }
-
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    final lotteryProvider = Provider.of<LotteryProvider>(context, listen: false);
-    
-    final product = productsProvider.selectedProduct;
-    if (product?.hasLottery != true) return;
-
-    final success = await lotteryProvider.buyTicket(
-      product!.activeLottery!.id,
-      _ticketQuantity,
-    );
-
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$_ticketQuantity ticket(s) acheté(s) avec succès!'),
-          backgroundColor: AppConstants.primaryColor,
-        ),
-      );
-      // Refresh product data
-      await _loadProduct();
-    }
-  }
 
   Future<void> _tryLuck() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -90,6 +62,92 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       // Refresh product data
       await _loadProduct();
     }
+  }
+
+  Future<void> _buyDirectly() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated) {
+      Navigator.of(context).pushNamed('/login');
+      return;
+    }
+
+    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
+    final purchaseProvider = Provider.of<PurchaseProvider>(context, listen: false);
+    final product = productsProvider.selectedProduct;
+    if (product == null) return;
+
+    // Afficher une confirmation avant l'achat
+    final shouldProceed = await _showPurchaseConfirmation(product);
+    if (!shouldProceed) return;
+
+    // Procéder à l'achat via le PurchaseProvider
+    final success = await purchaseProvider.buyProductDirectly(product.id);
+
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('🎉 Produit acheté avec succès !'),
+            backgroundColor: AppConstants.primaryColor,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        // Refresh product data
+        await _loadProduct();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'achat: ${purchaseProvider.error ?? "Erreur inconnue"}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<bool> _showPurchaseConfirmation(Product product) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmer l\'achat'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Êtes-vous sûr de vouloir acheter ce produit ?'),
+            const SizedBox(height: 16),
+            Text(
+              product.displayName,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Prix: ${product.formattedPrice}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppConstants.primaryColor,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppConstants.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Acheter'),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   @override
@@ -302,51 +360,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                         const SizedBox(height: 24),
 
-                        // Ticket Quantity Selector
-                        Row(
-                          children: [
-                            Text(
-                              'Nombre de tickets:',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const Spacer(),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: _ticketQuantity > 1
-                                      ? () => setState(() => _ticketQuantity--)
-                                      : null,
-                                  icon: const Icon(Icons.remove),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    '$_ticketQuantity',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: _ticketQuantity < product.activeLottery!.remainingTickets
-                                      ? () => setState(() => _ticketQuantity++)
-                                      : null,
-                                  icon: const Icon(Icons.add),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 32),
                       ],
 
                       const SizedBox(height: 100), // Space for bottom button
@@ -358,14 +371,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           );
         },
       ),
-      bottomNavigationBar: Consumer2<ProductsProvider, LotteryProvider>(
-        builder: (context, productsProvider, lotteryProvider, child) {
+      bottomNavigationBar: Consumer3<ProductsProvider, LotteryProvider, PurchaseProvider>(
+        builder: (context, productsProvider, lotteryProvider, purchaseProvider, child) {
           final product = productsProvider.selectedProduct;
-          if (product?.hasLottery != true) {
+          if (product == null) {
             return const SizedBox.shrink();
           }
 
-          final totalPrice = product!.activeLottery!.ticketPrice * _ticketQuantity;
+          final hasLottery = product.hasLottery;
+          final totalPrice = hasLottery ? product.activeLottery!.ticketPrice : product.price;
+          final buttonText = hasLottery ? 'Tenter votre chance' : 'Acheter maintenant';
+          final buttonIcon = hasLottery ? '🍀' : '🛒';
+          final priceLabel = hasLottery ? 'Prix du ticket' : 'Prix';
 
           return Container(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -373,7 +390,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -387,7 +404,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total',
+                        priceLabel,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
@@ -408,11 +425,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Bouton principal "Acheter Maintenant"
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: lotteryProvider.isPurchasing ? null : _buyTickets,
+                            onPressed: (lotteryProvider.isPurchasing || purchaseProvider.isPurchasing) ? null : (hasLottery ? _tryLuck : _buyDirectly),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppConstants.primaryColor,
                               foregroundColor: Colors.white,
@@ -421,7 +437,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
                               ),
                             ),
-                            child: lotteryProvider.isPurchasing
+                            child: (lotteryProvider.isPurchasing || purchaseProvider.isPurchasing)
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
@@ -430,36 +446,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                     ),
                                   )
-                                : Text(
-                                    'Acheter $_ticketQuantity ticket${_ticketQuantity > 1 ? 's' : ''}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        buttonIcon,
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        buttonText,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Nouveau bouton "Tenter Votre Chance"
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: lotteryProvider.isPurchasing ? null : _tryLuck,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppConstants.primaryColor,
-                              side: const BorderSide(color: AppConstants.primaryColor, width: 2),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
-                              ),
-                            ),
-                            child: const Text(
-                              '🍀 Tenter Votre Chance',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ),
                         ),
                       ],

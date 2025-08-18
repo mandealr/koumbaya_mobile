@@ -1,39 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/user.dart';
 import '../../models/country.dart';
 import '../../models/language.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/app_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../../constants/app_constants.dart';
 import '../../services/api_service.dart';
 import '../../widgets/loading_widget.dart';
 
-class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+class UpdateProfilePage extends StatefulWidget {
+  const UpdateProfilePage({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  State<UpdateProfilePage> createState() => _UpdateProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _UpdateProfilePageState extends State<UpdateProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
-  bool _isPasswordVisible = false;
-  bool _isNewPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-  bool _isChangingPassword = false;
-  
   List<Country> _countries = [];
   List<Language> _languages = [];
   Country? _selectedCountry;
@@ -51,9 +41,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -131,10 +118,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     _buildPersonalInfoSection(),
                     const SizedBox(height: 24),
                     _buildLocationSection(),
-                    const SizedBox(height: 24),
-                    _buildSecuritySection(),
-                    const SizedBox(height: 24),
-                    _buildPasswordSection(),
                     const SizedBox(height: 32),
                     _buildActionButtons(),
                   ],
@@ -154,40 +137,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                    child: user != null
-                        ? Text(
-                            '${user.firstName[0]}${user.lastName[0]}',
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          )
-                        : const Icon(Icons.person, size: 50),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                        onPressed: _changeProfileImage,
-                      ),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                  child: user != null
+                      ? Text(
+                          '${user.firstName[0]}${user.lastName[0]}',
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : const Icon(Icons.person, size: 50),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                      onPressed: _changeProfileImage,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             Text(
@@ -285,10 +266,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
         DropdownButtonFormField<Country>(
           value: _selectedCountry,
           decoration: _inputDecoration('Pays', Icons.flag),
+          isExpanded: true,
           items: _countries.map((country) {
             return DropdownMenuItem<Country>(
               value: country,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (country.flag != null) ...[
                     Image.network(
@@ -300,7 +283,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     const SizedBox(width: 8),
                   ],
-                  Expanded(child: Text(country.name)),
+                  Flexible(
+                    child: Text(
+                      country.name,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -323,187 +311,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             setState(() => _selectedLanguage = language);
           },
         ),
-      ],
-    );
-  }
-
-  Widget _buildSecuritySection() {
-    final user = context.watch<AuthProvider>().user;
-    
-    return _buildSection(
-      'Sécurité',
-      [
-        _buildSecurityItem(
-          'Email vérifié',
-          user?.verifiedAt != null ? 'Vérifié' : 'Non vérifié',
-          user?.verifiedAt != null ? Icons.verified : Icons.warning,
-          user?.verifiedAt != null ? AppConstants.primaryColor : Colors.orange,
-        ),
-        const SizedBox(height: 12),
-        _buildSecurityItem(
-          'Authentification à 2 facteurs',
-          user?.mfaIsActive == true ? 'Activée' : 'Désactivée',
-          user?.mfaIsActive == true ? Icons.security : Icons.security_outlined,
-          user?.mfaIsActive == true ? AppConstants.primaryColor : Colors.grey,
-          onTap: _toggle2FA,
-        ),
-        const SizedBox(height: 12),
-        _buildSecurityItem(
-          'Dernière connexion',
-          user?.lastLoginDate != null 
-              ? _formatDate(user!.lastLoginDate!)
-              : 'Jamais',
-          Icons.access_time,
-          Colors.grey,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSecurityItem(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-    {VoidCallback? onTap}
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontFamily: 'AmazonEmberDisplay',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontFamily: 'AmazonEmberDisplay',
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (onTap != null)
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordSection() {
-    return _buildSection(
-      'Changer le mot de passe',
-      [
-        SwitchListTile(
-          title: const Text(
-            'Modifier le mot de passe',
-            style: TextStyle(fontFamily: 'AmazonEmberDisplay'),
-          ),
-          value: _isChangingPassword,
-          onChanged: (value) {
-            setState(() {
-              _isChangingPassword = value;
-              if (!value) {
-                _currentPasswordController.clear();
-                _newPasswordController.clear();
-                _confirmPasswordController.clear();
-              }
-            });
-          },
-          activeColor: AppColors.primary,
-        ),
-        if (_isChangingPassword) ...[
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _currentPasswordController,
-            decoration: _inputDecoration(
-              'Mot de passe actuel',
-              Icons.lock_outline,
-              suffixIcon: IconButton(
-                icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-              ),
-            ),
-            obscureText: !_isPasswordVisible,
-            validator: _isChangingPassword
-                ? (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Le mot de passe actuel est requis';
-                    }
-                    return null;
-                  }
-                : null,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _newPasswordController,
-            decoration: _inputDecoration(
-              'Nouveau mot de passe',
-              Icons.lock,
-              suffixIcon: IconButton(
-                icon: Icon(_isNewPasswordVisible ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
-              ),
-            ),
-            obscureText: !_isNewPasswordVisible,
-            validator: _isChangingPassword
-                ? (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Le nouveau mot de passe est requis';
-                    }
-                    if (value.length < 8) {
-                      return 'Le mot de passe doit contenir au moins 8 caractères';
-                    }
-                    return null;
-                  }
-                : null,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _confirmPasswordController,
-            decoration: _inputDecoration(
-              'Confirmer le nouveau mot de passe',
-              Icons.lock,
-              suffixIcon: IconButton(
-                icon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
-              ),
-            ),
-            obscureText: !_isConfirmPasswordVisible,
-            validator: _isChangingPassword
-                ? (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'La confirmation est requise';
-                    }
-                    if (value != _newPasswordController.text) {
-                      return 'Les mots de passe ne correspondent pas';
-                    }
-                    return null;
-                  }
-                : null,
-          ),
-        ],
       ],
     );
   }
@@ -595,11 +402,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {Widget? suffixIcon}) {
+  InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon),
-      suffixIcon: suffixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: Colors.grey[300]!),
@@ -626,7 +432,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               title: const Text('Prendre une photo'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement camera capture
                 _showInfoMessage('Fonctionnalité à venir !');
               },
             ),
@@ -635,7 +440,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               title: const Text('Choisir depuis la galerie'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement gallery selection
                 _showInfoMessage('Fonctionnalité à venir !');
               },
             ),
@@ -644,30 +448,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               title: const Text('Supprimer la photo'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement photo removal
                 _showInfoMessage('Fonctionnalité à venir !');
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _toggle2FA() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Authentification à 2 facteurs'),
-        content: const Text(
-          'Cette fonctionnalité sera bientôt disponible pour renforcer la sécurité de votre compte.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
@@ -688,15 +473,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'language_id': _selectedLanguage?.id,
       };
 
-      // Add password data if changing password
-      if (_isChangingPassword) {
-        updateData.addAll({
-          'current_password': _currentPasswordController.text,
-          'password': _newPasswordController.text,
-          'password_confirmation': _confirmPasswordController.text,
-        });
-      }
-
       // Update profile via AuthProvider
       await context.read<AuthProvider>().updateProfile(updateData);
 
@@ -714,7 +490,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
         backgroundColor: AppConstants.primaryColor,
         duration: const Duration(seconds: 3),
       ),
@@ -724,7 +506,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 4),
       ),
@@ -739,12 +527,5 @@ class _EditProfilePageState extends State<EditProfilePage> {
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/'
-           '${date.month.toString().padLeft(2, '0')}/'
-           '${date.year} à ${date.hour.toString().padLeft(2, '0')}h'
-           '${date.minute.toString().padLeft(2, '0')}';
   }
 }

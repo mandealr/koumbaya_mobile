@@ -236,6 +236,21 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> changePassword(Map<String, dynamic> passwordData) async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      await _apiService.changePassword(passwordData);
+      return true;
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

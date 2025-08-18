@@ -569,6 +569,46 @@ class ApiService {
     });
   }
 
+  Future<void> changePassword(Map<String, dynamic> passwordData) async {
+    final response = await _client.put(
+      Uri.parse('${ApiConstants.baseUrl}/api/user/password'),
+      headers: await _getHeaders(),
+      body: json.encode(passwordData),
+    );
+    
+    // Pour le changement de mot de passe, on vérifie juste que la réponse est réussie
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = utf8.decode(response.bodyBytes);
+      try {
+        final errorData = json.decode(body) as Map<String, dynamic>;
+        throw ApiException(
+          message: errorData['message'] ?? errorData['error'] ?? 'Erreur lors du changement de mot de passe',
+          statusCode: response.statusCode,
+          errors: errorData['errors'],
+        );
+      } catch (e) {
+        throw ApiException(
+          message: 'Erreur du serveur (${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+  }
+
+  // Direct Product Purchase
+  Future<Map<String, dynamic>> buyProductDirectly(int productId, int quantity) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/api/products/$productId/buy'),
+      headers: await _getHeaders(),
+      body: json.encode({
+        'product_id': productId,
+        'quantity': quantity,
+      }),
+    );
+
+    return _handleResponse(response, (json) => json);
+  }
+
   void dispose() {
     _client.close();
   }

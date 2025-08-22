@@ -29,6 +29,56 @@ DateTime? _parseNullableDateTime(dynamic value) {
   return null;
 }
 
+double? _parseNullableDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) {
+    try {
+      return double.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+int? _parseNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) {
+    try {
+      return int.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+bool _parseBool(dynamic value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is int) return value == 1;
+  if (value is String) return value.toLowerCase() == 'true' || value == '1';
+  return false;
+}
+
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) {
+    try {
+      return int.parse(value);
+    } catch (e) {
+      return 0;
+    }
+  }
+  return 0;
+}
+
 // Helper function for parsing roles list
 List<Role> _parseRoles(dynamic value) {
   if (value == null) return [];
@@ -44,6 +94,7 @@ List<Role> _parseRoles(dynamic value) {
 
 @JsonSerializable()
 class User {
+  @JsonKey(fromJson: _parseInt)
   final int id;
   @JsonKey(name: 'first_name', fromJson: _parseString)
   final String firstName;
@@ -57,7 +108,9 @@ class User {
   final String? address;
   @JsonKey(fromJson: _parseNullableString)
   final String? city;
+  @JsonKey(fromJson: _parseNullableDouble)
   final double? latitude;
+  @JsonKey(fromJson: _parseNullableDouble)
   final double? longitude;
   @JsonKey(name: 'business_name', fromJson: _parseNullableString)
   final String? businessName;
@@ -71,7 +124,7 @@ class User {
   final bool? canBuy;
   @JsonKey(fromJson: _parseNullableString)
   final String? rating;
-  @JsonKey(name: 'rating_count')
+  @JsonKey(name: 'rating_count', fromJson: _parseNullableInt)
   final int? ratingCount;
   @JsonKey(name: 'facebook_id', fromJson: _parseNullableString)
   final String? facebookId;
@@ -97,15 +150,15 @@ class User {
   final String? sourceIpAddress;
   @JsonKey(name: 'source_server_info', fromJson: _parseNullableString)
   final String? sourceServerInfo;
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'is_active', fromJson: _parseBool)
   final bool isActive;
-  @JsonKey(name: 'mfa_is_active')
+  @JsonKey(name: 'mfa_is_active', fromJson: _parseBool)
   final bool mfaIsActive;
-  @JsonKey(name: 'user_type_id')
+  @JsonKey(name: 'user_type_id', fromJson: _parseNullableInt)
   final int? userTypeId;
-  @JsonKey(name: 'country_id')
+  @JsonKey(name: 'country_id', fromJson: _parseNullableInt)
   final int? countryId;
-  @JsonKey(name: 'language_id')
+  @JsonKey(name: 'language_id', fromJson: _parseNullableInt)
   final int? languageId;
   @JsonKey(name: 'last_otp_request', fromJson: _parseNullableDateTime)
   final DateTime? lastOtpRequest;

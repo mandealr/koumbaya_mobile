@@ -5,6 +5,8 @@ import '../providers/auth_provider.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
 import '../pages/auth/verify_otp_page.dart';
+import '../pages/auth/forgot_password_page.dart';
+import '../pages/auth/verify_reset_code_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/categories/categories_page.dart';
 import '../pages/products/products_page.dart';
@@ -13,6 +15,7 @@ import '../pages/profile/profile_page.dart';
 import '../pages/profile/edit_profile_page.dart';
 import '../pages/profile/update_profile_page.dart';
 import '../pages/profile/change_password_page.dart';
+import '../pages/settings/settings_page.dart';
 import '../pages/tickets/my_tickets_page.dart';
 import '../pages/transactions/transaction_history_page.dart';
 import '../pages/refunds/refund_management_page.dart';
@@ -81,6 +84,23 @@ class AppRouter {
             return VerifyOtpPage(
               email: email,
               maskedEmail: maskedEmail,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          name: 'forgot-password',
+          builder: (context, state) => const ForgotPasswordPage(),
+        ),
+        GoRoute(
+          path: '/verify-reset-code',
+          name: 'verify-reset-code',
+          builder: (context, state) {
+            final identifier = state.uri.queryParameters['identifier'] ?? '';
+            final method = state.uri.queryParameters['method'] ?? 'email';
+            return VerifyResetCodePage(
+              identifier: identifier,
+              method: method,
             );
           },
         ),
@@ -175,6 +195,11 @@ class AppRouter {
               name: 'refunds',
               builder: (context, state) => const RefundManagementPage(),
             ),
+            GoRoute(
+              path: '/settings',
+              name: 'settings',
+              builder: (context, state) => const SettingsPage(),
+            ),
           ],
         ),
       ],
@@ -182,7 +207,11 @@ class AppRouter {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final authStatus = authProvider.status;
         final isAuthenticated = authProvider.isAuthenticated;
-        final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+        final isAuthRoute = state.matchedLocation == '/login' || 
+                           state.matchedLocation == '/register' ||
+                           state.matchedLocation == '/forgot-password' ||
+                           state.matchedLocation.startsWith('/verify-reset-code') ||
+                           state.matchedLocation.startsWith('/verify-otp');
         final isGuestRoute = state.matchedLocation.startsWith('/guest');
         final isSplashRoute = state.matchedLocation == '/splash';
         

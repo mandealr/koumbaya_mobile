@@ -7,21 +7,15 @@ class TicketWithDetails {
   final Lottery? lottery;
   final Product? product;
 
-  TicketWithDetails({
-    required this.ticket,
-    this.lottery,
-    this.product,
-  });
+  TicketWithDetails({required this.ticket, this.lottery, this.product});
 
   factory TicketWithDetails.fromJson(Map<String, dynamic> json) {
     return TicketWithDetails(
       ticket: LotteryTicket.fromJson(json['ticket'] ?? json),
-      lottery: json['lottery'] != null 
-          ? Lottery.fromJson(json['lottery'])
-          : null,
-      product: json['product'] != null 
-          ? Product.fromJson(json['product'])
-          : null,
+      lottery:
+          json['lottery'] != null ? Lottery.fromJson(json['lottery']) : null,
+      product:
+          json['product'] != null ? Product.fromJson(json['product']) : null,
     );
   }
 
@@ -39,10 +33,10 @@ class TicketWithDetails {
   DateTime? get drawDate => lottery?.drawDate;
   bool get isLotteryActive => lottery?.status == 'active';
   bool get isLotteryCompleted => lottery?.status == 'completed';
-  
+
   String get ticketStatusText {
     if (ticket.isWinner && isLotteryCompleted) {
-      return 'Gagnant 🎉';
+      return 'Gagnant';
     } else if (isLotteryCompleted && !ticket.isWinner) {
       return 'Non gagnant';
     } else if (isLotteryActive) {

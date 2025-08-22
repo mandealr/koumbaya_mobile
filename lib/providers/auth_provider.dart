@@ -124,6 +124,38 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> loginWithIdentifier(String identifier, String password) async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      final response = await _apiService.loginWithIdentifier(identifier, password);
+      
+      if (response.isSuccess && response.user != null) {
+        // Vérifier qu'un token valide est fourni par l'API
+        if (response.token != null && !response.token!.startsWith('temp_')) {
+          await SecureTokenStorage.saveToken(response.token!);
+        } else {
+          _setError('Token d\'authentification invalide reçu du serveur');
+          return false;
+        }
+        
+        _user = response.user;
+        _status = AuthStatus.authenticated;
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Erreur de connexion');
+        return false;
+      }
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<bool> register({
     required String firstName,
     required String lastName,
@@ -149,11 +181,17 @@ class AuthProvider extends ChangeNotifier {
         languageId: languageId,
       );
 
-      if (response.isSuccess && response.token != null && response.user != null) {
-        await SecureTokenStorage.saveToken(response.token!);
-        _user = response.user;
-        _status = AuthStatus.authenticated;
-        notifyListeners();
+      // Pour l'inscription, on considère le succès même sans token 
+      // car l'utilisateur doit d'abord vérifier son email
+      if (response.success == true || (response.message != null && response.message!.contains('créé'))) {
+        // Si un token est fourni, on le sauvegarde et on connecte l'utilisateur
+        if (response.token != null && response.user != null) {
+          await SecureTokenStorage.saveToken(response.token!);
+          _user = response.user;
+          _status = AuthStatus.authenticated;
+          notifyListeners();
+        }
+        // Retourner true même sans token pour permettre la redirection vers OTP
         return true;
       } else {
         _setError(response.message ?? 'Erreur lors de l\'inscription');

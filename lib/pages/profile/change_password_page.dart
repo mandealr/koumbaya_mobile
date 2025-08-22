@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
@@ -44,6 +45,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            context.go('/profile');
+          },
+        ),
       ),
       body: _isLoading
           ? const LoadingWidget()
@@ -322,7 +329,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           width: double.infinity,
           height: 50,
           child: OutlinedButton(
-            onPressed: _isLoading ? null : () => Navigator.pop(context),
+            onPressed: _isLoading ? null : () {
+              context.go('/profile');
+            },
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
@@ -359,7 +368,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       ),
       filled: true,
       fillColor: Colors.grey[50],
-      labelStyle: const TextStyle(fontFamily: 'AmazonEmberDisplay'),
+      labelStyle: const TextStyle(
+        fontFamily: 'AmazonEmberDisplay',
+        color: Color(0xFF5f5f5f),
+      ),
     );
   }
 
@@ -386,7 +398,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         _newPasswordController.clear();
         _confirmPasswordController.clear();
         // Go back to profile
-        Navigator.pop(context);
+        context.go('/profile');
       }
     } catch (e) {
       _showErrorMessage('Erreur lors du changement de mot de passe: $e');

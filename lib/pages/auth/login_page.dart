@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 
@@ -14,12 +15,16 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isEmailLogin = true; // Toggle between email and phone login
+  String _completePhoneNumber = '';
 
   @override
   void dispose() {
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -28,8 +33,14 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(
-      _emailController.text.trim(),
+    
+    // Use email or phone depending on the selected method
+    final identifier = _isEmailLogin 
+        ? _emailController.text.trim() 
+        : _completePhoneNumber.trim();
+    
+    final success = await authProvider.loginWithIdentifier(
+      identifier,
       _passwordController.text,
     );
 
@@ -87,33 +98,129 @@ class _LoginPageState extends State<LoginPage> {
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
 
-                // Email Field
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.buttonBorderRadius,
+                // Login Method Toggle
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isEmailLogin = true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _isEmailLogin ? AppConstants.primaryColor : Colors.transparent,
+                              borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.email_outlined,
+                                  color: _isEmailLogin ? Colors.white : AppConstants.primaryColor,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Email',
+                                  style: TextStyle(
+                                    color: _isEmailLogin ? Colors.white : AppConstants.primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isEmailLogin = false),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: !_isEmailLogin ? AppConstants.primaryColor : Colors.transparent,
+                              borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.phone_outlined,
+                                  color: !_isEmailLogin ? Colors.white : AppConstants.primaryColor,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Téléphone',
+                                  style: TextStyle(
+                                    color: !_isEmailLogin ? Colors.white : AppConstants.primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Email or Phone Field
+                if (_isEmailLogin) ...[
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Adresse email',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.buttonBorderRadius,
+                        ),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez saisir votre email';
+                      }
+                      if (!RegExp(
+                        r'^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(value)) {
+                        return 'Veuillez saisir un email valide';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez saisir votre email';
-                    }
-                    if (!RegExp(
-                      r'^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value)) {
-                      return 'Veuillez saisir un email valide';
-                    }
-                    return null;
-                  },
-                ),
+                ] else ...[
+                  IntlPhoneField(
+                    decoration: InputDecoration(
+                      labelText: 'Numéro de téléphone',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.buttonBorderRadius,
+                        ),
+                      ),
+                    ),
+                    initialCountryCode: 'GA', // Gabon par défaut
+                    onChanged: (phone) {
+                      _completePhoneNumber = phone.completeNumber;
+                    },
+                    validator: (phone) {
+                      if (phone == null || phone.number.isEmpty) {
+                        return 'Veuillez saisir votre numéro de téléphone';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // Password Field
@@ -150,6 +257,22 @@ class _LoginPageState extends State<LoginPage> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // Forgot Password Link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () => context.go('/forgot-password'),
+                    child: const Text(
+                      'Mot de passe oublié ?',
+                      style: TextStyle(
+                        color: AppConstants.primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
 

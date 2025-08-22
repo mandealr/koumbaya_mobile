@@ -170,11 +170,9 @@ class ProfilePage extends StatelessWidget {
 
                 _buildActionButton(
                   context,
-                  Icons.history,
-                  'Historique des transactions',
-                  () {
-                    // TODO: Navigate to transaction history
-                  },
+                  Icons.settings,
+                  'Paramètres',
+                  () => context.go('/settings'),
                 ),
 
                 const SizedBox(height: 24),

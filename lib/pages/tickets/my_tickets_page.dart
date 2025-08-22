@@ -570,7 +570,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Félicitations ! 🎉',
+                              'Félicitations !',
                               style: TextStyle(
                                 fontFamily: 'AmazonEmberDisplay',
                                 fontSize: 20,

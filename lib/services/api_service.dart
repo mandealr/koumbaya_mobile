@@ -67,6 +67,7 @@ class ApiService {
         if (kDebugMode) {
           print('JSON Parsing Error: $e');
           print('Error type: ${e.runtimeType}');
+          print('Raw JSON: $body');
         }
         throw ApiException(
           message: 'Erreur de format de réponse du serveur: $e',
@@ -101,6 +102,32 @@ class ApiService {
         headers: await _getHeaders(includeAuth: false),
         body: json.encode({
           'email': email,
+          'password': password,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      return _handleResponse(response, (json) => AuthResponse.fromJson(json));
+    } catch (e) {
+      if (e.toString().contains('TimeoutException')) {
+        throw ApiException(
+          message: 'La connexion a expiré. Veuillez réessayer.',
+          statusCode: 408,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<AuthResponse> loginWithIdentifier(String identifier, String password) async {
+    try {
+      // Déterminer si l'identifiant est un email ou un téléphone
+      bool isEmail = identifier.contains('@');
+      
+      final response = await _client.post(
+        Uri.parse(ApiConstants.login),
+        headers: await _getHeaders(includeAuth: false),
+        body: json.encode({
+          if (isEmail) 'email': identifier else 'phone': identifier,
           'password': password,
         }),
       ).timeout(const Duration(seconds: 10));
@@ -473,8 +500,13 @@ class ApiService {
       headers['Authorization'] = 'Bearer $token';
     }
 
+    // Si l'endpoint commence par /api, on utilise la base URL sans /api
+    final url = endpoint.startsWith('/api') 
+        ? 'https://koumbaya.com$endpoint'
+        : '${ApiConstants.baseUrl}$endpoint';
+
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+      Uri.parse(url),
       headers: headers,
       body: json.encode(data),
     );
@@ -503,8 +535,13 @@ class ApiService {
       headers['Authorization'] = 'Bearer $token';
     }
 
+    // Si l'endpoint commence par /api, on utilise la base URL sans /api
+    final url = endpoint.startsWith('/api') 
+        ? 'https://koumbaya.com$endpoint'
+        : '${ApiConstants.baseUrl}$endpoint';
+
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}$endpoint'),
+      Uri.parse(url),
       headers: headers,
     );
 
@@ -545,7 +582,7 @@ class ApiService {
 
   Future<List<LotteryTicket>> getUserTickets() async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/tickets'),
+      Uri.parse('${ApiConstants.baseUrl}/user/tickets'),
       headers: await _getHeaders(),
     );
 
@@ -558,20 +595,42 @@ class ApiService {
   // Profile Management
   Future<User> updateProfile(Map<String, dynamic> updateData) async {
     final response = await _client.put(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/profile'),
+      Uri.parse('${ApiConstants.baseUrl}/user/profile'),
       headers: await _getHeaders(),
       body: json.encode(updateData),
     );
 
     return _handleResponse(response, (json) {
-      final userData = json['data'] ?? json['user'];
-      return User.fromJson(userData);
+      try {
+        if (kDebugMode) {
+          print('🔍 Parsing updateProfile response...');
+          print('Full JSON: $json');
+        }
+        
+        final userData = json['data']?['user'] ?? json['data'] ?? json['user'];
+        
+        if (kDebugMode) {
+          print('User data to parse: $userData');
+        }
+        
+        if (userData == null) {
+          throw Exception('No user data found in response');
+        }
+        
+        return User.fromJson(userData as Map<String, dynamic>);
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Error parsing user in updateProfile: $e');
+          print('JSON structure: $json');
+        }
+        rethrow;
+      }
     });
   }
 
   Future<void> changePassword(Map<String, dynamic> passwordData) async {
     final response = await _client.put(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/password'),
+      Uri.parse('${ApiConstants.baseUrl}/user/password'),
       headers: await _getHeaders(),
       body: json.encode(passwordData),
     );
@@ -598,11 +657,60 @@ class ApiService {
   // Direct Product Purchase
   Future<Map<String, dynamic>> buyProductDirectly(int productId, int quantity) async {
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/api/products/$productId/buy'),
+      Uri.parse('${ApiConstants.baseUrl}/products/$productId/buy'),
       headers: await _getHeaders(),
       body: json.encode({
         'product_id': productId,
         'quantity': quantity,
+      }),
+    );
+
+    return _handleResponse(response, (json) => json);
+  }
+
+  // Password Reset Methods
+  Future<Map<String, dynamic>> sendPasswordResetCode({
+    required String identifier,
+    required bool isEmail,
+  }) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/otp/send'),
+      headers: await _getHeaders(includeAuth: false),
+      body: json.encode({
+        'identifier': identifier,
+        'type': isEmail ? 'email' : 'sms',
+        'purpose': 'password_reset',
+      }),
+    );
+
+    return _handleResponse(response, (json) => json);
+  }
+
+  Future<Map<String, dynamic>> verifyPasswordResetCode({
+    required String identifier,
+    required String code,
+    required bool isEmail,
+  }) async {
+    // Pour la vérification, on ne fait rien car l'API vérifie le code lors du reset
+    // On retourne juste un succès pour permettre le changement de mot de passe
+    return {'success': true};
+  }
+
+  Future<Map<String, dynamic>> resetPassword({
+    required String identifier,
+    required String code,
+    required String newPassword,
+    required String passwordConfirmation,
+    required bool isEmail,
+  }) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/auth/reset-password'),
+      headers: await _getHeaders(includeAuth: false),
+      body: json.encode({
+        'identifier': identifier,
+        'otp': code,
+        'password': newPassword,
+        'password_confirmation': passwordConfirmation,
       }),
     );
 

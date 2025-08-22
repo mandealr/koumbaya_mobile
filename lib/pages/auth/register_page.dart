@@ -27,6 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscureConfirmPassword = true;
   Country? _selectedCountry;
   String _completePhoneNumber = '';
+  String? _successMessage;
 
   @override
   void dispose() {
@@ -42,6 +43,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      _successMessage = null;
+    });
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final success = await authProvider.register(
       firstName: _firstNameController.text.trim(),
@@ -54,12 +59,29 @@ class _RegisterPageState extends State<RegisterPage> {
       languageId: null,
     );
 
+    print('🔍 Registration result: $success'); // Debug log
+
     if (success && mounted) {
-      // Rediriger vers la page de vérification OTP
-      final email = _emailController.text.trim();
-      final maskedEmail = _maskEmail(email);
+      print('✅ Registration successful, showing success message'); // Debug log
       
-      context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
+      // Afficher message de succès
+      setState(() {
+        _successMessage = 'Compte créé avec succès ! Vérifiez votre email pour activer votre compte.';
+      });
+      
+      // Rediriger vers la page de vérification OTP après 2 secondes
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          final email = _emailController.text.trim();
+          final maskedEmail = _maskEmail(email);
+          
+          print('🔄 Redirecting to verify-otp page for email: $email'); // Debug log
+          context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
+        }
+      });
+    } else {
+      print('❌ Registration failed or widget not mounted'); // Debug log
+      print('Error: ${authProvider.errorMessage}'); // Debug log
     }
   }
 
@@ -220,39 +242,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Info note about phone/country independence
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.blue[700],
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Votre pays de résidence peut être différent de votre indicatif téléphonique.',
-                          style: TextStyle(
-                            color: Colors.blue[700],
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
                 // Country Dropdown
                 Consumer<AppProvider>(
                   builder: (context, appProvider, child) {
+                    // Sélectionner automatiquement le Gabon quand les pays sont chargés
+                    if (appProvider.countries.isNotEmpty && _selectedCountry == null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final gabon = appProvider.countries.firstWhere(
+                          (country) => country.isoCode2 == 'GA',
+                          orElse: () => appProvider.countries.first,
+                        );
+                        setState(() {
+                          _selectedCountry = gabon;
+                        });
+                      });
+                    }
+
                     if (appProvider.isCountriesLoading) {
                       return TextFormField(
                         enabled: false,
@@ -278,9 +283,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     return DropdownButtonFormField<Country>(
                       value: _selectedCountry,
+                      isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'Sélectionner votre pays',
-                        hintText: 'Choisissez votre pays de résidence',
+                        labelText: 'Pays',
+                        hintText: 'Votre pays de résidence',
                         prefixIcon: const Icon(Icons.flag_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -298,12 +304,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         : appProvider.countries.map((country) {
                             return DropdownMenuItem<Country>(
                               value: country,
-                              child: Row(
-                                children: [
-                                  Text(country.flag ?? '🏳️'),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(country.name)),
-                                ],
+                              child: Text(
+                                country.name,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             );
                           }).toList(),
@@ -429,6 +433,45 @@ class _RegisterPageState extends State<RegisterPage> {
                     );
                   },
                 ),
+
+                // Success Message
+                if (_successMessage != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.buttonBorderRadius,
+                        ),
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.green,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _successMessage!,
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
 
                 // Error Message
                 Consumer<AuthProvider>(

@@ -311,6 +311,9 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
   Widget _buildTimeRemainingCard() {
     final now = DateTime.now();
     final endDate = _lottery!.endDate;
+    if (endDate == null) {
+      return const SizedBox.shrink(); // Ne pas afficher si pas de date de fin
+    }
     final isExpired = now.isAfter(endDate);
     
     return Card(
@@ -463,7 +466,8 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
   }
 
   Widget _buildPurchaseButton() {
-    final isExpired = DateTime.now().isAfter(_lottery!.endDate);
+    final endDate = _lottery!.endDate;
+    final isExpired = endDate != null && DateTime.now().isAfter(endDate);
     final isCompleted = _lottery!.status == 'completed';
     final isSoldOut = _lottery!.soldTickets >= _lottery!.totalTickets;
     

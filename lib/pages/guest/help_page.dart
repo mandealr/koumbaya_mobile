@@ -195,7 +195,7 @@ class HelpPage extends StatelessWidget {
         ),
         _buildFAQItem(
           'Quelles sont les méthodes de paiement acceptées ?',
-          'Nous acceptons Airtel Money, Moov Money et GT Money pour tous vos achats de tickets de tombola.',
+          'Nous acceptons Airtel Money et Moov Money pour tous vos achats de tickets de tombola.',
         ),
         _buildFAQItem(
           'Comment savoir si j\'ai gagné ?',

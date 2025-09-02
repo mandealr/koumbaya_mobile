@@ -25,7 +25,7 @@ class PurchaseProvider with ChangeNotifier {
   }
 
   /// Acheter un produit directement (sans tombola)
-  Future<bool> buyProductDirectly(int productId, {int quantity = 1}) async {
+  Future<Map<String, dynamic>?> buyProductDirectly(int productId, {int quantity = 1}) async {
     try {
       _setLoading(true);
       _clearError();
@@ -41,14 +41,14 @@ class PurchaseProvider with ChangeNotifier {
         print('✅ Achat réussi: $result');
       }
 
-      return true;
+      return result;
     } catch (e) {
       if (kDebugMode) {
         print('❌ Erreur lors de l\'achat: $e');
       }
       
       _setError(_getErrorMessage(e));
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }

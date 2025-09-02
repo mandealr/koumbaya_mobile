@@ -61,7 +61,7 @@ class RefundService {
 
     if (status != null) queryParams['status'] = status;
 
-    final uri = Uri.parse('${ApiConstants.baseUrl}/api/user/refunds')
+    final uri = Uri.parse('${ApiConstants.baseUrl}/refunds')
         .replace(queryParameters: queryParams);
 
     final response = await _client.get(
@@ -78,7 +78,7 @@ class RefundService {
   /// Récupère une demande de remboursement spécifique
   Future<Refund> getRefund(int refundId) async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/refunds/$refundId'),
+      Uri.parse('${ApiConstants.baseUrl}/refunds/$refundId'),
       headers: await _getHeaders(),
     );
 
@@ -101,7 +101,7 @@ class RefundService {
     };
 
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/refunds'),
+      Uri.parse('${ApiConstants.baseUrl}/refunds'),
       headers: await _getHeaders(),
       body: json.encode(requestBody),
     );
@@ -115,7 +115,7 @@ class RefundService {
   /// Annule une demande de remboursement (si en attente)
   Future<Refund> cancelRefund(int refundId) async {
     final response = await _client.patch(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/refunds/$refundId/cancel'),
+      Uri.parse('${ApiConstants.baseUrl}/refunds/$refundId/cancel'),
       headers: await _getHeaders(),
     );
 
@@ -128,7 +128,7 @@ class RefundService {
   /// Récupère les transactions éligibles pour un remboursement
   Future<List<Transaction>> getEligibleTransactions() async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/refunds/eligible-transactions'),
+      Uri.parse('${ApiConstants.baseUrl}/refunds/eligible-transactions'),
       headers: await _getHeaders(),
     );
 
@@ -141,7 +141,7 @@ class RefundService {
   /// Récupère les statistiques des remboursements
   Future<Map<String, dynamic>> getRefundStats() async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/user/refunds/stats'),
+      Uri.parse('${ApiConstants.baseUrl}/refunds/stats'),
       headers: await _getHeaders(),
     );
 

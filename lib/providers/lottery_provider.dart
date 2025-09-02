@@ -175,8 +175,19 @@ class LotteryProvider extends ChangeNotifier {
 
       final response = await _apiService.getUserTicketsWithDetails();
       _userTickets = response;
+      
+      if (kDebugMode) {
+        print('✅ Tickets chargés: ${_userTickets.length}');
+        for (var ticket in _userTickets) {
+          print('   - ${ticket.ticket.ticketNumber}: ${ticket.productName}');
+        }
+      }
+      
       notifyListeners();
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Erreur chargement tickets: $e');
+      }
       _setError(_getErrorMessage(e));
     } finally {
       _setLoading(false);

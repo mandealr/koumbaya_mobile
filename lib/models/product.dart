@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'user.dart';
-import 'category.dart';
+import 'category.dart' as cat;
 import 'lottery.dart';
 
 part 'product.g.dart';
@@ -124,13 +125,13 @@ User? _parseUser(dynamic value) {
 }
 
 // Helper function for parsing Category relation
-Category? _parseCategory(dynamic value) {
+cat.Category? _parseCategory(dynamic value) {
   if (value == null) {
     return null;
   }
   try {
     if (value is Map<String, dynamic>) {
-      return Category.fromJson(value);
+      return cat.Category.fromJson(value);
     }
   } catch (e) {
     return null;
@@ -197,7 +198,7 @@ class Product {
   @JsonKey(fromJson: _parseUser)
   final User? merchant;
   @JsonKey(fromJson: _parseCategory)
-  final Category? category;
+  final cat.Category? category;
   @JsonKey(name: 'active_lottery', fromJson: _parseLottery)
   final Lottery? activeLottery;
 
@@ -226,7 +227,42 @@ class Product {
     this.activeLottery,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
+  factory Product.fromJson(Map<String, dynamic> json) {
+    try {
+      return _$ProductFromJson(json);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Product JSON parsing error: $e');
+        print('📋 Product data causing error: $json');
+      }
+      
+      // Fallback parsing with safe extraction
+      return Product(
+        id: json['id'] as int,
+        name: _parseNullableString(json['name']),
+        title: _parseNullableString(json['title']),
+        description: _parseNullableString(json['description']),
+        price: _parseDouble(json['price']),
+        ticketPrice: _parseDouble(json['ticket_price']),
+        merchantId: _parseNullableInt(json['merchant_id']),
+        categoryId: _parseNullableInt(json['category_id']),
+        status: _parseNullableString(json['status']),
+        isFeatured: _parseNullableBool(json['is_featured']),
+        hasActiveLottery: _parseNullableBool(json['has_active_lottery']),
+        lotteryEndsSoon: _parseNullableBool(json['lottery_ends_soon']),
+        popularityScore: _parseNullableDouble(json['popularity_score']),
+        minParticipants: _parseNullableInt(json['min_participants']),
+        images: _parseImageList(json['images']),
+        imageUrl: _parseNullableString(json['image_url']),
+        mainImage: _parseNullableString(json['main_image']),
+        createdAt: _parseDateTime(json['created_at']),
+        updatedAt: _parseDateTime(json['updated_at']),
+        merchant: _parseUser(json['merchant']),
+        category: _parseCategory(json['category']),
+        activeLottery: _parseLottery(json['active_lottery']),
+      );
+    }
+  }
   Map<String, dynamic> toJson() => _$ProductToJson(this);
 
   // Getters pour compatibilité et utilité

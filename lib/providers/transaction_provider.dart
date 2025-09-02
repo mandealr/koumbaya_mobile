@@ -56,6 +56,10 @@ class TransactionProvider extends ChangeNotifier {
       _setLoading(true);
       _clearMessages();
 
+      if (kDebugMode) {
+        print('💰 Loading transactions - page: $_currentPage, type: $type, status: $status');
+      }
+
       // Update filters
       _selectedType = type;
       _selectedStatus = status;
@@ -71,6 +75,13 @@ class TransactionProvider extends ChangeNotifier {
         endDate: endDate,
       );
 
+      if (kDebugMode) {
+        print('💰 Transactions loaded: ${newTransactions.length}');
+        for (var transaction in newTransactions.take(3)) {
+          print('   - ${transaction.reference}: ${transaction.displayTitle} (${transaction.status})');
+        }
+      }
+
       if (newTransactions.length < _perPage) {
         _hasMoreData = false;
       }
@@ -79,6 +90,9 @@ class TransactionProvider extends ChangeNotifier {
       _currentPage++;
       notifyListeners();
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Transactions loading exception: $e');
+      }
       _setError(_getErrorMessage(e));
     } finally {
       _setLoading(false);

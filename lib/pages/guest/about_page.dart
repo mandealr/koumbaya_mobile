@@ -158,7 +158,7 @@ class AboutPage extends StatelessWidget {
         _buildProcessStep(
           2,
           'Participation',
-          'Achetez des tickets de tombola avec Mobile Money (Airtel, Moov, GT Money).',
+          'Achetez des tickets de tombola avec Mobile Money (Airtel Money, Moov Money).',
           Icons.confirmation_number,
           AppConstants.primaryColor,
         ),

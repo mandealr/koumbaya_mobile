@@ -105,6 +105,55 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
           ),
 
+          // Categories Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: InkWell(
+                onTap: () => context.push('/categories'),
+                borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppConstants.primaryColor.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: AppConstants.primaryColor.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.category,
+                        color: AppConstants.primaryColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Parcourir par catégories',
+                          style: TextStyle(
+                            color: AppConstants.primaryColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppConstants.primaryColor,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // Products Grid
           Expanded(
             child: RefreshIndicator(

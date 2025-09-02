@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
+import '../models/api_response.dart';
 import '../models/auth_response.dart';
 import '../models/user.dart';
 import '../models/country.dart';
@@ -418,7 +419,23 @@ class ApiService {
       headers: await _getHeaders(includeAuth: false),
     );
 
-    return _handleResponse(response, (json) => Product.fromJson(json['product']));
+    return _handleResponse(response, (json) {
+      // Check if it's the new API structure with "success" and "data"
+      if (json.containsKey('success') && json.containsKey('data')) {
+        final data = json['data'];
+        if (data != null) {
+          return Product.fromJson(data as Map<String, dynamic>);
+        }
+      }
+      
+      // Fallback to old structure
+      final productData = json['product'];
+      if (productData != null) {
+        return Product.fromJson(productData as Map<String, dynamic>);
+      }
+      
+      throw Exception('No product data found in response');
+    });
   }
 
   // Lotteries Methods
@@ -568,10 +585,30 @@ class ApiService {
       );
 
       return _handleResponse(response, (json) {
-        final tickets = json['data'] as List? ?? json['tickets'] as List? ?? [];
-        return tickets.map((t) => TicketWithDetails.fromJson(t)).toList();
+        final tickets = json['data'] as List? ?? [];
+        return tickets.map((t) {
+          try {
+            return TicketWithDetails.fromJson(t as Map<String, dynamic>);
+          } catch (e) {
+            if (kDebugMode) {
+              print('Erreur parsing ticket: $e');
+              print('Données ticket: $t');
+            }
+            // En cas d'erreur, on crée un objet minimal
+            return TicketWithDetails(
+              ticket: LotteryTicket.fromJson(t as Map<String, dynamic>),
+              lottery: (t as Map<String, dynamic>)['lottery'] != null 
+                ? Lottery.fromJson((t as Map<String, dynamic>)['lottery']) 
+                : null,
+              product: null,
+            );
+          }
+        }).toList();
       });
     } catch (e) {
+      if (kDebugMode) {
+        print('Erreur getUserTicketsWithDetails: $e');
+      }
       if (e is ApiException && e.statusCode == 401) {
         // Token expiré ou invalide, on le supprime
         await SecureTokenStorage.removeToken();
@@ -582,7 +619,7 @@ class ApiService {
 
   Future<List<LotteryTicket>> getUserTickets() async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/user/tickets'),
+      Uri.parse(ApiConstants.userTickets),
       headers: await _getHeaders(),
     );
 
@@ -654,12 +691,13 @@ class ApiService {
     }
   }
 
-  // Direct Product Purchase
+  // Direct Product Purchase - Creates an order via payment initiation
   Future<Map<String, dynamic>> buyProductDirectly(int productId, int quantity) async {
     final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/products/$productId/buy'),
+      Uri.parse(ApiConstants.initiatePayment),
       headers: await _getHeaders(),
       body: json.encode({
+        'type': 'product_purchase',
         'product_id': productId,
         'quantity': quantity,
       }),
@@ -715,6 +753,188 @@ class ApiService {
     );
 
     return _handleResponse(response, (json) => json);
+  }
+
+  // ===== GESTION DES COMMANDES =====
+
+  /// Récupérer la liste des commandes de l'utilisateur
+  Future<ApiResponse<List<dynamic>>> getOrders({int page = 1, String? status}) async {
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'per_page': '20',
+    };
+    
+    if (status != null) {
+      queryParams['status'] = status;
+    }
+
+    final uri = Uri.parse('${ApiConstants.baseUrl}/orders').replace(
+      queryParameters: queryParams,
+    );
+
+    final response = await _client.get(
+      uri,
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<List<dynamic>>(
+        data: json['data'] as List<dynamic>? ?? [],
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+        meta: json['pagination'] as Map<String, dynamic>?,
+      );
+    });
+  }
+
+  /// Récupérer une commande spécifique par son numéro
+  Future<ApiResponse<Map<String, dynamic>>> getOrder(String orderNumber) async {
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}/orders/$orderNumber'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  /// Annuler une commande
+  Future<ApiResponse<Map<String, dynamic>>> cancelOrder(String orderNumber) async {
+    final response = await _client.patch(
+      Uri.parse('${ApiConstants.baseUrl}/orders/$orderNumber/cancel'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  /// Relancer le paiement d'une commande
+  Future<ApiResponse<Map<String, dynamic>>> retryOrderPayment(String orderNumber) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/orders/$orderNumber/retry-payment'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  /// Suivre une commande par son numéro (pour les utilisateurs non authentifiés aussi)
+  Future<ApiResponse<Map<String, dynamic>>> trackOrder(String orderNumber, {String? phone}) async {
+    final queryParams = <String, String>{};
+    
+    if (phone != null) {
+      queryParams['phone'] = phone;
+    }
+
+    final uri = Uri.parse('${ApiConstants.baseUrl}/orders/track/$orderNumber').replace(
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    final response = await _client.get(
+      uri,
+      headers: await _getHeaders(includeAuth: false),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  // ===== GESTION DES TRANSACTIONS =====
+
+  /// Récupérer la liste des transactions de l'utilisateur
+  Future<ApiResponse<List<dynamic>>> getTransactions({int page = 1, String? type, String? status}) async {
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'per_page': '20',
+    };
+    
+    if (type != null) {
+      queryParams['type'] = type;
+    }
+    
+    if (status != null) {
+      queryParams['status'] = status;
+    }
+
+    final uri = Uri.parse('${ApiConstants.baseUrl}/transactions').replace(
+      queryParameters: queryParams,
+    );
+
+    final response = await _client.get(
+      uri,
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<List<dynamic>>(
+        data: json['data'] as List<dynamic>? ?? [],
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+        meta: json['pagination'] as Map<String, dynamic>?,
+      );
+    });
+  }
+
+  /// Récupérer une transaction spécifique
+  Future<ApiResponse<Map<String, dynamic>>> getTransaction(int transactionId) async {
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}/transactions/$transactionId'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  /// Annuler une transaction
+  Future<ApiResponse<Map<String, dynamic>>> cancelTransaction(int transactionId) async {
+    final response = await _client.patch(
+      Uri.parse('${ApiConstants.baseUrl}/transactions/$transactionId/cancel'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
   }
 
   void dispose() {

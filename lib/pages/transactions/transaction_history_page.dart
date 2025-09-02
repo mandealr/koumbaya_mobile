@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/transaction.dart';
@@ -64,34 +65,28 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterModal,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Toutes'),
-            Tab(text: 'Tickets'),
-            Tab(text: 'Achats'),
-            Tab(text: 'Remboursements'),
-          ],
-          indicatorColor: Colors.white,
-          labelStyle: const TextStyle(
-            fontFamily: 'AmazonEmberDisplay',
-            fontWeight: FontWeight.w500,
-          ),
-          onTap: _onTabChanged,
-        ),
       ),
       body: Column(
         children: [
+          _buildTabBar(),
           _buildSearchAndStats(),
           Expanded(
             child: Consumer<TransactionProvider>(
               builder: (context, provider, child) {
+                if (kDebugMode) {
+                  print('💰 TransactionHistoryPage - Provider state:');
+                  print('   isLoading: ${provider.isLoading}');
+                  print('   transactions.length: ${provider.transactions.length}');
+                  print('   errorMessage: ${provider.errorMessage}');
+                }
+
                 if (provider.isLoading && provider.transactions.isEmpty) {
                   return const LoadingWidget();
                 }
@@ -114,6 +109,44 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: false,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: Colors.grey[600],
+        indicatorColor: AppColors.primary,
+        indicatorWeight: 3,
+        labelStyle: AppTextStyles.navLabel.copyWith(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+        unselectedLabelStyle: AppTextStyles.navLabel.copyWith(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        onTap: _onTabChanged,
+        tabs: const [
+          Tab(height: 48, child: Text('Toutes')),
+          Tab(height: 48, child: Text('Tickets')),
+          Tab(height: 48, child: Text('Achats')),
+          Tab(height: 48, child: Text('Remboursements')),
         ],
       ),
     );

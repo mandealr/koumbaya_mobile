@@ -12,11 +12,20 @@ class TicketWithDetails {
   factory TicketWithDetails.fromJson(Map<String, dynamic> json) {
     return TicketWithDetails(
       ticket: LotteryTicket.fromJson(json['ticket'] ?? json),
-      lottery:
-          json['lottery'] != null ? Lottery.fromJson(json['lottery']) : null,
-      product:
-          json['product'] != null ? Product.fromJson(json['product']) : null,
+      lottery: json['lottery'] != null ? Lottery.fromJson(json['lottery']) : null,
+      product: _getProductFromJson(json),
     );
+  }
+
+  static Product? _getProductFromJson(Map<String, dynamic> json) {
+    // Le produit peut être dans json['product'] ou json['lottery']['product']
+    if (json['product'] != null) {
+      return Product.fromJson(json['product']);
+    }
+    if (json['lottery'] != null && json['lottery']['product'] != null) {
+      return Product.fromJson(json['lottery']['product']);
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() {

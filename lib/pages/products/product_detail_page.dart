@@ -8,6 +8,7 @@ import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../widgets/loading_widget.dart';
+import '../payments/payment_method_selection_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final int productId;
@@ -23,7 +24,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   @override
   void initState() {
     super.initState();
-    _loadProduct();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProduct();
+    });
   }
 
   Future<void> _loadProduct() async {
@@ -54,7 +57,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('🍀 Bonne chance ! Votre ticket a été acheté !'),
+          content: const Row(
+            children: [
+              Icon(Icons.casino, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Expanded(child: Text('Bonne chance ! Votre ticket a été acheté !')),
+            ],
+          ),
           backgroundColor: AppConstants.primaryColor,
           duration: const Duration(seconds: 3),
         ),
@@ -81,19 +90,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     if (!shouldProceed) return;
 
     // Procéder à l'achat via le PurchaseProvider
-    final success = await purchaseProvider.buyProductDirectly(product.id);
+    final result = await purchaseProvider.buyProductDirectly(product.id);
 
     if (mounted) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('🎉 Produit acheté avec succès !'),
-            backgroundColor: AppConstants.primaryColor,
-            duration: const Duration(seconds: 3),
+      if (result != null && result['success'] == true) {
+        // Rediriger vers la page de paiement
+        final orderData = result['data'];
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaymentMethodSelectionPage(
+              orderNumber: orderData['order_number'],
+              amount: double.parse(orderData['amount']),
+              productName: product.name,
+              orderType: 'direct',
+            ),
           ),
         );
-        // Refresh product data
-        await _loadProduct();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -381,7 +394,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           final hasLottery = product.hasLottery;
           final totalPrice = hasLottery ? product.activeLottery!.ticketPrice : product.price;
           final buttonText = hasLottery ? 'Tenter votre chance' : 'Acheter maintenant';
-          final buttonIcon = hasLottery ? '🍀' : '🛒';
+          final buttonIcon = hasLottery ? Icons.casino : Icons.shopping_cart;
           final priceLabel = hasLottery ? 'Prix du ticket' : 'Prix';
 
           return Container(
@@ -449,9 +462,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(
+                                      Icon(
                                         buttonIcon,
-                                        style: const TextStyle(fontSize: 20),
+                                        color: Colors.white,
+                                        size: 20,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(

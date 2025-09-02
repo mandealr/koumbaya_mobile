@@ -26,6 +26,7 @@ import '../pages/guest/help_page.dart';
 import '../pages/splash/splash_page.dart';
 import '../pages/lottery/lottery_detail_page.dart';
 import '../pages/categories/category_products_page.dart';
+import '../pages/orders/order_tracking_page.dart';
 
 class AppRouter {
   static GoRouter? _router;
@@ -200,6 +201,11 @@ class AppRouter {
               name: 'settings',
               builder: (context, state) => const SettingsPage(),
             ),
+            GoRoute(
+              path: '/orders',
+              name: 'orders',
+              builder: (context, state) => const OrderTrackingPage(),
+            ),
           ],
         ),
       ],
@@ -264,13 +270,13 @@ class _MainScaffoldState extends State<MainScaffold> {
         context.go('/home');
         break;
       case 1:
-        context.go('/categories');
-        break;
-      case 2:
         context.go('/products');
         break;
-      case 3:
+      case 2:
         context.go('/my-tickets');
+        break;
+      case 3:
+        context.go('/orders');
         break;
       case 4:
         context.go('/profile');
@@ -284,11 +290,11 @@ class _MainScaffoldState extends State<MainScaffold> {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/home')) {
       _selectedIndex = 0;
-    } else if (location.startsWith('/categories')) {
-      _selectedIndex = 1;
     } else if (location.startsWith('/products') || location.startsWith('/category-products')) {
-      _selectedIndex = 2;
+      _selectedIndex = 1;
     } else if (location.startsWith('/my-tickets')) {
+      _selectedIndex = 2;
+    } else if (location.startsWith('/orders')) {
       _selectedIndex = 3;
     } else if (location.startsWith('/profile')) {
       _selectedIndex = 4;
@@ -308,16 +314,16 @@ class _MainScaffoldState extends State<MainScaffold> {
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Catégories',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Produits',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_number),
             label: 'Mes Tickets',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt_long),
+            label: 'Commandes',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

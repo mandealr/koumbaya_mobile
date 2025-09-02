@@ -1,4 +1,62 @@
+import 'package:flutter/foundation.dart';
 import 'product.dart';
+
+// Helper functions for safe JSON parsing
+double _parseDouble(dynamic value) {
+  if (value == null) return 0.0;
+  if (value is String) {
+    if (value.isEmpty) return 0.0;
+    return double.tryParse(value) ?? 0.0;
+  } else if (value is num) {
+    return value.toDouble();
+  }
+  return 0.0;
+}
+
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is String) {
+    if (value.isEmpty) return 0;
+    return int.tryParse(value) ?? 0;
+  } else if (value is num) {
+    return value.toInt();
+  }
+  return 0;
+}
+
+String _parseString(dynamic value) {
+  if (value == null) return '';
+  return value.toString();
+}
+
+String? _parseNullableString(dynamic value) {
+  if (value == null) return null;
+  if (value is String && value.isEmpty) return null;
+  return value.toString();
+}
+
+DateTime _parseDateTime(dynamic value) {
+  if (value == null) return DateTime.now();
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (e) {
+      return DateTime.now();
+    }
+  }
+  return DateTime.now();
+}
+
+int? _parseNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is String) {
+    if (value.isEmpty) return null;
+    return int.tryParse(value);
+  } else if (value is num) {
+    return value.toInt();
+  }
+  return null;
+}
 
 class Transaction {
   final int id;
@@ -36,25 +94,51 @@ class Transaction {
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    return Transaction(
-      id: json['id'] as int,
-      userId: json['user_id'] as int,
-      type: json['type'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      status: json['status'] as String,
-      paymentMethod: json['payment_method'] as String?,
-      reference: json['reference'] as String?,
-      paymentReference: json['payment_reference'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      productId: json['product_id'] as int?,
-      lotteryId: json['lottery_id'] as int?,
-      quantity: json['quantity'] as int?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      product: json['product'] != null 
-          ? Product.fromJson(json['product'])
-          : null,
-    );
+    try {
+      return Transaction(
+        id: _parseInt(json['id']),
+        userId: _parseInt(json['user_id']),
+        type: _parseString(json['type']),
+        amount: _parseDouble(json['amount']),
+        status: _parseString(json['status']),
+        paymentMethod: _parseNullableString(json['payment_method']),
+        reference: _parseNullableString(json['reference']),
+        paymentReference: _parseNullableString(json['payment_reference']),
+        metadata: json['metadata'] as Map<String, dynamic>?,
+        productId: _parseNullableInt(json['product_id']),
+        lotteryId: _parseNullableInt(json['lottery_id']),
+        quantity: _parseNullableInt(json['quantity']),
+        createdAt: _parseDateTime(json['created_at']),
+        updatedAt: _parseDateTime(json['updated_at']),
+        product: json['product'] != null 
+            ? Product.fromJson(json['product'])
+            : null,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Transaction JSON parsing error: $e');
+        print('📋 Transaction data causing error: $json');
+      }
+      
+      // Fallback parsing with minimal required fields
+      return Transaction(
+        id: _parseInt(json['id']),
+        userId: _parseInt(json['user_id']),
+        type: _parseString(json['type']),
+        amount: _parseDouble(json['amount']),
+        status: _parseString(json['status']),
+        paymentMethod: _parseNullableString(json['payment_method']),
+        reference: _parseNullableString(json['reference']),
+        paymentReference: _parseNullableString(json['payment_reference']),
+        metadata: null, // Avoid parsing issues in fallback
+        productId: _parseNullableInt(json['product_id']),
+        lotteryId: _parseNullableInt(json['lottery_id']),
+        quantity: _parseNullableInt(json['quantity']),
+        createdAt: _parseDateTime(json['created_at']),
+        updatedAt: _parseDateTime(json['updated_at']),
+        product: null, // Avoid recursive parsing issues in fallback
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {

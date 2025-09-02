@@ -7,6 +7,7 @@ import 'providers/lottery_provider.dart';
 import 'providers/purchase_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/refund_provider.dart';
+import 'providers/order_provider.dart';
 import 'providers/theme_provider.dart';
 import 'constants/app_constants.dart';
 import 'themes/app_themes.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PurchaseProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => RefundProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

@@ -3,8 +3,11 @@ class LotteryTicket {
   final String ticketNumber;
   final int lotteryId;
   final int userId;
+  final int? orderId;
+  final int? paymentId;
   final int? transactionId;
   final double pricePaid;
+  final String currency;
   final String? paymentReference;
   final String status;
   final bool isWinner;
@@ -17,8 +20,11 @@ class LotteryTicket {
     required this.ticketNumber,
     required this.lotteryId,
     required this.userId,
+    this.orderId,
+    this.paymentId,
     this.transactionId,
     required this.pricePaid,
+    required this.currency,
     this.paymentReference,
     required this.status,
     required this.isWinner,
@@ -33,8 +39,11 @@ class LotteryTicket {
       ticketNumber: _parseString(json['ticket_number']),
       lotteryId: _parseInt(json['lottery_id']),
       userId: _parseInt(json['user_id']),
+      orderId: _parseNullableInt(json['order_id']),
+      paymentId: _parseNullableInt(json['payment_id']),
       transactionId: _parseNullableInt(json['transaction_id']),
-      pricePaid: _parseDouble(json['price_paid']),
+      pricePaid: _parseDouble(json['price'] ?? json['price_paid']),
+      currency: _parseString(json['currency'] ?? 'XAF'),
       paymentReference: _parseNullableString(json['payment_reference']),
       status: _parseString(json['status']),
       isWinner: _parseBool(json['is_winner']),
@@ -118,8 +127,11 @@ class LotteryTicket {
       'ticket_number': ticketNumber,
       'lottery_id': lotteryId,
       'user_id': userId,
+      'order_id': orderId,
+      'payment_id': paymentId,
       'transaction_id': transactionId,
-      'price_paid': pricePaid,
+      'price': pricePaid,
+      'currency': currency,
       'payment_reference': paymentReference,
       'status': status,
       'is_winner': isWinner,

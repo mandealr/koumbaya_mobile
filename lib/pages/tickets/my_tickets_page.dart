@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/ticket_with_details.dart';
@@ -49,31 +50,42 @@ class _MyTicketsPageState extends State<MyTicketsPage>
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Tous'),
-            Tab(text: 'En cours'),
-            Tab(text: 'Gagnants'),
-            Tab(text: 'Terminés'),
-          ],
-          indicatorColor: Colors.white,
-          labelStyle: const TextStyle(
-            fontFamily: 'AmazonEmberDisplay',
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-          labelColor: Colors.white,
-        ),
+        centerTitle: true,
       ),
       body: Column(
         children: [
+          _buildTabBar(),
           _buildSearchAndFilters(),
           Expanded(
             child: Consumer<LotteryProvider>(
               builder: (context, provider, child) {
+                if (kDebugMode) {
+                  print('🎫 Page tickets - Provider state:');
+                  print('   isLoading: ${provider.isLoading}');
+                  print('   userTickets.length: ${provider.userTickets.length}');
+                  print('   errorMessage: ${provider.errorMessage}');
+                }
+
                 if (provider.isLoading && provider.userTickets.isEmpty) {
                   return const LoadingWidget();
+                }
+
+                if (provider.errorMessage != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        SizedBox(height: 16),
+                        Text('Erreur: ${provider.errorMessage}'),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => _loadTickets(),
+                          child: Text('Réessayer'),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 if (provider.userTickets.isEmpty) {
@@ -98,6 +110,49 @@ class _MyTicketsPageState extends State<MyTicketsPage>
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: false,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: Colors.grey[600],
+        indicatorColor: AppColors.primary,
+        indicatorWeight: 3,
+        labelStyle: AppTextStyles.navLabel.copyWith(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+        unselectedLabelStyle: AppTextStyles.navLabel.copyWith(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        onTap: (index) {
+          final statusMap = ['all', 'active', 'winner', 'finished'];
+          setState(() {
+            _selectedStatus = statusMap[index];
+          });
+        },
+        tabs: const [
+          Tab(height: 48, child: Text('Tous')),
+          Tab(height: 48, child: Text('En cours')),
+          Tab(height: 48, child: Text('Gagnants')),
+          Tab(height: 48, child: Text('Terminés')),
         ],
       ),
     );
@@ -718,4 +773,6 @@ class _MyTicketsPageState extends State<MyTicketsPage>
       const SnackBar(content: Text('Fonctionnalité de partage à venir !')),
     );
   }
+
+
 }

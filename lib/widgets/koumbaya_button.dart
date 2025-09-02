@@ -12,6 +12,7 @@ class KoumbayaButton extends StatelessWidget {
   final bool fullWidth;
   final double? width;
   final EdgeInsetsGeometry? padding;
+  final Color? backgroundColor;
 
   const KoumbayaButton({
     super.key,
@@ -23,6 +24,7 @@ class KoumbayaButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   });
 
   const KoumbayaButton.primary({
@@ -34,6 +36,7 @@ class KoumbayaButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   }) : type = KoumbayaButtonType.primary;
 
   const KoumbayaButton.secondary({
@@ -45,6 +48,7 @@ class KoumbayaButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   }) : type = KoumbayaButtonType.secondary;
 
   const KoumbayaButton.outline({
@@ -56,6 +60,7 @@ class KoumbayaButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   }) : type = KoumbayaButtonType.outline;
 
   const KoumbayaButton.text({
@@ -67,6 +72,7 @@ class KoumbayaButton extends StatelessWidget {
     this.fullWidth = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   }) : type = KoumbayaButtonType.text;
 
   @override
@@ -117,7 +123,7 @@ class KoumbayaButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppConstants.primaryColor,
+          backgroundColor: backgroundColor ?? AppConstants.primaryColor,
           foregroundColor: Colors.white,
           elevation: AppConstants.elevationLow,
           shadowColor: AppConstants.primaryColor.withOpacity(0.3),
@@ -146,7 +152,7 @@ class KoumbayaButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppConstants.secondaryColor,
+          backgroundColor: backgroundColor ?? AppConstants.secondaryColor,
           foregroundColor: Colors.white,
           elevation: AppConstants.elevationLow,
           shadowColor: AppConstants.secondaryColor.withOpacity(0.3),

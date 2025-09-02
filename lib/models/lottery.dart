@@ -1,7 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'product.dart';
-
-part 'lottery.g.dart';
 
 // Helper function to parse double from either string or number, with null safety
 double _parseDouble(dynamic value) {
@@ -84,51 +82,30 @@ DateTime? _parseNullableDateTime(dynamic value) {
   return null;
 }
 
-@JsonSerializable()
+// Helper function for parsing int
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is String) {
+    if (value.isEmpty) return 0;
+    return int.tryParse(value) ?? 0;
+  } else if (value is num) {
+    return value.toInt();
+  }
+  return 0;
+}
+
 class Lottery {
   final int id;
-  @JsonKey(name: 'lottery_number', fromJson: _parseString)
   final String lotteryNumber;
-  @JsonKey(name: 'product_id')
-  final int productId;
-  @JsonKey(name: 'total_tickets')
-  final int totalTickets;
-  @JsonKey(name: 'sold_tickets')
-  final int soldTickets;
-  @JsonKey(name: 'remaining_tickets')
-  final int remainingTicketsCount;
-  @JsonKey(name: 'ticket_price', fromJson: _parseDouble)
+  final String title;
+  final String description;
   final double ticketPrice;
-  @JsonKey(name: 'start_date', fromJson: _parseDateTime)
-  final DateTime startDate;
-  @JsonKey(name: 'end_date', fromJson: _parseDateTime)
-  final DateTime endDate;
-  @JsonKey(name: 'draw_date', fromJson: _parseNullableDateTime)
-  final DateTime? drawDate;
-  @JsonKey(fromJson: _parseString)
+  final int maxTickets;
+  final int soldTickets;
   final String status;
-  @JsonKey(name: 'is_drawn')
-  final bool isDrawn;
-  @JsonKey(name: 'is_expired')
-  final bool isExpired;
-  @JsonKey(name: 'can_draw')
-  final bool canDraw;
-  @JsonKey(name: 'progress_percentage', fromJson: _parseDouble)
-  final double progressPercentage;
-  @JsonKey(name: 'participation_rate', fromJson: _parseDouble)
-  final double participationRate;
-  @JsonKey(name: 'is_ending_soon')
-  final bool isEndingSoon;
-  @JsonKey(name: 'winner_ticket_number', fromJson: _parseNullableString)
+  final DateTime? drawDate;
+  final DateTime? endDate;
   final String? winnerTicketNumber;
-  @JsonKey(name: 'winner_user_id')
-  final int? winnerUserId;
-  @JsonKey(name: 'total_revenue', fromJson: _parseDouble)
-  final double totalRevenue;
-  @JsonKey(name: 'created_at', fromJson: _parseNullableDateTime)
-  final DateTime? createdAt;
-  @JsonKey(name: 'updated_at', fromJson: _parseNullableDateTime)
-  final DateTime? updatedAt;
 
   // Relations (optional, loaded when needed)
   final Product? product;
@@ -136,43 +113,90 @@ class Lottery {
   Lottery({
     required this.id,
     required this.lotteryNumber,
-    required this.productId,
-    required this.totalTickets,
-    required this.soldTickets,
-    required this.remainingTicketsCount,
+    required this.title,
+    required this.description,
     required this.ticketPrice,
-    required this.startDate,
-    required this.endDate,
+    required this.maxTickets,
+    required this.soldTickets,
     required this.status,
-    required this.isDrawn,
-    required this.isExpired,
-    required this.canDraw,
-    required this.progressPercentage,
-    required this.participationRate,
-    required this.isEndingSoon,
-    required this.totalRevenue,
     this.drawDate,
+    this.endDate,
     this.winnerTicketNumber,
-    this.winnerUserId,
-    this.createdAt,
-    this.updatedAt,
     this.product,
   });
 
-  factory Lottery.fromJson(Map<String, dynamic> json) => _$LotteryFromJson(json);
-  Map<String, dynamic> toJson() => _$LotteryToJson(this);
+  factory Lottery.fromJson(Map<String, dynamic> json) {
+    try {
+      return Lottery(
+        id: json['id'] as int,
+        lotteryNumber: _parseString(json['lottery_number']),
+        title: _parseString(json['title'] ?? json['name'] ?? ''),
+        description: _parseString(json['description'] ?? ''),
+        ticketPrice: _parseDouble(json['ticket_price']),
+        maxTickets: json['max_tickets'] as int? ?? json['total_tickets'] as int? ?? 0,
+        soldTickets: json['sold_tickets'] as int? ?? 0,
+        status: _parseString(json['status'] ?? 'active'),
+        drawDate: _parseNullableDateTime(json['draw_date'] ?? json['start_date']),
+        endDate: _parseNullableDateTime(json['end_date']),
+        winnerTicketNumber: _parseNullableString(json['winner_ticket_number']),
+        product: json['product'] != null ? Product.fromJson(json['product']) : null,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Lottery JSON parsing error: $e');
+        print('📋 Lottery data causing error: $json');
+      }
+      
+      // Fallback to safe parsing with minimal required fields
+      return Lottery(
+        id: _parseInt(json['id']),
+        lotteryNumber: _parseString(json['lottery_number'] ?? json['id']?.toString() ?? ''),
+        title: _parseString(json['title'] ?? json['name'] ?? 'Tombola'),
+        description: _parseString(json['description'] ?? ''),
+        ticketPrice: _parseDouble(json['ticket_price'] ?? 0),
+        maxTickets: _parseInt(json['max_tickets'] ?? json['total_tickets'] ?? 0),
+        soldTickets: _parseInt(json['sold_tickets'] ?? 0),
+        status: _parseString(json['status'] ?? 'active'),
+        drawDate: _parseNullableDateTime(json['draw_date'] ?? json['start_date']),
+        endDate: _parseNullableDateTime(json['end_date']),
+        winnerTicketNumber: _parseNullableString(json['winner_ticket_number']),
+        product: null, // Avoid recursive parsing issues in fallback
+      );
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'lottery_number': lotteryNumber,
+      'title': title,
+      'description': description,
+      'ticket_price': ticketPrice,
+      'max_tickets': maxTickets,
+      'sold_tickets': soldTickets,
+      'status': status,
+      'draw_date': drawDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'winner_ticket_number': winnerTicketNumber,
+      if (product != null) 'product': product!.toJson(),
+    };
+  }
 
   // Getters pour compatibilité et utilité
   bool get isActive => status == 'active';
   bool get isCompleted => status == 'completed';
   bool get isCancelled => status == 'cancelled';
   
-  int get remainingTickets => remainingTicketsCount;
-  double get completionPercentage => progressPercentage;
+  int get remainingTickets => maxTickets - soldTickets;
+  double get completionPercentage => maxTickets > 0 ? (soldTickets / maxTickets) * 100 : 0;
   
-  bool get hasWinner => winnerTicketNumber != null && winnerUserId != null;
+  bool get hasWinner => winnerTicketNumber != null;
   String get formattedTicketPrice => '${ticketPrice.toStringAsFixed(0)} FCFA';
-  String get formattedTotalRevenue => '${totalRevenue.toStringAsFixed(0)} FCFA';
+  String get formattedTotalRevenue => '${(soldTickets * ticketPrice).toStringAsFixed(0)} FCFA';
+
+  // Getters pour rétrocompatibilité avec l'ancien code
+  int get totalTickets => maxTickets;
+  int get productId => product?.id ?? 0;
 
   @override
   String toString() => 'Lottery #$id';

@@ -110,6 +110,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
     switch (currentOrder.status) {
       case 'paid':
+      case 'shipping':
       case 'fulfilled':
         backgroundColor = Colors.green.withValues(alpha: 0.1);
         textColor = Colors.green[700]!;
@@ -532,6 +533,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return 'En attente de paiement';
       case 'paid':
         return 'Votre commande a été payée avec succès';
+      case 'shipping':
+        return 'Votre commande est en cours de livraison';
       case 'fulfilled':
         return 'Votre commande a été livrée';
       case 'cancelled':
@@ -565,12 +568,24 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         'date': currentOrder.updatedAt,
         'color': Colors.orange,
       });
-    } else if (currentOrder.isPaid && currentOrder.paidAt != null) {
+    } else if ((currentOrder.isPaid || currentOrder.isShipping || currentOrder.isFulfilled) && currentOrder.paidAt != null) {
       events.add({
         'title': 'Paiement confirmé',
         'description': 'Votre paiement a été traité avec succès',
         'date': currentOrder.paidAt!,
         'color': Colors.green,
+      });
+    }
+
+    // En cours de livraison
+    if (currentOrder.status == 'shipping') {
+      events.add({
+        'title': 'En cours de livraison',
+        'description': currentOrder.isLotteryOrder 
+          ? 'Vos tickets sont en cours de traitement'
+          : 'Votre commande est en cours de livraison',
+        'date': currentOrder.updatedAt,
+        'color': Colors.orange,
       });
     }
 
@@ -741,19 +756,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   bool _shouldShowConfirmReceipt() {
     // Afficher le bouton si:
-    // 1. La commande est payée (vérifier le statut réel du paiement)
+    // 1. La commande est payée ou en cours de livraison (vérifier le statut réel du paiement)
     // 2. C'est soit un produit direct, soit un ticket gagnant de tombola
-    if (!currentOrder.actuallyPaid) {
+    if (!currentOrder.actuallyPaid || currentOrder.isFulfilled) {
       return false;
     }
 
-    // Pour les produits directs
-    if (currentOrder.type == 'direct') {
+    // Pour les produits directs (payés ou en cours de livraison)
+    if (currentOrder.type == 'direct' && (currentOrder.isPaid || currentOrder.isShipping)) {
       return true;
     }
 
-    // Pour les tickets de tombola gagnants
-    if (currentOrder.type == 'lottery' && currentOrder.meta?['is_winner'] == true) {
+    // Pour les tickets de tombola gagnants (payés ou en cours de livraison)
+    if (currentOrder.type == 'lottery' && (currentOrder.isPaid || currentOrder.isShipping) && currentOrder.meta?['is_winner'] == true) {
       return true;
     }
 
@@ -762,40 +777,67 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Future<void> _confirmReceipt() async {
     try {
-      final result = await showDialog<bool>(
+      final TextEditingController notesController = TextEditingController();
+      
+      final result = await showDialog<Map<String, dynamic>>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Confirmer la réception'),
-          content: Text(
-            currentOrder.isLotteryOrder
-              ? 'Confirmez-vous avoir reçu votre lot de tombola ?'
-              : 'Confirmez-vous avoir reçu votre produit ?',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                currentOrder.isLotteryOrder
+                  ? 'Confirmez-vous avoir reçu votre lot de tombola ?'
+                  : 'Confirmez-vous avoir reçu votre produit ?',
+              ),
+              const SizedBox(height: 16),
+              const Text('Commentaire (optionnel) :', style: TextStyle(fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: notesController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Ajoutez un commentaire...',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.all(12),
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Non'),
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text('Annuler'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: () => Navigator.pop(context, {
+                'confirmed': true,
+                'notes': notesController.text.trim(),
+              }),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Oui, j\'ai reçu'),
+              child: const Text('Confirmer'),
             ),
           ],
         ),
       );
 
-      if (result == true && mounted) {
+      if (result != null && result['confirmed'] == true && mounted) {
         setState(() {
           isLoading = true;
         });
 
-        // Pour l'instant, simplement simuler le succès
-        // TODO: Implémenter l'endpoint API pour confirmer la réception
-        final success = true; // await orderProvider.confirmOrderReceipt(currentOrder.orderNumber);
+        // Appeler l'API pour confirmer la réception avec les notes
+        final orderProvider = context.read<OrderProvider>();
+        final notes = result['notes'] as String?;
+        final success = await orderProvider.confirmOrderReceipt(
+          currentOrder.orderNumber, 
+          notes: notes?.isNotEmpty == true ? notes : null,
+        );
 
         if (success) {
           _refreshOrderDetails();

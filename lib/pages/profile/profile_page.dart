@@ -168,6 +168,18 @@ class ProfilePage extends StatelessWidget {
 
                 const SizedBox(height: 8),
 
+                // Show "Become Seller" button only for non-merchants
+                if (!user.isMerchant) ...[
+                  _buildActionButton(
+                    context,
+                    Icons.storefront,
+                    'Devenir vendeur',
+                    () => context.go('/become-seller'),
+                    color: Colors.green,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+
                 _buildActionButton(
                   context,
                   Icons.settings,
@@ -231,6 +243,14 @@ class ProfilePage extends StatelessWidget {
             'Mes tickets',
             'Voir mes participations',
             () => context.go('/my-tickets'),
+          ),
+          _buildDivider(),
+          _buildQuickActionTile(
+            context,
+            Icons.notifications,
+            'Notifications',
+            'Voir mes notifications',
+            () => context.go('/notifications'),
           ),
           _buildDivider(),
           _buildQuickActionTile(
@@ -412,15 +432,16 @@ class ProfilePage extends StatelessWidget {
     BuildContext context,
     IconData icon,
     String text,
-    VoidCallback onPressed,
-  ) {
+    VoidCallback onPressed, {
+    Color? color,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          side: BorderSide(color: AppConstants.primaryColor),
+          side: BorderSide(color: color ?? AppConstants.primaryColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               AppConstants.buttonBorderRadius,
@@ -430,12 +451,12 @@ class ProfilePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: AppConstants.primaryColor),
+            Icon(icon, color: color ?? AppConstants.primaryColor),
             const SizedBox(width: 8),
             Text(
               text,
               style: TextStyle(
-                color: AppConstants.primaryColor,
+                color: color ?? AppConstants.primaryColor,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

@@ -12,6 +12,7 @@ import '../models/product.dart';
 import '../models/lottery.dart';
 import '../models/lottery_ticket.dart';
 import '../models/ticket_with_details.dart';
+import '../models/notification.dart';
 import '../utils/secure_token_storage.dart';
 
 class ApiService {
@@ -935,6 +936,158 @@ class ApiService {
         errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
       );
     });
+  }
+
+  // Confirmer la livraison d'une commande
+  Future<ApiResponse<Map<String, dynamic>>> confirmOrderDelivery(String orderNumber, {String? notes}) async {
+    final body = <String, dynamic>{};
+    if (notes != null && notes.isNotEmpty) {
+      body['notes'] = notes;
+    }
+
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/orders/$orderNumber/confirm-delivery'),
+      headers: await _getHeaders(),
+      body: jsonEncode(body),
+    );
+    
+    return _handleResponse(response, (json) {
+      return ApiResponse<Map<String, dynamic>>(
+        data: json['data'] as Map<String, dynamic>?,
+        message: json['message'] as String?,
+        success: json['success'] as bool? ?? false,
+        errors: (json['errors'] as List<dynamic>?)?.cast<String>(),
+      );
+    });
+  }
+
+  // ===== NOTIFICATIONS =====
+
+  /// Récupérer la liste des notifications de l'utilisateur
+  Future<NotificationsResponse> getNotifications({int page = 1, bool unreadOnly = false}) async {
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'per_page': '20',
+    };
+    
+    if (unreadOnly) {
+      queryParams['unread_only'] = 'true';
+    }
+
+    final uri = Uri.parse('${ApiConstants.baseUrl}/notifications').replace(
+      queryParameters: queryParams,
+    );
+
+    final response = await _client.get(
+      uri,
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return NotificationsResponse.fromJson(json);
+    });
+  }
+
+  /// Marquer une notification comme lue
+  Future<void> markNotificationAsRead(String notificationId) async {
+    final response = await _client.patch(
+      Uri.parse('${ApiConstants.baseUrl}/notifications/$notificationId/read'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = utf8.decode(response.bodyBytes);
+      try {
+        final errorData = json.decode(body) as Map<String, dynamic>;
+        throw ApiException(
+          message: errorData['message'] ?? 'Erreur lors du marquage de la notification',
+          statusCode: response.statusCode,
+          errors: errorData['errors'],
+        );
+      } catch (e) {
+        throw ApiException(
+          message: 'Erreur du serveur (${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+  }
+
+  /// Marquer toutes les notifications comme lues
+  Future<void> markAllNotificationsAsRead() async {
+    final response = await _client.patch(
+      Uri.parse('${ApiConstants.baseUrl}/notifications/read-all'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = utf8.decode(response.bodyBytes);
+      try {
+        final errorData = json.decode(body) as Map<String, dynamic>;
+        throw ApiException(
+          message: errorData['message'] ?? 'Erreur lors du marquage des notifications',
+          statusCode: response.statusCode,
+          errors: errorData['errors'],
+        );
+      } catch (e) {
+        throw ApiException(
+          message: 'Erreur du serveur (${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+  }
+
+  /// Supprimer une notification
+  Future<void> deleteNotification(String notificationId) async {
+    final response = await _client.delete(
+      Uri.parse('${ApiConstants.baseUrl}/notifications/$notificationId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final body = utf8.decode(response.bodyBytes);
+      try {
+        final errorData = json.decode(body) as Map<String, dynamic>;
+        throw ApiException(
+          message: errorData['message'] ?? 'Erreur lors de la suppression de la notification',
+          statusCode: response.statusCode,
+          errors: errorData['errors'],
+        );
+      } catch (e) {
+        throw ApiException(
+          message: 'Erreur du serveur (${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+  }
+
+  /// Récupérer le nombre de notifications non lues
+  Future<int> getUnreadNotificationsCount() async {
+    final response = await _client.get(
+      Uri.parse('${ApiConstants.baseUrl}/notifications/unread-count'),
+      headers: await _getHeaders(),
+    );
+
+    return _handleResponse(response, (json) {
+      return json['count'] as int? ?? 0;
+    });
+  }
+
+  // ===== BECOME SELLER =====
+
+  /// Permet à un utilisateur de devenir vendeur individuel
+  Future<Map<String, dynamic>> becomeSeller(String sellerType) async {
+    final response = await _client.post(
+      Uri.parse('${ApiConstants.baseUrl}/user/become-seller'),
+      headers: await _getHeaders(),
+      body: json.encode({
+        'seller_type': sellerType,
+      }),
+    );
+
+    return _handleResponse(response, (json) => json);
   }
 
   void dispose() {

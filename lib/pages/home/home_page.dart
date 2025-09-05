@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/lottery_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
@@ -46,11 +47,16 @@ class _HomePageState extends State<HomePage>
       context,
       listen: false,
     );
+    final notificationsProvider = Provider.of<NotificationsProvider>(
+      context,
+      listen: false,
+    );
 
     await Future.wait([
       productsProvider.loadFeaturedProducts(),
       productsProvider.loadProducts(refresh: true),
       lotteryProvider.loadActiveLotteries(),
+      notificationsProvider.loadUnreadCount(),
     ]);
   }
 
@@ -73,6 +79,50 @@ class _HomePageState extends State<HomePage>
         backgroundColor: AppColors.primary,
         elevation: 1,
         actions: [
+          // Notification icon with badge
+          Consumer<NotificationsProvider>(
+            builder: (context, notificationsProvider, child) {
+              return IconButton(
+                onPressed: () => context.go('/notifications'),
+                icon: Stack(
+                  children: [
+                    const Icon(
+                      Icons.notifications_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    if (notificationsProvider.unreadCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            notificationsProvider.unreadCount > 99 
+                              ? '99+' 
+                              : notificationsProvider.unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
               if (authProvider.user != null) {

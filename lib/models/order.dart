@@ -78,7 +78,7 @@ class Order {
   @JsonKey(name: 'total_amount')
   final double totalAmount;
   final String currency;
-  final String status; // 'pending', 'awaiting_payment', 'paid', 'failed', 'cancelled', 'fulfilled', 'refunded', 'expired'
+  final String status; // 'pending', 'awaiting_payment', 'paid', 'shipping', 'failed', 'cancelled', 'fulfilled', 'refunded', 'expired'
   @JsonKey(name: 'payment_reference')
   final String? paymentReference;
   @JsonKey(name: 'paid_at')
@@ -187,6 +187,8 @@ class Order {
         return 'En attente de paiement';
       case 'paid':
         return 'Payé';
+      case 'shipping':
+        return 'En cours de livraison';
       case 'failed':
         return 'Échoué';
       case 'cancelled':
@@ -206,6 +208,7 @@ class Order {
   bool get isPending => status == 'pending';
   bool get isAwaitingPayment => status == 'awaiting_payment';
   bool get isPaid => status == 'paid';
+  bool get isShipping => status == 'shipping';
   bool get isFailed => status == 'failed';
   bool get isCancelled => status == 'cancelled';
   bool get isFulfilled => status == 'fulfilled';
@@ -215,7 +218,7 @@ class Order {
   // Vérifier si le paiement est réellement effectué (même si la commande n'est pas marquée comme payée)
   bool get actuallyPaid {
     // D'abord vérifier le statut de la commande
-    if (isPaid) return true;
+    if (isPaid || isShipping || isFulfilled) return true;
     
     // Ensuite vérifier le statut des paiements
     if (payments != null && payments!.isNotEmpty) {
@@ -252,6 +255,7 @@ class Order {
   String get statusColor {
     switch (status) {
       case 'paid':
+      case 'shipping':
       case 'fulfilled':
         return 'green';
       case 'pending':

@@ -238,6 +238,74 @@ class OrderProvider with ChangeNotifier {
         .fold(0.0, (sum, order) => sum + order.totalAmount);
   }
 
+  // Confirmer la réception d'une commande
+  Future<bool> confirmOrderReceipt(String orderNumber, {String? notes}) async {
+    try {
+      _setLoading(true);
+      _setError(null);
+      
+      if (kDebugMode) {
+        print('🛒 Confirming receipt for order: $orderNumber');
+      }
+      
+      final response = await _apiService.confirmOrderDelivery(orderNumber, notes: notes);
+      
+      if (kDebugMode) {
+        print('🛒 Confirm receipt response - success: ${response.success}, data: ${response.data}');
+      }
+      
+      if (response.success) {
+        // Mettre à jour la commande dans la liste locale
+        final index = _orders.indexWhere((order) => order.orderNumber == orderNumber);
+        if (index != -1) {
+          _orders[index] = Order(
+            id: _orders[index].id,
+            orderNumber: _orders[index].orderNumber,
+            userId: _orders[index].userId,
+            type: _orders[index].type,
+            productId: _orders[index].productId,
+            lotteryId: _orders[index].lotteryId,
+            totalAmount: _orders[index].totalAmount,
+            currency: _orders[index].currency,
+            status: 'fulfilled',
+            paymentReference: _orders[index].paymentReference,
+            paidAt: _orders[index].paidAt,
+            fulfilledAt: DateTime.now(),
+            cancelledAt: _orders[index].cancelledAt,
+            refundedAt: _orders[index].refundedAt,
+            notes: notes ?? _orders[index].notes,
+            meta: _orders[index].meta,
+            createdAt: _orders[index].createdAt,
+            updatedAt: DateTime.now(),
+            product: _orders[index].product,
+            lottery: _orders[index].lottery,
+            user: _orders[index].user,
+            payments: _orders[index].payments,
+          );
+        }
+        
+        // Mettre à jour la commande sélectionnée si c'est la même
+        if (_selectedOrder?.orderNumber == orderNumber) {
+          _selectedOrder = _orders.isNotEmpty && index != -1 ? _orders[index] : null;
+        }
+        
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Impossible de confirmer la réception');
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Confirm receipt exception: $e');
+      }
+      _setError('Erreur de connexion: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Nettoyer les données
   void clear() {
     _orders.clear();

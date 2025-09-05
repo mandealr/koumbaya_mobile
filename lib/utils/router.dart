@@ -15,6 +15,7 @@ import '../pages/profile/profile_page.dart';
 import '../pages/profile/edit_profile_page.dart';
 import '../pages/profile/update_profile_page.dart';
 import '../pages/profile/change_password_page.dart';
+import '../pages/profile/become_seller_page.dart';
 import '../pages/settings/settings_page.dart';
 import '../pages/tickets/my_tickets_page.dart';
 import '../pages/transactions/transaction_history_page.dart';
@@ -27,6 +28,7 @@ import '../pages/splash/splash_page.dart';
 import '../pages/lottery/lottery_detail_page.dart';
 import '../pages/categories/category_products_page.dart';
 import '../pages/orders/order_tracking_page.dart';
+import '../pages/notifications/notifications_page.dart';
 
 class AppRouter {
   static GoRouter? _router;
@@ -205,6 +207,16 @@ class AppRouter {
               path: '/orders',
               name: 'orders',
               builder: (context, state) => const OrderTrackingPage(),
+            ),
+            GoRoute(
+              path: '/notifications',
+              name: 'notifications',
+              builder: (context, state) => const NotificationsPage(),
+            ),
+            GoRoute(
+              path: '/become-seller',
+              name: 'become-seller',
+              builder: (context, state) => const BecomeSellerPage(),
             ),
           ],
         ),

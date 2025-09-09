@@ -442,7 +442,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Vous n\'avez pas encore passé de commande.\nCommencez par explorer nos produits !',
+              'Vous n\'avez pas encore passé de commande.\nCommencez par explorer nos articles !',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.grey[500],
               ),
@@ -450,7 +450,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
             ),
             const SizedBox(height: 24),
             KoumbayaButton(
-              text: 'Découvrir les produits',
+              text: 'Découvrir les articles',
               onPressed: () => Navigator.pushNamed(context, '/products'),
             ),
           ],

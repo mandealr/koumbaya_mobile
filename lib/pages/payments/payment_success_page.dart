@@ -221,7 +221,7 @@ class PaymentSuccessPage extends StatelessWidget {
   String _getSuccessMessage() {
     switch (orderType) {
       case 'lottery':
-        return 'Votre achat de tickets de tombola a été confirmé avec succès.';
+        return 'Votre achat de tickets de tirage spécial a été confirmé avec succès.';
       case 'direct':
         return 'Votre achat a été confirmé avec succès.';
       default:

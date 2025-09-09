@@ -79,7 +79,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
           title: const Text('Devenir vendeur individuel'),
           content: const Text(
             'Êtes-vous sûr de vouloir devenir un vendeur individuel ? '
-            'Vous pourrez créer des tombolas avec 500 tickets fixes.',
+            'Vous pourrez créer des tirages spéciaux avec 500 tickets fixes.',
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
@@ -154,7 +154,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Vendez vos produits et créez des tombolas',
+                    'Vendez vos articles et créez des tirages spéciaux',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -180,7 +180,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
 
             _buildAdvantageCard(
               icon: Icons.confirmation_number,
-              title: '500 tickets par tombola',
+              title: '500 tickets par tirage spécial',
               description: 'Nombre de tickets optimisé pour maximiser vos ventes',
               color: Colors.blue,
             ),
@@ -190,7 +190,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
             _buildAdvantageCard(
               icon: Icons.monetization_on,
               title: 'Prix minimum: 200 FCFA',
-              description: 'Vendez vos produits à partir de 200 FCFA par ticket',
+              description: 'Vendez vos articles à partir de 200 FCFA par ticket',
               color: Colors.orange,
             ),
             
@@ -199,7 +199,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
             _buildAdvantageCard(
               icon: Icons.speed,
               title: 'Configuration simplifiée',
-              description: 'Création de produits et tombolas en quelques clics',
+              description: 'Création d\'articles et tirages spéciaux en quelques clics',
               color: Colors.green,
             ),
             
@@ -235,16 +235,16 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
             
             _buildProcessStep(
               step: '2',
-              title: 'Créez vos produits',
-              description: 'Ajoutez vos produits avec photos et descriptions',
+              title: 'Créez vos articles',
+              description: 'Ajoutez vos articles avec photos et descriptions',
             ),
             
             const SizedBox(height: 12),
             
             _buildProcessStep(
               step: '3',
-              title: 'Lancez des tombolas',
-              description: 'Créez des tombolas avec 500 tickets automatiquement',
+              title: 'Lancez des tirages spéciaux',
+              description: 'Créez des tirages spéciaux avec 500 tickets automatiquement',
             ),
             
             const SizedBox(height: 12),

@@ -47,8 +47,8 @@ class _ProductsPageState extends State<ProductsPage> {
       appBar: AppBar(
         title: Text(
           widget.categoryId != null
-              ? 'Produits de la catégorie'
-              : 'Tous les produits',
+              ? 'Articles de la catégorie'
+              : 'Tous les articles',
         ),
         backgroundColor: AppConstants.primaryColor,
         elevation: 1,
@@ -62,7 +62,7 @@ class _ProductsPageState extends State<ProductsPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Rechercher des produits...',
+                hintText: 'Rechercher des articles...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(
@@ -163,7 +163,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   if (productsProvider.isLoading &&
                       productsProvider.products.isEmpty) {
                     return const LoadingWidget(
-                      message: 'Chargement des produits...',
+                      message: 'Chargement des articles...',
                     );
                   }
 
@@ -194,11 +194,11 @@ class _ProductsPageState extends State<ProductsPage> {
                       title:
                           _searchQuery.isNotEmpty
                               ? 'Aucun résultat trouvé'
-                              : 'Aucun produit',
+                              : 'Aucun article',
                       subtitle:
                           _searchQuery.isNotEmpty
                               ? 'Essayez avec d\'autres mots-clés'
-                              : 'Les produits apparaîtront ici',
+                              : 'Les articles apparaîtront ici',
                       icon:
                           _searchQuery.isNotEmpty
                               ? Icons.search_off
@@ -219,7 +219,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Text(
-                            '${filteredProducts.length} produit${filteredProducts.length > 1 ? 's' : ''} trouvé${filteredProducts.length > 1 ? 's' : ''}',
+                            '${filteredProducts.length} article${filteredProducts.length > 1 ? 's' : ''} trouvé${filteredProducts.length > 1 ? 's' : ''}',
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: Colors.grey[600]),
                           ),

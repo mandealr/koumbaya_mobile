@@ -71,7 +71,7 @@ class AboutPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'La première plateforme de tombolas digitales au Gabon',
+            'La première plateforme de tirages spéciaux digitaux au Gabon',
             style: AppTextStyles.bodyLarge.copyWith(
               color: Colors.white.withOpacity(0.9),
             ),
@@ -115,15 +115,15 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Démocratiser l\'accès aux produits high-tech',
+                'Démocratiser l\'accès aux articles high-tech',
                 style: AppTextStyles.h5,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                'Chez Koumbaya MarketPlace, nous croyons que tout le monde devrait avoir la chance de posséder des produits de qualité. '
-                'Notre plateforme de tombolas digitales offre une opportunité équitable à tous de gagner des smartphones, '
-                'ordinateurs, et autres produits technologiques à des prix abordables.',
+                'Chez Koumbaya MarketPlace, nous croyons que tout le monde devrait avoir la chance de posséder des articles de qualité. '
+                'Notre plateforme de tirages spéciaux digitaux offre une opportunité équitable à tous de gagner des smartphones, '
+                'ordinateurs, et autres articles technologiques à des prix abordables.',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -150,7 +150,7 @@ class AboutPage extends StatelessWidget {
         _buildProcessStep(
           1,
           'Exploration',
-          'Découvrez notre catalogue de produits high-tech soigneusement sélectionnés.',
+          'Découvrez notre catalogue d\'articles high-tech soigneusement sélectionnés.',
           Icons.explore,
           AppColors.primary,
         ),
@@ -158,7 +158,7 @@ class AboutPage extends StatelessWidget {
         _buildProcessStep(
           2,
           'Participation',
-          'Achetez des tickets de tombola avec Mobile Money (Airtel Money, Moov Money).',
+          'Achetez des tickets de tirage spécial avec Mobile Money (Airtel Money, Moov Money).',
           Icons.confirmation_number,
           AppConstants.primaryColor,
         ),
@@ -431,7 +431,7 @@ class AboutPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Créez votre compte dès maintenant et tentez votre chance de gagner des produits incroyables.',
+            'Créez votre compte dès maintenant et tentez votre chance de gagner des articles incroyables.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: Colors.white.withOpacity(0.9),
             ),

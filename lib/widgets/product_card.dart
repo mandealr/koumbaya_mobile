@@ -98,7 +98,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     
-                    // Badge tombola active
+                    // Badge tirage spécial actif
                     if (product.hasLottery)
                       Positioned(
                         top: 8,
@@ -169,7 +169,7 @@ class ProductCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Informations tombola si active (simplifiées)
+                    // Informations tirage spécial si actif (simplifiées)
                     if (product.hasLottery) 
                       Text(
                         'Ticket: ${product.formattedTicketPrice}',

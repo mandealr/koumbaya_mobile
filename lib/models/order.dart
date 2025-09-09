@@ -243,9 +243,9 @@ class Order {
     if (product != null) {
       return product!.name ?? 'Produit';
     } else if (lottery?.product != null) {
-      return lottery!.product!.name ?? 'Produit tombola';
+      return lottery!.product!.name ?? 'Article tirage spécial';
     } else if (isLotteryOrder) {
-      return 'Achat de tickets de tombola';
+      return 'Achat de tickets de tirage spécial';
     } else {
       return 'Achat direct';
     }

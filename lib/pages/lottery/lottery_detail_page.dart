@@ -61,7 +61,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Détails tombola')),
+        appBar: AppBar(title: const Text('Détails tirage spécial')),
         body: const LoadingWidget(),
       );
     }
@@ -104,7 +104,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
       return Scaffold(
         appBar: AppBar(title: const Text('Tombola introuvable')),
         body: const Center(
-          child: Text('Cette tombola n\'existe pas.'),
+          child: Text('Ce tirage spécial n\'existe pas.'),
         ),
       );
     }
@@ -227,7 +227,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
                 Icon(Icons.confirmation_number, color: AppConstants.primaryColor),
                 const SizedBox(width: 8),
                 Text(
-                  'Informations de la tombola',
+                  'Informations du tirage spécial',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -341,7 +341,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
             const SizedBox(height: 12),
             if (isExpired) 
               Text(
-                'Cette tombola s\'est terminée le ${_formatDate(endDate)}',
+                'Ce tirage spécial s\'est terminé le ${_formatDate(endDate)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.red,
                 ),
@@ -428,7 +428,7 @@ class _LotteryDetailPageState extends State<LotteryDetailPage> {
                 const SizedBox(height: 12),
                 if (myTickets.isEmpty)
                   Text(
-                    'Vous n\'avez pas encore de tickets pour cette tombola.',
+                    'Vous n\'avez pas encore de tickets pour ce tirage spécial.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
                     ),

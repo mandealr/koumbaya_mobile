@@ -40,10 +40,10 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
     });
 
     try {
-      // Charger les produits avec filtre par catégorie via l'API existante
+      // Charger les articles avec filtre par catégorie via l'API existante
       final categoryProducts = await _apiService.getProducts(page: 1, perPage: 50);
       
-      // Filtrer les produits par catégorie côté client
+      // Filtrer les articles par catégorie côté client
       // (En attendant que l'API supporte le filtre par catégorie)
       final filteredProducts = categoryProducts.where((product) => 
         product.categoryId != null && product.categoryId == widget.categoryId
@@ -55,7 +55,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
       });
     } catch (e) {
       setState(() {
-        errorMessage = 'Erreur lors du chargement des produits: $e';
+        errorMessage = 'Erreur lors du chargement des articles: $e';
         isLoading = false;
       });
     }
@@ -69,7 +69,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryName ?? 'Produits'),
+        title: Text(widget.categoryName ?? 'Articles'),
         backgroundColor: AppConstants.primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -144,14 +144,14 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Aucun produit dans cette catégorie',
+              'Aucun article dans cette catégorie',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.grey[600],
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Revenez plus tard pour découvrir de nouveaux produits !',
+              'Revenez plus tard pour découvrir de nouveaux articles !',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[500],
               ),
@@ -190,7 +190,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${products.length} produit${products.length > 1 ? 's' : ''} disponible${products.length > 1 ? 's' : ''}',
+                  '${products.length} article${products.length > 1 ? 's' : ''} disponible${products.length > 1 ? 's' : ''}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -199,7 +199,7 @@ class _CategoryProductsPageState extends State<CategoryProductsPage> {
             ),
           ),
 
-        // Liste des produits
+        // Liste des articles
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.all(16),

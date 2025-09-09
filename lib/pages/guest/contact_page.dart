@@ -351,7 +351,7 @@ class ContactPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Rejoignez des milliers de participants et tentez votre chance de gagner des produits incroyables !',
+            'Rejoignez des milliers de participants et tentez votre chance de gagner des articles incroyables !',
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondary,
             ),

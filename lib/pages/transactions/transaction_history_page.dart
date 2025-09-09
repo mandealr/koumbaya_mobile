@@ -545,7 +545,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
               Navigator.of(context).pushReplacementNamed('/home');
             },
             icon: const Icon(Icons.explore),
-            label: const Text('Découvrir les produits'),
+            label: const Text('Découvrir les articles'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

@@ -171,7 +171,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
         children: [
           TextField(
             decoration: InputDecoration(
-              hintText: 'Rechercher un produit...',
+              hintText: 'Rechercher un article...',
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -491,7 +491,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Participez à des tombolas pour voir vos tickets ici',
+            'Participez à des tirages spéciaux pour voir vos tickets ici',
             style: TextStyle(
               fontFamily: 'AmazonEmberDisplay',
               fontSize: 14,
@@ -505,7 +505,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
               Navigator.of(context).pushReplacementNamed('/home');
             },
             icon: const Icon(Icons.explore),
-            label: const Text('Découvrir les produits'),
+            label: const Text('Découvrir les articles'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -635,7 +635,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Vous avez gagné ce produit !',
+                              'Vous avez gagné cet article !',
                               style: TextStyle(
                                 fontFamily: 'AmazonEmberDisplay',
                                 fontSize: 16,
@@ -675,7 +675,7 @@ class _MyTicketsPageState extends State<MyTicketsPage>
                               }
                             },
                             icon: const Icon(Icons.visibility),
-                            label: const Text('Voir le produit'),
+                            label: const Text('Voir l\'article'),
                           ),
                         ),
                         const SizedBox(width: 12),

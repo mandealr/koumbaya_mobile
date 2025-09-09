@@ -164,8 +164,8 @@ class _HomePageState extends State<HomePage>
           indicatorColor: Colors.white,
           tabs: const [
             Tab(icon: Icon(Icons.star), text: 'Vedettes'),
-            Tab(icon: Icon(Icons.grid_view), text: 'Produits'),
-            Tab(icon: Icon(Icons.casino), text: 'Tombolas'),
+            Tab(icon: Icon(Icons.grid_view), text: 'Articles'),
+            Tab(icon: Icon(Icons.casino), text: 'Tirages spéciaux'),
           ],
         ),
       ),
@@ -195,14 +195,14 @@ class _HomePageState extends State<HomePage>
           if (productsProvider.isFeaturedLoading &&
               productsProvider.featuredProducts.isEmpty) {
             return const LoadingWidget(
-              message: 'Chargement des produits vedettes...',
+              message: 'Chargement des articles vedettes...',
             );
           }
 
           if (productsProvider.featuredProducts.isEmpty) {
             return const EmptyStateWidget(
-              title: 'Aucun produit vedette',
-              subtitle: 'Les produits vedettes apparaîtront ici',
+              title: 'Aucun article vedette',
+              subtitle: 'Les articles vedettes apparaîtront ici',
               icon: Icons.star_outline,
             );
           }
@@ -213,7 +213,7 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Produits vedettes',
+                  'Articles vedettes',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppConstants.primaryColor,
@@ -262,13 +262,13 @@ class _HomePageState extends State<HomePage>
       child: Consumer<ProductsProvider>(
         builder: (context, productsProvider, child) {
           if (productsProvider.isLoading && productsProvider.products.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des produits...');
+            return const LoadingWidget(message: 'Chargement des articles...');
           }
 
           if (productsProvider.products.isEmpty) {
             return const EmptyStateWidget(
-              title: 'Aucun produit',
-              subtitle: 'Les produits apparaîtront ici',
+              title: 'Aucun article',
+              subtitle: 'Les articles apparaîtront ici',
               icon: Icons.shopping_bag_outlined,
             );
           }
@@ -281,7 +281,7 @@ class _HomePageState extends State<HomePage>
                 Row(
                   children: [
                     Text(
-                      'Tous les produits',
+                      'Tous les articles',
                       style: Theme.of(
                         context,
                       ).textTheme.headlineSmall?.copyWith(
@@ -347,13 +347,13 @@ class _HomePageState extends State<HomePage>
         builder: (context, lotteryProvider, child) {
           if (lotteryProvider.isLoading &&
               lotteryProvider.activeLotteries.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des tombolas...');
+            return const LoadingWidget(message: 'Chargement des tirages spéciaux...');
           }
 
           if (lotteryProvider.activeLotteries.isEmpty) {
             return const EmptyStateWidget(
-              title: 'Aucune tombola active',
-              subtitle: 'Les tombolas actives apparaîtront ici',
+              title: 'Aucun tirage spécial actif',
+              subtitle: 'Les tirages spéciaux actifs apparaîtront ici',
               icon: Icons.casino_outlined,
             );
           }
@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tombolas actives',
+                  'Tirages spéciaux actifs',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppConstants.primaryColor,
@@ -398,7 +398,7 @@ class _HomePageState extends State<HomePage>
                           ),
                           title: Text(
                             lottery.product?.title ??
-                                'Produit #${lottery.productId}',
+                                'Article #${lottery.productId}',
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Column(

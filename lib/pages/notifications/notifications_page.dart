@@ -329,7 +329,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         if (notification.data?['lottery_id'] != null) {
           // TODO: Navigate to lottery details page
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Navigation vers la tombola à implémenter')),
+            const SnackBar(content: Text('Navigation vers le tirage spécial à implémenter')),
           );
         }
         break;

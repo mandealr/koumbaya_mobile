@@ -135,7 +135,7 @@ class _SplashPageState extends State<SplashPage>
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Text(
-                      'Votre plateforme de tombolas digitales',
+                      'Votre plateforme de tirages spéciaux digitaux',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 16,

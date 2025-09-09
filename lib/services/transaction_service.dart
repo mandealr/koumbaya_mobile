@@ -507,7 +507,7 @@ class TransactionService {
     );
   }
 
-  /// Récupère les transactions de tombola (achat de tickets)
+  /// Récupère les transactions de tirage spécial (achat de tickets)
   Future<List<Transaction>> getLotteryTransactions({
     int page = 1,
     int perPage = 20,
@@ -523,7 +523,7 @@ class TransactionService {
     return getTransactionsByType('refund', page: page, perPage: perPage);
   }
 
-  /// Récupère les achats directs de produits
+  /// Récupère les achats directs d'articles
   Future<List<Transaction>> getDirectPurchaseTransactions({
     int page = 1,
     int perPage = 20,

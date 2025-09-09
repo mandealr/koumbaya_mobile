@@ -60,7 +60,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
             if (productsProvider.categories.isEmpty) {
               return const EmptyStateWidget(
                 title: 'Aucune catégorie',
-                subtitle: 'Les catégories de produits apparaîtront ici',
+                subtitle: 'Les catégories d\'articles apparaîtront ici',
                 icon: Icons.category_outlined,
                 buttonText: 'Actualiser',
               );

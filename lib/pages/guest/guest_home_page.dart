@@ -165,7 +165,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
         children: [
           const SizedBox(height: 20),
           Text(
-            'Gagnez des produits incroyables !',
+            'Gagnez des articles incroyables !',
             style: AppTextStyles.h2.copyWith(
               color: Colors.white,
               fontSize: 28,
@@ -174,7 +174,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Participez aux tombolas et tentez votre chance de remporter des smartphones, ordinateurs et bien plus encore.',
+            'Participez aux tirages spéciaux et tentez votre chance de remporter des smartphones, ordinateurs et bien plus encore.',
             style: AppTextStyles.bodyLarge.copyWith(
               color: Colors.white.withOpacity(0.9),
               fontSize: 16,
@@ -245,7 +245,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
               Expanded(
                 child: _buildStatCard(
                   '50+',
-                  'Produits gagnés',
+                  'Articles gagnés',
                   Icons.card_giftcard,
                   AppConstants.primaryColor,
                 ),
@@ -253,7 +253,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
               Expanded(
                 child: _buildStatCard(
                   '95%',
-                  'Clients satisfaits',
+                  'Koumbuyers satisfaits',
                   Icons.sentiment_very_satisfied,
                   Colors.orange,
                 ),
@@ -309,15 +309,15 @@ class _GuestHomePageState extends State<GuestHomePage> {
           const SizedBox(height: 24),
           _buildHowItWorksStep(
             1,
-            'Explorez les produits',
-            'Découvrez notre sélection de produits high-tech et bien plus encore.',
+            'Explorez les articles',
+            'Découvrez notre sélection d\'articles high-tech et bien plus encore.',
             Icons.explore,
           ),
           const SizedBox(height: 24),
           _buildHowItWorksStep(
             2,
             'Achetez vos tickets',
-            'Participez aux tombolas en achetant des tickets via Mobile Money.',
+            'Participez aux tirages spéciaux en achetant des tickets via Mobile Money.',
             Icons.confirmation_number,
           ),
           const SizedBox(height: 24),
@@ -392,7 +392,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
           Row(
             children: [
               Text(
-                'Produits en vedette',
+                'Articles en vedette',
                 style: AppTextStyles.h4,
               ),
               const Spacer(),
@@ -418,7 +418,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
               if (provider.featuredProducts.isEmpty) {
                 return Center(
                   child: Text(
-                    'Aucun produit vedette disponible',
+                    'Aucun article vedette disponible',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -460,7 +460,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image du produit
+            // Image de l'article
             Container(
               height: 140,
               width: double.infinity,
@@ -537,7 +537,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tombolas actives',
+            'Tirages spéciaux actifs',
             style: AppTextStyles.h4,
           ),
           const SizedBox(height: 16),
@@ -550,7 +550,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
               if (provider.activeLotteries.isEmpty) {
                 return Center(
                   child: Text(
-                    'Aucune tombola active en ce moment',
+                    'Aucun tirage spécial actif en ce moment',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -602,7 +602,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tombola ${lottery.id}',
+                      'Tirage spécial ${lottery.id}',
                       style: AppTextStyles.h6,
                     ),
                     const SizedBox(height: 4),
@@ -669,7 +669,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Rejoignez des milliers de participants et gagnez des produits incroyables !',
+            'Rejoignez des milliers de participants et gagnez des articles incroyables !',
             style: AppTextStyles.bodyLarge.copyWith(
               color: Colors.white.withOpacity(0.9),
             ),
@@ -776,7 +776,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Inscrivez-vous pour voir tous nos produits !',
+          'Inscrivez-vous pour voir tous nos articles !',
           style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
         ),
         backgroundColor: AppColors.primary,
@@ -798,7 +798,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
           style: AppTextStyles.h5,
         ),
         content: Text(
-          'Vous devez vous connecter pour participer aux tombolas et acheter des tickets.',
+          'Vous devez vous connecter pour participer aux tirages spéciaux et acheter des tickets.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [

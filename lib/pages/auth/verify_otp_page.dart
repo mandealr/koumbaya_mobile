@@ -381,7 +381,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Vous devez vérifier votre compte pour pouvoir acheter des produits et participer aux tombolas.',
+                        'Vous devez vérifier votre compte pour pouvoir acheter des articles et participer aux tirages spéciaux.',
                         style: TextStyle(
                           color: Colors.blue[700],
                           fontSize: 14,

@@ -24,7 +24,7 @@ class PurchaseProvider with ChangeNotifier {
     _error = null;
   }
 
-  /// Acheter un produit directement (sans tombola)
+  /// Acheter un article directement (sans tirage spécial)
   Future<Map<String, dynamic>?> buyProductDirectly(int productId, {int quantity = 1}) async {
     try {
       _setLoading(true);

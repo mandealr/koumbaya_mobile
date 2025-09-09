@@ -202,7 +202,7 @@ class Transaction {
     if (product != null) {
       return isRefund ? 'Remboursement - ${product!.displayName}' : product!.displayName;
     } else if (type == 'lottery_ticket') {
-      return 'Achat de tickets de tombola';
+      return 'Achat de tickets de tirage spécial';
     }
     return typeText;
   }

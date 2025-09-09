@@ -195,7 +195,7 @@ class HelpPage extends StatelessWidget {
         ),
         _buildFAQItem(
           'Quelles sont les méthodes de paiement acceptées ?',
-          'Nous acceptons Airtel Money et Moov Money pour tous vos achats de tickets de tombola.',
+          'Nous acceptons Airtel Money et Moov Money pour tous vos achats de tickets de tirage spécial.',
         ),
         _buildFAQItem(
           'Comment savoir si j\'ai gagné ?',
@@ -256,7 +256,7 @@ class HelpPage extends StatelessWidget {
           AppColors.primary,
           [
             '1. Créez votre compte',
-            '2. Explorez les produits disponibles',
+            '2. Explorez les articles disponibles',
             '3. Achetez vos premiers tickets',
             '4. Suivez les tirages en direct',
             '5. Récupérez vos gains',

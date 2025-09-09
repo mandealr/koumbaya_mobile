@@ -60,7 +60,7 @@ class VerificationRequiredBanner extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Vous devez vérifier votre compte pour acheter des produits et participer aux tombolas.',
+                          'Vous devez vérifier votre compte pour acheter des articles et participer aux tirages spéciaux.',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.orange.shade700,

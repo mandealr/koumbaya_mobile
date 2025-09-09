@@ -248,7 +248,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                currentOrder.isLotteryOrder ? 'Tickets de tombola' : 'Produit',
+                currentOrder.isLotteryOrder ? 'Tickets de tirage spécial' : 'Article',
                 style: AppTextStyles.h4,
               ),
             ],
@@ -286,7 +286,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      currentOrder.isLotteryOrder ? 'Tickets de tombola' : 'Produit direct',
+                      currentOrder.isLotteryOrder ? 'Tickets de tirage spécial' : 'Article direct',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.grey[600],
                       ),
@@ -442,7 +442,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     return Center(
       child: Column(
         children: [
-          // Bouton de confirmation de réception (pour produits directs et tickets gagnants payés)
+          // Bouton de confirmation de réception (pour articles directs et tickets gagnants payés)
           if (_shouldShowConfirmReceipt()) ...[
             SizedBox(
               width: double.infinity,
@@ -757,17 +757,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   bool _shouldShowConfirmReceipt() {
     // Afficher le bouton si:
     // 1. La commande est payée ou en cours de livraison (vérifier le statut réel du paiement)
-    // 2. C'est soit un produit direct, soit un ticket gagnant de tombola
+    // 2. C'est soit un article direct, soit un ticket gagnant de tirage spécial
     if (!currentOrder.actuallyPaid || currentOrder.isFulfilled) {
       return false;
     }
 
-    // Pour les produits directs (payés ou en cours de livraison)
+    // Pour les articles directs (payés ou en cours de livraison)
     if (currentOrder.type == 'direct' && (currentOrder.isPaid || currentOrder.isShipping)) {
       return true;
     }
 
-    // Pour les tickets de tombola gagnants (payés ou en cours de livraison)
+    // Pour les tickets de tirage spécial gagnants (payés ou en cours de livraison)
     if (currentOrder.type == 'lottery' && (currentOrder.isPaid || currentOrder.isShipping) && currentOrder.meta?['is_winner'] == true) {
       return true;
     }
@@ -789,7 +789,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             children: [
               Text(
                 currentOrder.isLotteryOrder
-                  ? 'Confirmez-vous avoir reçu votre lot de tombola ?'
+                  ? 'Confirmez-vous avoir reçu votre lot de tirage spécial ?'
                   : 'Confirmez-vous avoir reçu votre produit ?',
               ),
               const SizedBox(height: 16),

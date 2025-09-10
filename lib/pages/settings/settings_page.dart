@@ -175,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: 'Conditions d\'utilisation',
                 subtitle: 'Lire les conditions',
                 onTap: () {
-                  _showComingSoonMessage('Les CGU seront bientôt disponibles');
+                  context.push('/terms-of-service');
                 },
               ),
               _buildDivider(),
@@ -184,7 +184,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: 'Politique de confidentialité',
                 subtitle: 'Lire la politique',
                 onTap: () {
-                  _showComingSoonMessage('La politique de confidentialité sera bientôt disponible');
+                  context.push('/privacy-policy');
                 },
               ),
             ]),

@@ -24,6 +24,8 @@ import '../pages/guest/guest_home_page.dart';
 import '../pages/guest/about_page.dart';
 import '../pages/guest/contact_page.dart';
 import '../pages/guest/help_page.dart';
+import '../pages/guest/privacy_policy_page.dart';
+import '../pages/guest/terms_of_service_page.dart';
 import '../pages/splash/splash_page.dart';
 import '../pages/lottery/lottery_detail_page.dart';
 import '../pages/categories/category_products_page.dart';
@@ -65,6 +67,16 @@ class AppRouter {
           path: '/guest/help',
           name: 'guest-help',
           builder: (context, state) => const HelpPage(),
+        ),
+        GoRoute(
+          path: '/privacy-policy',
+          name: 'privacy-policy',
+          builder: (context, state) => const PrivacyPolicyPage(),
+        ),
+        GoRoute(
+          path: '/terms-of-service',
+          name: 'terms-of-service',
+          builder: (context, state) => const TermsOfServicePage(),
         ),
 
         // Authentication Routes

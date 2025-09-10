@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -25,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
   Country? _selectedCountry;
   String _completePhoneNumber = '';
   String? _successMessage;
@@ -42,6 +44,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez accepter les conditions d\'utilisation et la politique de confidentialité'),
+          backgroundColor: AppConstants.errorColor,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       _successMessage = null;
@@ -393,7 +405,66 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+
+                // Terms acceptance checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _acceptTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          _acceptTerms = value ?? false;
+                        });
+                      },
+                      activeColor: AppConstants.primaryColor,
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _acceptTerms = !_acceptTerms;
+                          });
+                        },
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                            children: [
+                              const TextSpan(text: 'J\'accepte les '),
+                              TextSpan(
+                                text: 'conditions d\'utilisation',
+                                style: const TextStyle(
+                                  color: AppConstants.primaryColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.push('/terms-of-service');
+                                  },
+                              ),
+                              const TextSpan(text: ' et la '),
+                              TextSpan(
+                                text: 'politique de confidentialité',
+                                style: const TextStyle(
+                                  color: AppConstants.primaryColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.push('/privacy-policy');
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Register Button
                 Consumer<AuthProvider>(
@@ -441,12 +512,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppConstants.buttonBorderRadius,
                         ),
                         border: Border.all(
-                          color: Colors.green.withOpacity(0.3),
+                          color: Colors.green.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -482,12 +553,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppConstants.errorColor.withOpacity(0.1),
+                            color: AppConstants.errorColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               AppConstants.buttonBorderRadius,
                             ),
                             border: Border.all(
-                              color: AppConstants.errorColor.withOpacity(0.3),
+                              color: AppConstants.errorColor.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(

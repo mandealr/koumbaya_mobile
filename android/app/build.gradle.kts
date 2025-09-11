@@ -34,7 +34,7 @@ android {
         applicationId = "com.koumbaya.app"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0.0"
     }
 

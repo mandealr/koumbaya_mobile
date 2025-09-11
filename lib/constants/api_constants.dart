@@ -1,53 +1,52 @@
+import '../config/environment.dart';
+
 class ApiConstants {
-  // Production API URL
-  static const String baseUrl = 'https://koumbaya.com/api';
-  
-  // Development/Local API URL (uncomment for local development)
-  // static const String baseUrl = 'http://localhost:8000/api';
+  // Base URL dynamically set based on environment
+  static String get baseUrl => Environment.baseUrl;
   
   // Authentication endpoints
-  static const String login = '$baseUrl/auth/login';
-  static const String register = '$baseUrl/auth/register';
-  static const String logout = '$baseUrl/auth/logout';
-  static const String refresh = '$baseUrl/auth/refresh';
-  static const String me = '$baseUrl/auth/me';
+  static String get login => '$baseUrl/auth/login';
+  static String get register => '$baseUrl/auth/register';
+  static String get logout => '$baseUrl/auth/logout';
+  static String get refresh => '$baseUrl/auth/refresh';
+  static String get me => '$baseUrl/auth/me';
   
   // Countries endpoints
-  static const String countries = '$baseUrl/countries';
+  static String get countries => '$baseUrl/countries';
   static String country(int id) => '$baseUrl/countries/$id';
   
   // Languages endpoints
-  static const String languages = '$baseUrl/languages';
+  static String get languages => '$baseUrl/languages';
   static String language(int id) => '$baseUrl/languages/$id';
-  static const String defaultLanguage = '$baseUrl/languages/default';
+  static String get defaultLanguage => '$baseUrl/languages/default';
   
   // Categories endpoints
-  static const String categories = '$baseUrl/categories';
+  static String get categories => '$baseUrl/categories';
   static String category(int id) => '$baseUrl/categories/$id';
   static String categoryProducts(int id) => '$baseUrl/categories/$id/products';
   
   // Products endpoints
-  static const String products = '$baseUrl/products';
-  static const String featuredProducts = '$baseUrl/products/featured';
+  static String get products => '$baseUrl/products';
+  static String get featuredProducts => '$baseUrl/products/featured';
   static String product(int id) => '$baseUrl/products/$id';
   
   // Lotteries endpoints
-  static const String lotteries = '$baseUrl/lotteries';
-  static const String activeLotteries = '$baseUrl/lotteries/active';
+  static String get lotteries => '$baseUrl/lotteries';
+  static String get activeLotteries => '$baseUrl/lotteries/active';
   static String lottery(int id) => '$baseUrl/lotteries/$id';
   static String buyLotteryTicket(int id) => '$baseUrl/lotteries/$id/buy-ticket';
   static String myLotteryTickets(int id) => '$baseUrl/lotteries/$id/my-tickets';
   static String drawLottery(int id) => '$baseUrl/lotteries/$id/draw';
   
   // Payments endpoints
-  static const String initiatePayment = '$baseUrl/payments/initiate';
+  static String get initiatePayment => '$baseUrl/payments/initiate';
   static String paymentStatus(int id) => '$baseUrl/payments/$id/status';
-  static const String paymentCallback = '$baseUrl/payments/callback';
-  static const String paymentSuccess = '$baseUrl/payments/success';
+  static String get paymentCallback => '$baseUrl/payments/callback';
+  static String get paymentSuccess => '$baseUrl/payments/success';
   
   // User endpoint
-  static const String user = '$baseUrl/user';
+  static String get user => '$baseUrl/user';
   
   // Tickets endpoints  
-  static const String userTickets = '$baseUrl/tickets/my-tickets';
+  static String get userTickets => '$baseUrl/tickets/my-tickets';
 }

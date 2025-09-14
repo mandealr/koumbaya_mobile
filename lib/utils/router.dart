@@ -240,8 +240,7 @@ class AppRouter {
         final isAuthRoute = state.matchedLocation == '/login' || 
                            state.matchedLocation == '/register' ||
                            state.matchedLocation == '/forgot-password' ||
-                           state.matchedLocation.startsWith('/verify-reset-code') ||
-                           state.matchedLocation.startsWith('/verify-otp');
+                           state.matchedLocation.startsWith('/verify-reset-code');
         final isGuestRoute = state.matchedLocation.startsWith('/guest');
         final isSplashRoute = state.matchedLocation == '/splash';
         
@@ -252,7 +251,13 @@ class AppRouter {
         
         // Redirect to home if authenticated and trying to access auth pages
         if (isAuthenticated && isAuthRoute) {
+          print('🚦 Router: Redirecting authenticated user from ${state.matchedLocation} to /home');
           return '/home';
+        }
+        
+        // Debug pour verify-otp
+        if (state.matchedLocation.startsWith('/verify-otp')) {
+          print('🔓 Router: Allowing access to verify-otp: ${state.matchedLocation}');
         }
 
         // Redirect to guest if not authenticated and trying to access protected pages (but not auth, guest, splash routes)

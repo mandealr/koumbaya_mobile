@@ -171,7 +171,14 @@ class _HomePageState extends State<HomePage>
       ),
       body: Column(
         children: [
-          const VerificationRequiredBanner(),
+          VerificationRequiredBanner(
+            onVerificationRequested: (email, maskedEmail) {
+              print('🏠 HomePage received verification request for: $email');
+              final url = '/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}';
+              print('🏠 HomePage navigating to: $url');
+              context.go(url);
+            },
+          ),
           Expanded(
             child: TabBarView(
               controller: _tabController,

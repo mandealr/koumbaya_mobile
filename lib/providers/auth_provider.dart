@@ -181,11 +181,19 @@ class AuthProvider extends ChangeNotifier {
         languageId: languageId,
       );
 
-      // Pour l'inscription, on considère le succès même sans token 
-      // car l'utilisateur doit d'abord vérifier son email
-      if (response.success == true || (response.message != null && response.message!.contains('créé'))) {
+      if (kDebugMode) {
+        print('📱 Register Response:');
+        print('   - Success: ${response.success}');
+        print('   - isSuccess: ${response.isSuccess}');
+        print('   - Message: ${response.message}');
+        print('   - Has token: ${response.token != null}');
+        print('   - Has user: ${response.user != null}');
+      }
+
+      // Pour l'inscription, on considère le succès basé sur isSuccess
+      if (response.isSuccess) {
         // Si un token est fourni, on le sauvegarde et on connecte l'utilisateur
-        if (response.token != null && response.user != null) {
+        if (response.token != null && response.user != null && !response.token!.startsWith('temp_')) {
           await SecureTokenStorage.saveToken(response.token!);
           _user = response.user;
           _status = AuthStatus.authenticated;
@@ -198,6 +206,9 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Register Error: $e');
+      }
       _setError(_getErrorMessage(e));
       return false;
     } finally {
@@ -289,6 +300,47 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Envoie un code OTP de vérification à l'utilisateur connecté
+  Future<bool> sendVerificationOtp() async {
+    print('🔍 AuthProvider.sendVerificationOtp called');
+    
+    if (_user?.email == null) {
+      print('❌ No email found for user: $_user');
+      _setError('Aucun email trouvé pour envoyer le code de vérification.');
+      return false;
+    }
+
+    try {
+      _setLoading(true);
+      _clearError();
+
+      print('📤 Calling API to send OTP for: ${_user!.email}');
+      
+      final result = await _apiService.sendOtpCode(
+        identifier: _user!.email,
+        isEmail: true,
+        purpose: 'registration', // Utilise le même purpose que lors de l'inscription
+      );
+
+      print('📥 API result: $result');
+
+      if (result['success'] == true) {
+        print('✅ OTP sent successfully');
+        return true;
+      } else {
+        print('❌ OTP send failed: ${result['message']}');
+        _setError(result['message'] ?? 'Impossible d\'envoyer le code de vérification.');
+        return false;
+      }
+    } catch (e) {
+      print('💥 Exception in sendVerificationOtp: $e');
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -311,10 +363,13 @@ class AuthProvider extends ChangeNotifier {
         return _formatValidationErrors(error.errors!);
       }
       // Gérer l'erreur de vérification 403
-      if (error.statusCode == 403 && error.errors != null && 
-          error.errors!['error_code'] == 'EMAIL_NOT_VERIFIED') {
-        _setError('Veuillez vérifier votre compte pour continuer.');
-        return 'Veuillez vérifier votre compte pour continuer.';
+      if (error.statusCode == 403 && error.errors != null) {
+        // errors peut être soit un Map soit une List selon l'API
+        if (error.errors is Map<String, dynamic> && 
+            error.errors!['error_code'] == 'EMAIL_NOT_VERIFIED') {
+          _setError('Veuillez vérifier votre compte pour continuer.');
+          return 'Veuillez vérifier votre compte pour continuer.';
+        }
       }
       return error.message;
     }
@@ -346,18 +401,39 @@ class AuthProvider extends ChangeNotifier {
     List<String> errorMessages = [];
     
     for (String field in errors.keys) {
-      List<dynamic> fieldErrors = errors[field] as List<dynamic>;
+      dynamic fieldErrorsData = errors[field];
       
-      for (String errorKey in fieldErrors) {
-        String friendlyMessage = _translateValidationError(field, errorKey);
-        if (!errorMessages.contains(friendlyMessage)) {
-          errorMessages.add(friendlyMessage);
+      if (fieldErrorsData is List) {
+        // Si c'est une liste de messages d'erreur
+        for (dynamic error in fieldErrorsData) {
+          if (error is String) {
+            // Si c'est déjà un message formaté
+            if (!errorMessages.contains(error)) {
+              errorMessages.add(error);
+            }
+          } else {
+            // Sinon, on traduit
+            String friendlyMessage = _translateValidationError(field, error.toString());
+            if (!errorMessages.contains(friendlyMessage)) {
+              errorMessages.add(friendlyMessage);
+            }
+          }
+        }
+      } else if (fieldErrorsData is String) {
+        // Si c'est un simple message
+        if (!errorMessages.contains(fieldErrorsData)) {
+          errorMessages.add(fieldErrorsData);
         }
       }
     }
     
     if (errorMessages.isEmpty) {
       return 'Erreur de validation. Veuillez vérifier vos informations.';
+    }
+    
+    // Si un seul message d'erreur, pas de bullet point
+    if (errorMessages.length == 1) {
+      return errorMessages.first;
     }
     
     return '• ' + errorMessages.join('\n• ');

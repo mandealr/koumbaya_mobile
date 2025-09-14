@@ -74,23 +74,44 @@ class _RegisterPageState extends State<RegisterPage> {
     print('🔍 Registration result: $success'); // Debug log
 
     if (success && mounted) {
-      print('✅ Registration successful, showing success message'); // Debug log
+      print('✅ Registration successful'); // Debug log
       
-      // Afficher message de succès
-      setState(() {
-        _successMessage = 'Compte créé avec succès ! Vérifiez votre email pour activer votre compte.';
-      });
+      // Vérifier si une vérification est requise
+      final requiresVerification = authProvider.user?.verifiedAt == null;
       
-      // Rediriger vers la page de vérification OTP après 2 secondes
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          final email = _emailController.text.trim();
-          final maskedEmail = _maskEmail(email);
-          
-          print('🔄 Redirecting to verify-otp page for email: $email'); // Debug log
-          context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
-        }
-      });
+      if (requiresVerification) {
+        print('📧 Verification required, showing success message and redirecting to OTP'); // Debug log
+        
+        // Afficher message de succès
+        setState(() {
+          _successMessage = 'Compte créé avec succès ! Un code de vérification a été envoyé à votre email.';
+        });
+        
+        // Rediriger vers la page de vérification OTP après 2 secondes
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            final email = _emailController.text.trim();
+            final maskedEmail = _maskEmail(email);
+            
+            print('🔄 Redirecting to verify-otp page for email: $email'); // Debug log
+            context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
+          }
+        });
+      } else {
+        print('✅ Account already verified, redirecting to home'); // Debug log
+        
+        // Compte déjà vérifié, rediriger vers l'accueil
+        setState(() {
+          _successMessage = 'Compte créé avec succès !';
+        });
+        
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            final homeRoute = authProvider.getHomeRoute();
+            context.go(homeRoute);
+          }
+        });
+      }
     } else {
       print('❌ Registration failed or widget not mounted'); // Debug log
       print('Error: ${authProvider.errorMessage}'); // Debug log

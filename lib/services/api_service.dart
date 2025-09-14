@@ -26,6 +26,9 @@ class ApiService {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'X-Platform': 'mobile',
+      'X-App-Version': '1.0.0', // TODO: Get from package_info
+      'User-Agent': 'KoumbayaFlutter/1.0.0',
     };
 
     if (includeAuth) {
@@ -56,7 +59,7 @@ class ApiService {
       print('=== API DEBUG ===');
       print('URL: ${response.request?.url}');
       print('Status: ${response.statusCode}');
-      print('Body: $body');
+      print('Body: ${body.length > 500 ? body.substring(0, 500) + '...' : body}');
       print('================');
     }
     
@@ -69,30 +72,51 @@ class ApiService {
         if (kDebugMode) {
           print('JSON Parsing Error: $e');
           print('Error type: ${e.runtimeType}');
-          print('Raw JSON: $body');
+          print('Raw JSON: ${body.length > 200 ? body.substring(0, 200) + '...' : body}');
         }
         throw ApiException(
-          message: 'Erreur de format de réponse du serveur: $e',
+          message: 'Erreur de format de réponse du serveur',
           statusCode: response.statusCode,
         );
       }
     } else {
+      Map<String, dynamic>? errorData;
+      String errorMessage = 'Erreur du serveur (${response.statusCode})';
+      
       try {
-        final errorData = json.decode(body) as Map<String, dynamic>;
-        throw ApiException(
-          message: errorData['message'] ?? errorData['error'] ?? 'Une erreur est survenue',
-          statusCode: response.statusCode,
-          errors: errorData['errors'],
-        );
+        errorData = json.decode(body) as Map<String, dynamic>;
+        
+        // Extraire le message d'erreur de différentes structures possibles
+        if (errorData['message'] != null) {
+          errorMessage = errorData['message'] as String;
+        } else if (errorData['error'] != null) {
+          errorMessage = errorData['error'] as String;
+        } else if (errorData['errors'] != null && errorData['errors'] is Map) {
+          // Pour les erreurs de validation Laravel
+          final errors = errorData['errors'] as Map<String, dynamic>;
+          if (errors.isNotEmpty) {
+            final firstField = errors.keys.first;
+            final fieldErrors = errors[firstField];
+            if (fieldErrors is List && fieldErrors.isNotEmpty) {
+              errorMessage = fieldErrors.first.toString();
+            }
+          }
+        }
       } catch (e) {
         if (kDebugMode) {
-          print('Error JSON Parsing Error: $e');
+          print('Error parsing error response: $e');
         }
-        throw ApiException(
-          message: 'Erreur du serveur (${response.statusCode})',
-          statusCode: response.statusCode,
-        );
+        // Si ce n'est pas du JSON, utiliser le body directement si court
+        if (body.length < 100 && body.isNotEmpty) {
+          errorMessage = body;
+        }
       }
+      
+      throw ApiException(
+        message: errorMessage,
+        statusCode: response.statusCode,
+        errors: errorData?['errors'],
+      );
     }
   }
 
@@ -712,13 +736,26 @@ class ApiService {
     required String identifier,
     required bool isEmail,
   }) async {
+    return await sendOtpCode(
+      identifier: identifier,
+      isEmail: isEmail,
+      purpose: 'password_reset',
+    );
+  }
+
+  /// Méthode générale pour envoyer un OTP
+  Future<Map<String, dynamic>> sendOtpCode({
+    required String identifier,
+    required bool isEmail,
+    required String purpose, // 'password_reset', 'registration', 'verification', etc.
+  }) async {
     final response = await _client.post(
       Uri.parse('${ApiConstants.baseUrl}/otp/send'),
       headers: await _getHeaders(includeAuth: false),
       body: json.encode({
         'identifier': identifier,
         'type': isEmail ? 'email' : 'sms',
-        'purpose': 'password_reset',
+        'purpose': purpose,
       }),
     );
 

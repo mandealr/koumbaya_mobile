@@ -2,7 +2,7 @@ import '../config/environment.dart';
 
 class ApiConstants {
   // Base URL dynamically set based on environment
-  static String get baseUrl => Environment.baseUrl;
+  static String get baseUrl => '${Environment.baseUrl}/api';
   
   // Authentication endpoints
   static String get login => '$baseUrl/auth/login';

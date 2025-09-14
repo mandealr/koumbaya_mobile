@@ -7,11 +7,13 @@ import '../constants/app_constants.dart';
 class VerificationRequiredBanner extends StatelessWidget {
   final String? actionText;
   final VoidCallback? onActionPressed;
+  final Function(String email, String maskedEmail)? onVerificationRequested;
 
   const VerificationRequiredBanner({
     super.key,
     this.actionText,
     this.onActionPressed,
+    this.onVerificationRequested,
   });
 
   @override
@@ -79,6 +81,9 @@ class VerificationRequiredBanner extends StatelessWidget {
                     onPressed: () {
                       if (onActionPressed != null) {
                         onActionPressed!();
+                      } else if (onVerificationRequested != null) {
+                        // Utiliser le callback pour laisser la page parent gérer la navigation
+                        _goToVerificationWithCallback(context, authProvider);
                       } else {
                         _goToVerification(context, authProvider);
                       }
@@ -111,11 +116,101 @@ class VerificationRequiredBanner extends StatelessWidget {
     );
   }
 
-  void _goToVerification(BuildContext context, AuthProvider authProvider) {
+  void _goToVerificationWithCallback(BuildContext context, AuthProvider authProvider) async {
+    print('🔍 _goToVerificationWithCallback called');
+    
     if (authProvider.user?.email != null) {
       final email = authProvider.user!.email;
       final maskedEmail = _maskEmail(email);
-      context.go('/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}');
+      
+      print('📧 Sending OTP for email: $email');
+      
+      // Envoyer un nouveau code OTP avant de rediriger
+      final success = await authProvider.sendVerificationOtp();
+      
+      print('📤 OTP send result: $success');
+      
+      if (success && onVerificationRequested != null) {
+        print('🔄 Calling parent callback for navigation');
+        onVerificationRequested!(email, maskedEmail);
+      } else if (!success) {
+        print('❌ OTP send failed: ${authProvider.errorMessage}');
+        
+        // Afficher un message d'erreur
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Impossible d\'envoyer le code de vérification.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      print('❌ No email found for user');
+    }
+  }
+
+  void _goToVerification(BuildContext context, AuthProvider authProvider) async {
+    print('🔍 _goToVerification called');
+    
+    if (authProvider.user?.email != null) {
+      final email = authProvider.user!.email;
+      final maskedEmail = _maskEmail(email);
+      
+      print('📧 Sending OTP for email: $email');
+      
+      // Envoyer un nouveau code OTP avant de rediriger
+      final success = await authProvider.sendVerificationOtp();
+      
+      print('📤 OTP send result: $success');
+      
+      if (success) {
+        // Rediriger vers la page de vérification
+        if (context.mounted) {
+          final url = '/verify-otp?email=${Uri.encodeComponent(email)}&masked_email=${Uri.encodeComponent(maskedEmail)}';
+          print('🔄 Redirecting to: $url');
+          
+          // Utiliser un délai très court et GoRouter directement
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              print('🔄 Actually redirecting now with addPostFrameCallback...');
+              try {
+                // Utiliser GoRouter directement
+                GoRouter.of(context).go(url);
+                print('✅ GoRouter.of(context).go executed successfully');
+              } catch (e) {
+                print('❌ Error with GoRouter.of(context).go: $e');
+                // Dernière tentative avec Navigator
+                try {
+                  Navigator.of(context).pushReplacementNamed('/verify-otp');
+                  print('✅ Navigator.pushReplacementNamed executed successfully');
+                } catch (e2) {
+                  print('❌ Error with Navigator: $e2');
+                }
+              }
+            } else {
+              print('❌ Context not mounted after addPostFrameCallback');
+            }
+          });
+        } else {
+          print('❌ Context not mounted, cannot redirect');
+        }
+      } else {
+        print('❌ OTP send failed: ${authProvider.errorMessage}');
+        
+        // Afficher un message d'erreur
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Impossible d\'envoyer le code de vérification.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      print('❌ No email found for user');
     }
   }
 

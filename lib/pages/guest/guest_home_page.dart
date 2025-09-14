@@ -489,7 +489,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                     Text(
                       product.displayName,
                       style: AppTextStyles.h6.copyWith(fontSize: 14),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),

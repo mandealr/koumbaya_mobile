@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
           child: Form(
             key: _formKey,
@@ -71,17 +71,19 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Ajouter de l'espace en haut pour centrer sur grand écran
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 // Logo and Title
                 Container(
-                  height: 120,
-                  width: 120,
-                  padding: const EdgeInsets.all(16),
+                  height: 100,
+                  width: 100,
+                  padding: const EdgeInsets.all(12),
                   child: Image.asset(
                     'assets/images/logo.png',
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Text(
                   AppConstants.appName,
                   textAlign: TextAlign.center,
@@ -90,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: AppConstants.primaryColor,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   'Connectez-vous à votre compte',
                   textAlign: TextAlign.center,
@@ -98,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // Login Method Toggle
                 Container(
@@ -171,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Email or Phone Field
                 if (_isEmailLogin) ...[

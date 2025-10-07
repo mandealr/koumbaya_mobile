@@ -611,6 +611,99 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 24),
 
+                // Divider OU
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: Colors.grey)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OU',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider(color: Colors.grey)),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Boutons Social Auth
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return Column(
+                      children: [
+                        // Google Sign In
+                        OutlinedButton.icon(
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : () async {
+                                  final success = await authProvider.loginWithGoogle();
+                                  if (success && mounted) {
+                                    final homeRoute = authProvider.getHomeRoute();
+                                    context.go(homeRoute);
+                                  }
+                                },
+                          icon: Image.asset(
+                            'assets/icons/google.png',
+                            height: 24,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.login, size: 24, color: Colors.red),
+                          ),
+                          label: const Text('S\'inscrire avec Google'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            side: BorderSide(color: Colors.grey[300]!),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.buttonBorderRadius,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Facebook Sign In
+                        OutlinedButton.icon(
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : () async {
+                                  final success = await authProvider.loginWithFacebook();
+                                  if (success && mounted) {
+                                    final homeRoute = authProvider.getHomeRoute();
+                                    context.go(homeRoute);
+                                  }
+                                },
+                          icon: Image.asset(
+                            'assets/icons/facebook.png',
+                            height: 24,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.facebook, size: 24, color: Colors.blue),
+                          ),
+                          label: const Text('S\'inscrire avec Facebook'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            side: BorderSide(color: Colors.grey[300]!),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.buttonBorderRadius,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
                 // Login Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

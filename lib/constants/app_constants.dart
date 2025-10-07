@@ -16,6 +16,8 @@ class AppConstants {
   static const Color secondaryColor = Color(0xFF000000);   // Noir secondaire
   static const Color accentColor = Color(0xFF0099CC);      // Bleu accent
   static const Color lightAccentColor = Color(0xFFE6F7FF); // Bleu clair
+  static const Color lotteryColor = Color(0xFF9333EA);     // Violet pour tombolas
+  static const Color lightLotteryColor = Color(0xFFF3E8FF); // Violet clair pour tombolas
   static const Color errorColor = Color(0xFFF44336);       // Rouge erreur
   static const Color successColor = Color(0xFF0099CC);     // Bleu succès
   static const Color warningColor = Color(0xFFFF9800);     // Orange avertissement

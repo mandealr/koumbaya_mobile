@@ -63,6 +63,10 @@ dependencies:
   # Time formatting
   timeago: ^3.6.1
 
+  # Social Authentication
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -96,6 +100,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/images/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -98,7 +98,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     
-                    // Badge tirage spécial actif
+                    // Badge tirage spécial actif (violet pour tombola)
                     if (product.hasLottery)
                       Positioned(
                         top: 8,
@@ -106,11 +106,11 @@ class ProductCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: AppConstants.primaryColor,
+                            color: AppConstants.lotteryColor,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppConstants.primaryColor.withOpacity(0.3),
+                                color: AppConstants.lotteryColor.withOpacity(0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -150,17 +150,21 @@ class ProductCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Prix avec style amélioré
+                    // Prix avec style amélioré (violet pour tombola, bleu pour achat direct)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppConstants.lightAccentColor,
+                        color: product.hasLottery
+                          ? AppConstants.lightLotteryColor
+                          : AppConstants.lightAccentColor,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         product.formattedPrice,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppConstants.primaryColor,
+                          color: product.hasLottery
+                            ? AppConstants.lotteryColor
+                            : AppConstants.primaryColor,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
@@ -169,13 +173,13 @@ class ProductCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Informations tirage spécial si actif (simplifiées)
-                    if (product.hasLottery) 
+                    // Informations tirage spécial si actif (simplifiées avec couleur violette)
+                    if (product.hasLottery)
                       Text(
                         'Ticket: ${product.formattedTicketPrice}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppConstants.textSecondaryColor,
-                          fontWeight: FontWeight.w500,
+                          color: AppConstants.lotteryColor,
+                          fontWeight: FontWeight.w600,
                           fontSize: 11,
                         ),
                       ),

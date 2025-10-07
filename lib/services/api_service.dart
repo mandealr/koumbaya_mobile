@@ -148,7 +148,7 @@ class ApiService {
     try {
       // Déterminer si l'identifiant est un email ou un téléphone
       bool isEmail = identifier.contains('@');
-      
+
       final response = await _client.post(
         Uri.parse(ApiConstants.login),
         headers: await _getHeaders(includeAuth: false),
@@ -157,6 +157,35 @@ class ApiService {
           'password': password,
         }),
       ).timeout(const Duration(seconds: 10));
+
+      return _handleResponse(response, (json) => AuthResponse.fromJson(json));
+    } catch (e) {
+      if (e.toString().contains('TimeoutException')) {
+        throw ApiException(
+          message: 'La connexion a expiré. Veuillez réessayer.',
+          statusCode: 408,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  /// Social Authentication - Login with OAuth tokens from native SDKs
+  Future<AuthResponse> loginWithSocial({
+    required String provider,
+    String? accessToken,
+    String? idToken,
+  }) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('${ApiConstants.baseUrl}/auth/social/mobile'),
+        headers: await _getHeaders(includeAuth: false),
+        body: json.encode({
+          'provider': provider,
+          if (accessToken != null) 'access_token': accessToken,
+          if (idToken != null) 'id_token': idToken,
+        }),
+      ).timeout(const Duration(seconds: 15));
 
       return _handleResponse(response, (json) => AuthResponse.fromJson(json));
     } catch (e) {

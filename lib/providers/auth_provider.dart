@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 import '../utils/secure_token_storage.dart';
@@ -356,6 +358,102 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Login avec Google Sign In
+  Future<bool> loginWithGoogle() async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      // Sign out first to ensure account picker is shown
+      await googleSignIn.signOut();
+
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+
+      if (account == null) {
+        _setError('Connexion Google annulée');
+        return false;
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      if (auth.idToken == null) {
+        _setError('Échec de l\'authentification Google');
+        return false;
+      }
+
+      final response = await _apiService.loginWithSocial(
+        provider: 'google',
+        idToken: auth.idToken,
+        accessToken: auth.accessToken,
+      );
+
+      if (response.isSuccess && response.user != null && response.token != null) {
+        await SecureTokenStorage.saveToken(response.token!);
+        _user = response.user;
+        _status = AuthStatus.authenticated;
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Erreur de connexion avec Google');
+        return false;
+      }
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Login avec Facebook
+  Future<bool> loginWithFacebook() async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+
+      if (result.status != LoginStatus.success) {
+        _setError('Connexion Facebook annulée');
+        return false;
+      }
+
+      final AccessToken? accessToken = result.accessToken;
+
+      if (accessToken == null) {
+        _setError('Échec de l\'authentification Facebook');
+        return false;
+      }
+
+      final response = await _apiService.loginWithSocial(
+        provider: 'facebook',
+        accessToken: accessToken.token,
+      );
+
+      if (response.isSuccess && response.user != null && response.token != null) {
+        await SecureTokenStorage.saveToken(response.token!);
+        _user = response.user;
+        _status = AuthStatus.authenticated;
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Erreur de connexion avec Facebook');
+        return false;
+      }
+    } catch (e) {
+      _setError(_getErrorMessage(e));
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   String _getErrorMessage(dynamic error) {
     if (error is ApiException) {
       // Gérer spécifiquement les erreurs de validation 422
@@ -365,7 +463,7 @@ class AuthProvider extends ChangeNotifier {
       // Gérer l'erreur de vérification 403
       if (error.statusCode == 403 && error.errors != null) {
         // errors peut être soit un Map soit une List selon l'API
-        if (error.errors is Map<String, dynamic> && 
+        if (error.errors is Map<String, dynamic> &&
             error.errors!['error_code'] == 'EMAIL_NOT_VERIFIED') {
           _setError('Veuillez vérifier votre compte pour continuer.');
           return 'Veuillez vérifier votre compte pour continuer.';

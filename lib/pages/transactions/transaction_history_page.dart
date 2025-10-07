@@ -6,6 +6,7 @@ import '../../providers/transaction_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/date_range_picker_widget.dart';
 import '../products/product_detail_page.dart';
 
 class TransactionHistoryPage extends StatefulWidget {
@@ -15,11 +16,19 @@ class TransactionHistoryPage extends StatefulWidget {
   State<TransactionHistoryPage> createState() => _TransactionHistoryPageState();
 }
 
-class _TransactionHistoryPageState extends State<TransactionHistoryPage> 
+class _TransactionHistoryPageState extends State<TransactionHistoryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _scrollController;
   String _searchQuery = '';
+
+  // Filtres avancés
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
+  String? _filterStatus;
+  double? _filterMinAmount;
+  double? _filterMaxAmount;
+  String _sortBy = 'date_desc'; // date_desc, date_asc, amount_desc, amount_asc
 
   @override
   void initState() {
@@ -153,6 +162,13 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
   }
 
   Widget _buildSearchAndStats() {
+    final hasActiveFilters = _filterStartDate != null ||
+        _filterEndDate != null ||
+        _filterStatus != null ||
+        _filterMinAmount != null ||
+        _filterMaxAmount != null ||
+        _sortBy != 'date_desc';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -188,11 +204,115 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
               });
             },
           ),
+          if (hasActiveFilters) ...[
+            const SizedBox(height: 12),
+            _buildActiveFiltersChips(),
+          ],
           const SizedBox(height: 12),
           _buildStatsRow(),
         ],
       ),
     );
+  }
+
+  Widget _buildActiveFiltersChips() {
+    final filters = <Widget>[];
+
+    if (_filterStartDate != null && _filterEndDate != null) {
+      filters.add(
+        Chip(
+          label: Text(
+            '${_formatDateShort(_filterStartDate!)} - ${_formatDateShort(_filterEndDate!)}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () {
+            setState(() {
+              _filterStartDate = null;
+              _filterEndDate = null;
+            });
+          },
+        ),
+      );
+    }
+
+    if (_filterStatus != null) {
+      filters.add(
+        Chip(
+          label: Text(
+            'Statut: $_filterStatus',
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () {
+            setState(() {
+              _filterStatus = null;
+            });
+          },
+        ),
+      );
+    }
+
+    if (_filterMinAmount != null || _filterMaxAmount != null) {
+      final amountText = _filterMinAmount != null && _filterMaxAmount != null
+          ? '${_filterMinAmount!.toInt()} - ${_filterMaxAmount!.toInt()} FCFA'
+          : _filterMinAmount != null
+              ? '≥ ${_filterMinAmount!.toInt()} FCFA'
+              : '≤ ${_filterMaxAmount!.toInt()} FCFA';
+
+      filters.add(
+        Chip(
+          label: Text(
+            amountText,
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () {
+            setState(() {
+              _filterMinAmount = null;
+              _filterMaxAmount = null;
+            });
+          },
+        ),
+      );
+    }
+
+    if (_sortBy != 'date_desc') {
+      final sortText = {
+        'date_asc': 'Plus ancien',
+        'amount_desc': 'Montant ↓',
+        'amount_asc': 'Montant ↑',
+      }[_sortBy] ?? '';
+
+      filters.add(
+        Chip(
+          label: Text(
+            'Tri: $sortText',
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () {
+            setState(() {
+              _sortBy = 'date_desc';
+            });
+          },
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: filters,
+    );
+  }
+
+  String _formatDateShort(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
   }
 
   Widget _buildStatsRow() {
@@ -273,12 +393,58 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
   }
 
   Widget _buildTransactionsList(List<Transaction> transactions) {
-    final filteredTransactions = _searchQuery.isEmpty
-        ? transactions
-        : transactions.where((t) => 
-            t.displayTitle.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            t.reference?.toLowerCase().contains(_searchQuery.toLowerCase()) == true
-          ).toList();
+    var filteredTransactions = transactions;
+
+    // Filtrer par recherche
+    if (_searchQuery.isNotEmpty) {
+      filteredTransactions = filteredTransactions.where((t) =>
+        t.displayTitle.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        t.reference?.toLowerCase().contains(_searchQuery.toLowerCase()) == true
+      ).toList();
+    }
+
+    // Filtrer par période
+    if (_filterStartDate != null && _filterEndDate != null) {
+      filteredTransactions = filteredTransactions.where((t) {
+        return t.createdAt.isAfter(_filterStartDate!.subtract(const Duration(days: 1))) &&
+               t.createdAt.isBefore(_filterEndDate!.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    // Filtrer par statut
+    if (_filterStatus != null) {
+      filteredTransactions = filteredTransactions
+          .where((t) => t.status == _filterStatus)
+          .toList();
+    }
+
+    // Filtrer par montant
+    if (_filterMinAmount != null) {
+      filteredTransactions = filteredTransactions
+          .where((t) => t.amount >= _filterMinAmount!)
+          .toList();
+    }
+    if (_filterMaxAmount != null) {
+      filteredTransactions = filteredTransactions
+          .where((t) => t.amount <= _filterMaxAmount!)
+          .toList();
+    }
+
+    // Trier
+    switch (_sortBy) {
+      case 'date_asc':
+        filteredTransactions.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
+      case 'date_desc':
+        filteredTransactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case 'amount_asc':
+        filteredTransactions.sort((a, b) => a.amount.compareTo(b.amount));
+        break;
+      case 'amount_desc':
+        filteredTransactions.sort((a, b) => b.amount.compareTo(a.amount));
+        break;
+    }
 
     if (filteredTransactions.isEmpty) {
       return _buildEmptyState();
@@ -589,17 +755,17 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
 
   Widget _buildFilterModal() {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
               children: [
                 const Text(
                   'Filtrer les transactions',
@@ -616,45 +782,229 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            // TODO: Implement filter options (date range, status, etc.)
-            Text(
-              'Options de filtrage à venir...',
-              style: TextStyle(
-                fontFamily: 'AmazonEmberDisplay',
-                fontSize: 16,
-                color: Colors.grey[600],
+          ),
+          const Divider(height: 1),
+
+          // Contenu scrollable
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Filtre par période
+                  DateRangePickerWidget(
+                    startDate: _filterStartDate,
+                    endDate: _filterEndDate,
+                    onDateRangeSelected: (start, end) {
+                      setState(() {
+                        _filterStartDate = start;
+                        _filterEndDate = end;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // Filtre par statut
+                  const Text(
+                    'Statut',
+                    style: TextStyle(
+                      fontFamily: 'AmazonEmberDisplay',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildStatusFilter('Tous', null),
+                      _buildStatusFilter('Complété', 'completed'),
+                      _buildStatusFilter('En attente', 'pending'),
+                      _buildStatusFilter('Échoué', 'failed'),
+                      _buildStatusFilter('Annulé', 'cancelled'),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // Filtre par montant
+                  const Text(
+                    'Montant',
+                    style: TextStyle(
+                      fontFamily: 'AmazonEmberDisplay',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Minimum (FCFA)',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.attach_money),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _filterMinAmount = double.tryParse(value);
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Maximum (FCFA)',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.attach_money),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _filterMaxAmount = double.tryParse(value);
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // Tri
+                  const Text(
+                    'Trier par',
+                    style: TextStyle(
+                      fontFamily: 'AmazonEmberDisplay',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildSortFilter('Plus récent', 'date_desc'),
+                      _buildSortFilter('Plus ancien', 'date_asc'),
+                      _buildSortFilter('Montant ↓', 'amount_desc'),
+                      _buildSortFilter('Montant ↑', 'amount_asc'),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const Spacer(),
-            Row(
+          ),
+
+          // Footer avec boutons d'action
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
+                      setState(() {
+                        _filterStartDate = null;
+                        _filterEndDate = null;
+                        _filterStatus = null;
+                        _filterMinAmount = null;
+                        _filterMaxAmount = null;
+                        _sortBy = 'date_desc';
+                      });
                       context.read<TransactionProvider>().clearFilters();
-                      Navigator.pop(context);
                     },
-                    child: const Text('Effacer les filtres'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Réinitialiser'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      _applyFilters();
+                      Navigator.pop(context);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: const Text('Appliquer'),
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildStatusFilter(String label, String? value) {
+    final isSelected = _filterStatus == value;
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        setState(() {
+          _filterStatus = value;
+        });
+      },
+      selectedColor: AppColors.primary,
+      labelStyle: TextStyle(
+        fontFamily: 'AmazonEmberDisplay',
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+        color: isSelected ? Colors.white : Colors.grey[700],
+      ),
+      backgroundColor: Colors.grey[100],
+      checkmarkColor: Colors.white,
+    );
+  }
+
+  Widget _buildSortFilter(String label, String value) {
+    final isSelected = _sortBy == value;
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        setState(() {
+          _sortBy = value;
+        });
+      },
+      selectedColor: AppColors.primary,
+      labelStyle: TextStyle(
+        fontFamily: 'AmazonEmberDisplay',
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+        color: isSelected ? Colors.white : Colors.grey[700],
+      ),
+      backgroundColor: Colors.grey[100],
+      checkmarkColor: Colors.white,
+    );
+  }
+
+  void _applyFilters() {
+    // Cette méthode appliquera les filtres localement
+    // car le TransactionProvider ne semble pas avoir de méthodes pour tous ces filtres
+    setState(() {}); // Force rebuild avec les nouveaux filtres
   }
 
   void _showTransactionDetails(Transaction transaction) {

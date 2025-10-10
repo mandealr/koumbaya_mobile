@@ -78,9 +78,18 @@ class Role {
   @override
   String toString() => name;
 
-  // Helper methods basés sur le système hybride Koumbaya
+  // Helper methods basés sur la nouvelle architecture Koumbaya
+  // Rôles clients (user_type_id = 2 - Client)
   bool get isCustomer => name == 'Particulier';
-  bool get isMerchant => name == 'Business';
-  bool get isManager => name == 'Agent' || name == 'Agent Back Office' || name == 'Admin' || name == 'Super Admin';
+  bool get isMerchant => name == 'Business Individual' || name == 'Business Enterprise';
+  bool get isBusinessIndividual => name == 'Business Individual';
+  bool get isBusinessEnterprise => name == 'Business Enterprise';
+
+  // Rôles admin (user_type_id = 1 - Administrateur) - Non autorisés dans l'app mobile
+  bool get isManager => name == 'Agent' || name == 'Admin' || name == 'Super Admin';
   bool get isAdmin => name == 'Admin' || name == 'Super Admin';
+  bool get isSuperAdmin => name == 'Super Admin';
+
+  // L'app mobile est réservée aux clients uniquement
+  bool get isAllowedInMobileApp => isCustomer || isMerchant;
 }

@@ -216,28 +216,42 @@ class User {
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
   String get fullName => '$firstName $lastName';
-  // Méthodes pour la gestion des rôles
+  // Méthodes pour la gestion des rôles (nouvelle architecture)
   bool hasRole(String roleName) {
     return roles.any((role) => role.name == roleName);
   }
 
-  bool get isMerchant => hasRole('Business');
+  // Rôles clients (autorisés dans l'app mobile)
   bool get isCustomer => hasRole('Particulier');
-  bool get isManager => hasRole('Agent') || hasRole('Agent Back Office') || hasRole('Admin') || hasRole('Super Admin');
+  bool get isMerchant => hasRole('Business Individual') || hasRole('Business Enterprise');
+  bool get isBusinessIndividual => hasRole('Business Individual');
+  bool get isBusinessEnterprise => hasRole('Business Enterprise');
+
+  // Rôles admin (NON autorisés dans l'app mobile)
+  bool get isManager => hasRole('Agent') || hasRole('Admin') || hasRole('Super Admin');
   bool get isAdmin => hasRole('Admin') || hasRole('Super Admin');
-  
+  bool get isSuperAdmin => hasRole('Super Admin');
+
+  // Vérifier si l'utilisateur est autorisé à utiliser l'app mobile
+  bool get isAllowedInMobileApp {
+    // L'app mobile est réservée aux clients (user_type_id = 2)
+    // Vérifie que l'utilisateur a un rôle client ET n'a PAS de rôle admin
+    return (isCustomer || isMerchant) && !isManager;
+  }
+
   String get primaryRole {
     if (roles.isNotEmpty) {
-      // Prioriser les rôles administratifs
+      // Ordre de priorité des rôles
       if (hasRole('Super Admin')) return 'Super Admin';
       if (hasRole('Admin')) return 'Admin';
-      if (hasRole('Agent Back Office')) return 'Agent Back Office';
       if (hasRole('Agent')) return 'Agent';
-      if (hasRole('Business')) return 'Business';
+      if (hasRole('Business Enterprise')) return 'Business Enterprise';
+      if (hasRole('Business Individual')) return 'Business Individual';
       if (hasRole('Particulier')) return 'Particulier';
       return roles.first.name;
     }
-    if (canSell == true) return 'Business';
+    // Fallback basé sur canSell (ancienne logique)
+    if (canSell == true) return 'Business Individual';
     return 'Particulier';
   }
   

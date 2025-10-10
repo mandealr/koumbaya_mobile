@@ -44,6 +44,19 @@ class AuthProvider extends ChangeNotifier {
       if (hasToken) {
         try {
           final user = await _apiService.getMe(autoRemoveTokenOn401: false);
+
+          // Vérifier que l'utilisateur est autorisé dans l'app mobile
+          if (!user.isAllowedInMobileApp) {
+            if (kDebugMode) {
+              print('🚫 AuthProvider: User is not allowed in mobile app (admin role detected)');
+            }
+            await SecureTokenStorage.removeToken();
+            _user = null;
+            _status = AuthStatus.unauthenticated;
+            _setError('Cette application est réservée aux clients. Veuillez utiliser l\'interface web.');
+            return;
+          }
+
           _user = user;
           _status = AuthStatus.authenticated;
           if (kDebugMode) {
@@ -100,8 +113,14 @@ class AuthProvider extends ChangeNotifier {
       _clearError();
 
       final response = await _apiService.login(email, password);
-      
+
       if (response.isSuccess && response.user != null) {
+        // Vérifier que l'utilisateur est autorisé à utiliser l'app mobile
+        if (!response.user!.isAllowedInMobileApp) {
+          _setError('Cette application est réservée aux clients. Veuillez utiliser l\'interface web pour les comptes administrateurs.');
+          return false;
+        }
+
         // Vérifier qu'un token valide est fourni par l'API
         if (response.token != null && !response.token!.startsWith('temp_')) {
           await SecureTokenStorage.saveToken(response.token!);
@@ -109,7 +128,7 @@ class AuthProvider extends ChangeNotifier {
           _setError('Token d\'authentification invalide reçu du serveur');
           return false;
         }
-        
+
         _user = response.user;
         _status = AuthStatus.authenticated;
         notifyListeners();
@@ -132,8 +151,14 @@ class AuthProvider extends ChangeNotifier {
       _clearError();
 
       final response = await _apiService.loginWithIdentifier(identifier, password);
-      
+
       if (response.isSuccess && response.user != null) {
+        // Vérifier que l'utilisateur est autorisé à utiliser l'app mobile
+        if (!response.user!.isAllowedInMobileApp) {
+          _setError('Cette application est réservée aux clients. Veuillez utiliser l\'interface web pour les comptes administrateurs.');
+          return false;
+        }
+
         // Vérifier qu'un token valide est fourni par l'API
         if (response.token != null && !response.token!.startsWith('temp_')) {
           await SecureTokenStorage.saveToken(response.token!);
@@ -141,7 +166,7 @@ class AuthProvider extends ChangeNotifier {
           _setError('Token d\'authentification invalide reçu du serveur');
           return false;
         }
-        
+
         _user = response.user;
         _status = AuthStatus.authenticated;
         notifyListeners();

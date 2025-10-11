@@ -52,57 +52,58 @@ class _PaymentMethodSelectionPageState extends State<PaymentMethodSelectionPage>
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Méthode de paiement'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // En-tête avec logo
-          Container(
-            padding: const EdgeInsets.all(20),
-            color: Colors.white,
-            child: Column(
-              children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  height: 50,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Choisissez votre méthode de paiement',
-                  style: AppTextStyles.h3,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sélectionnez votre mode de paiement préféré',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          
-          // Résumé de la commande
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // En-tête avec logo
+            Container(
+              padding: const EdgeInsets.all(20),
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              child: Column(
+                children: [
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 50,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Choisissez votre méthode de paiement',
+                    style: AppTextStyles.h3,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sélectionnez votre mode de paiement préféré',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
+
+            // Résumé de la commande
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -172,25 +173,25 @@ class _PaymentMethodSelectionPageState extends State<PaymentMethodSelectionPage>
           ),
 
           // Méthodes de paiement
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                   Text(
                     'Méthodes de paiement',
                     style: AppTextStyles.h4,
@@ -249,11 +250,10 @@ class _PaymentMethodSelectionPageState extends State<PaymentMethodSelectionPage>
                     color: Colors.grey,
                     enabled: false,
                   ),
-                ],
-              ),
+              ],
             ),
           ),
-          
+
           // Boutons d'action
           Container(
             padding: const EdgeInsets.all(16),
@@ -308,7 +308,9 @@ class _PaymentMethodSelectionPageState extends State<PaymentMethodSelectionPage>
               ],
             ),
           ),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

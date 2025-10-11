@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
 import '../constants/app_constants.dart';
+import '../constants/koumbaya_lexicon.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -132,32 +133,51 @@ class ProductCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Titre avec meilleure typographie
-                    Text(
-                      product.displayName,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppConstants.textPrimaryColor,
-                        height: 1.2,
+                    Flexible(
+                      child: Text(
+                        product.displayName,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppConstants.textPrimaryColor,
+                          height: 1.1,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 3),
+
+                    // Vendeur
+                    if (product.merchant != null)
+                      Flexible(
+                        child: Text(
+                          product.merchant!.businessName ?? product.merchant!.fullName,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontSize: 9,
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
 
                     // Prix avec style amélioré (violet pour tombola, bleu pour achat direct)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                       decoration: BoxDecoration(
                         color: product.hasLottery
                           ? AppConstants.lightLotteryColor
                           : AppConstants.lightAccentColor,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                       child: Text(
                         product.formattedPrice,
@@ -166,49 +186,29 @@ class ProductCard extends StatelessWidget {
                             ? AppConstants.lotteryColor
                             : AppConstants.primaryColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 12,
+                          fontSize: 11,
+                          height: 1.0,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 6),
-
                     // Informations tirage spécial si actif (simplifiées avec couleur violette)
-                    if (product.hasLottery)
-                      Text(
-                        'Ticket: ${product.formattedTicketPrice}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppConstants.lotteryColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11,
-                        ),
-                      ),
-
-                    const Spacer(),
-                    
-                    // Badge de statut en bas (compact)
-                    if (product.endsLotterySoon)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppConstants.warningColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: AppConstants.warningColor.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
+                    if (product.hasLottery) ...[
+                      const SizedBox(height: 3),
+                      Flexible(
                         child: Text(
-                          '⏰ Bientôt',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppConstants.warningColor,
-                            fontSize: 9,
+                          '${KoumbayaLexicon.ticket}: ${product.formattedTicketPrice}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppConstants.lotteryColor,
                             fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                            height: 1.0,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),

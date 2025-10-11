@@ -8,6 +8,7 @@ import '../../providers/notifications_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/koumbaya_lexicon.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/verification_required_banner.dart';
@@ -128,28 +129,31 @@ class _HomePageState extends State<HomePage>
               if (authProvider.user != null) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 16),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Salut ${authProvider.user!.firstName}!',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white,
-                        child: Text(
-                          authProvider.user!.firstName[0].toUpperCase(),
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                  child: GestureDetector(
+                    onTap: () => context.go('/profile'),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Salut ${authProvider.user!.firstName}!',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            authProvider.user!.firstName[0].toUpperCase(),
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -162,10 +166,10 @@ class _HomePageState extends State<HomePage>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.7),
           indicatorColor: Colors.white,
-          tabs: const [
-            Tab(icon: Icon(Icons.star), text: 'Vedettes'),
-            Tab(icon: Icon(Icons.grid_view), text: 'Articles'),
-            Tab(icon: Icon(Icons.casino), text: 'Tirages spéciaux'),
+          tabs: [
+            const Tab(icon: Icon(Icons.star), text: 'Vedettes'),
+            Tab(icon: Icon(Icons.grid_view), text: KoumbayaLexicon.articles),
+            Tab(icon: Icon(Icons.casino), text: KoumbayaLexicon.specialDrawShort),
           ],
         ),
       ),
@@ -201,15 +205,15 @@ class _HomePageState extends State<HomePage>
         builder: (context, productsProvider, child) {
           if (productsProvider.isFeaturedLoading &&
               productsProvider.featuredProducts.isEmpty) {
-            return const LoadingWidget(
-              message: 'Chargement des articles vedettes...',
+            return LoadingWidget(
+              message: 'Chargement des ${KoumbayaLexicon.articles.toLowerCase()} vedettes...',
             );
           }
 
           if (productsProvider.featuredProducts.isEmpty) {
-            return const EmptyStateWidget(
-              title: 'Aucun article vedette',
-              subtitle: 'Les articles vedettes apparaîtront ici',
+            return EmptyStateWidget(
+              title: 'Aucun ${KoumbayaLexicon.article.toLowerCase()} vedette',
+              subtitle: 'Les ${KoumbayaLexicon.articles.toLowerCase()} vedettes apparaîtront ici',
               icon: Icons.star_outline,
             );
           }
@@ -220,7 +224,7 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Articles vedettes',
+                  KoumbayaLexicon.featuredArticles,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppConstants.primaryColor,
@@ -269,13 +273,13 @@ class _HomePageState extends State<HomePage>
       child: Consumer<ProductsProvider>(
         builder: (context, productsProvider, child) {
           if (productsProvider.isLoading && productsProvider.products.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des articles...');
+            return LoadingWidget(message: 'Chargement des ${KoumbayaLexicon.articles.toLowerCase()}...');
           }
 
           if (productsProvider.products.isEmpty) {
-            return const EmptyStateWidget(
-              title: 'Aucun article',
-              subtitle: 'Les articles apparaîtront ici',
+            return EmptyStateWidget(
+              title: KoumbayaLexicon.noArticlesFound,
+              subtitle: 'Les ${KoumbayaLexicon.articles.toLowerCase()} apparaîtront ici',
               icon: Icons.shopping_bag_outlined,
             );
           }
@@ -288,7 +292,7 @@ class _HomePageState extends State<HomePage>
                 Row(
                   children: [
                     Text(
-                      'Tous les articles',
+                      KoumbayaLexicon.allArticles,
                       style: Theme.of(
                         context,
                       ).textTheme.headlineSmall?.copyWith(
@@ -354,13 +358,13 @@ class _HomePageState extends State<HomePage>
         builder: (context, lotteryProvider, child) {
           if (lotteryProvider.isLoading &&
               lotteryProvider.activeLotteries.isEmpty) {
-            return const LoadingWidget(message: 'Chargement des tirages spéciaux...');
+            return LoadingWidget(message: 'Chargement des ${KoumbayaLexicon.specialDrawShort.toLowerCase()}...');
           }
 
           if (lotteryProvider.activeLotteries.isEmpty) {
-            return const EmptyStateWidget(
-              title: 'Aucun tirage spécial actif',
-              subtitle: 'Les tirages spéciaux actifs apparaîtront ici',
+            return EmptyStateWidget(
+              title: 'Aucun ${KoumbayaLexicon.specialDrawShort.toLowerCase()} actif',
+              subtitle: 'Les ${KoumbayaLexicon.specialDrawShort.toLowerCase()} actifs apparaîtront ici',
               icon: Icons.casino_outlined,
             );
           }
@@ -371,7 +375,7 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tirages spéciaux actifs',
+                  KoumbayaLexicon.activeDraws,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppConstants.primaryColor,
@@ -405,7 +409,7 @@ class _HomePageState extends State<HomePage>
                           ),
                           title: Text(
                             lottery.product?.title ??
-                                'Article #${lottery.productId}',
+                                '${KoumbayaLexicon.article} #${lottery.productId}',
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Column(
@@ -423,7 +427,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${lottery.soldTickets}/${lottery.totalTickets} tickets vendus',
+                                '${lottery.soldTickets}/${lottery.totalTickets} ${KoumbayaLexicon.tickets.toLowerCase()} vendus',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 12,

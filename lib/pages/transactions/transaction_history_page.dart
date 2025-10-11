@@ -5,6 +5,7 @@ import '../../models/transaction.dart';
 import '../../providers/transaction_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../constants/koumbaya_lexicon.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/date_range_picker_widget.dart';
 import '../products/product_detail_page.dart';
@@ -151,11 +152,11 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
           fontSize: 14,
         ),
         onTap: _onTabChanged,
-        tabs: const [
-          Tab(height: 48, child: Text('Toutes')),
-          Tab(height: 48, child: Text('Tickets')),
-          Tab(height: 48, child: Text('Achats')),
-          Tab(height: 48, child: Text('Remboursements')),
+        tabs: [
+          const Tab(height: 48, child: Text('Toutes')),
+          Tab(height: 48, child: Text(KoumbayaLexicon.tickets)),
+          Tab(height: 48, child: Text(KoumbayaLexicon.directPurchase)),
+          const Tab(height: 48, child: Text('Remboursements')),
         ],
       ),
     );
@@ -711,7 +712,7 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
               Navigator.of(context).pushReplacementNamed('/home');
             },
             icon: const Icon(Icons.explore),
-            label: const Text('Découvrir les articles'),
+            label: Text('Découvrir les ${KoumbayaLexicon.articles.toLowerCase()}'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -1045,15 +1046,19 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'Détails de la transaction',
-                          style: TextStyle(
-                            fontFamily: 'AmazonEmberDisplay',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
+                        Expanded(
+                          child: Text(
+                            'Détails de la transaction',
+                            style: const TextStyle(
+                              fontFamily: 'AmazonEmberDisplay',
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         _buildStatusChip(transaction),
                       ],
                     ),

@@ -268,7 +268,23 @@ class Product {
   // Getters pour compatibilité et utilité
   String get displayName => name ?? title ?? 'Produit sans nom';
   String get displayDescription => description ?? '';
-  String get displayImage => mainImage ?? imageUrl ?? (images?.isNotEmpty == true ? images!.first : '');
+
+  String get displayImage {
+    final imageUrl = mainImage ?? this.imageUrl ?? (images?.isNotEmpty == true ? images!.first : '');
+
+    // Si l'URL commence par /, ajouter le domaine
+    if (imageUrl.startsWith('/')) {
+      return 'https://koumbaya.com$imageUrl';
+    }
+
+    // Si l'URL est vide ou nulle, retourner un placeholder
+    if (imageUrl.isEmpty) {
+      return 'https://via.placeholder.com/400x400?text=No+Image';
+    }
+
+    return imageUrl;
+  }
+
   bool get hasImages => images?.isNotEmpty ?? false;
   bool get isActive => status == 'active';
   bool get isFeatureProduct => isFeatured ?? false;

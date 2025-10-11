@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../models/lottery.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/lottery_provider.dart';
 import '../../constants/app_constants.dart';
-import 'payment_page.dart';
+import '../../constants/koumbaya_lexicon.dart';
+import '../payments/payment_method_selection_page.dart';
 
 class TicketPurchasePage extends StatefulWidget {
   final Lottery lottery;
@@ -46,7 +48,8 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
 
   void _onQuantityChanged(String value) {
     final quantity = int.tryParse(value) ?? 1;
-    if (quantity > 0 && quantity <= 10) {
+    final maxTickets = widget.lottery.remainingTickets;
+    if (quantity > 0 && quantity <= maxTickets) {
       setState(() {
         _selectedQuantity = quantity;
         _calculateTotal();
@@ -60,29 +63,47 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
     setState(() => _isLoading = true);
 
     try {
-      // Naviguer vers la page de paiement
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => PaymentPage(
-                lottery: widget.lottery,
-                quantity: _selectedQuantity,
-                totalAmount: _totalAmount,
-                phoneNumber: _phoneController.text.trim(),
-              ),
-        ),
+      // Créer la transaction/commande via LotteryProvider
+      final lotteryProvider = Provider.of<LotteryProvider>(context, listen: false);
+
+      final result = await lotteryProvider.buyTicket(
+        widget.lottery.id,
+        _selectedQuantity,
       );
 
-      if (result == true && mounted) {
-        // Paiement réussi
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tickets achetés avec succès !'),
-            backgroundColor: AppConstants.primaryColor,
-          ),
-        );
+      if (result && mounted) {
+        // Transaction créée avec succès, récupérer la référence
+        final transactionRef = lotteryProvider.lastTransactionReference;
+
+        if (transactionRef != null) {
+          // Rediriger vers la page de sélection de méthode de paiement
+          final paymentResult = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentMethodSelectionPage(
+                orderNumber: transactionRef,
+                amount: _totalAmount,
+                productName: widget.lottery.title,
+                orderType: 'lottery',
+              ),
+            ),
+          );
+
+          if (paymentResult == true && mounted) {
+            // Paiement réussi
+            Navigator.pop(context, true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${KoumbayaLexicon.tickets} achetés avec succès !'),
+                backgroundColor: AppConstants.lotteryColor,
+              ),
+            );
+          }
+        } else {
+          throw Exception('Référence de transaction manquante');
+        }
+      } else {
+        throw Exception('Échec de la création de la transaction');
       }
     } catch (e) {
       if (mounted) {
@@ -110,7 +131,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Acheter des tickets'), elevation: 0),
+      appBar: AppBar(title: Text('Acheter des ${KoumbayaLexicon.tickets.toLowerCase()}'), elevation: 0),
       body: Form(
         key: _formKey,
         child: Column(
@@ -199,7 +220,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${widget.lottery.ticketPrice.toStringAsFixed(0)} FCFA/ticket',
+                      '${widget.lottery.ticketPrice.toStringAsFixed(0)} FCFA/${KoumbayaLexicon.ticket.toLowerCase()}',
                       style: TextStyle(
                         color: AppConstants.primaryColor,
                         fontSize: 12,
@@ -224,7 +245,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nombre de tickets',
+              'Nombre de ${KoumbayaLexicon.tickets.toLowerCase()}',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -274,8 +295,8 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
                             if (quantity == null || quantity < 1) {
                               return 'Min: 1';
                             }
-                            if (quantity > 10) {
-                              return 'Max: 10';
+                            if (quantity > widget.lottery.remainingTickets) {
+                              return 'Max: ${widget.lottery.remainingTickets}';
                             }
                             return null;
                           },
@@ -283,7 +304,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
                       ),
                       IconButton(
                         onPressed:
-                            _selectedQuantity < 10
+                            _selectedQuantity < widget.lottery.remainingTickets
                                 ? () {
                                   setState(() {
                                     _selectedQuantity++;
@@ -300,7 +321,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
                 ),
                 const SizedBox(width: 16),
                 Text(
-                  'Maximum: 10 tickets',
+                  'Disponibles: ${widget.lottery.remainingTickets} ${KoumbayaLexicon.tickets.toLowerCase()}',
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -312,7 +333,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
             Wrap(
               spacing: 8,
               children:
-                  [1, 2, 3, 5].map((quantity) {
+                  [1, 2, 3, 5, 10, 20, 50].where((q) => q <= widget.lottery.remainingTickets).map((quantity) {
                     return FilterChip(
                       label: Text('$quantity'),
                       selected: _selectedQuantity == quantity,
@@ -325,8 +346,8 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
                           });
                         }
                       },
-                      selectedColor: AppConstants.primaryColor.withOpacity(0.2),
-                      checkmarkColor: AppConstants.primaryColor,
+                      selectedColor: AppConstants.lotteryColor.withValues(alpha: 0.2),
+                      checkmarkColor: AppConstants.lotteryColor,
                     );
                   }).toList(),
             ),
@@ -413,7 +434,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
               children: [
                 Text('Quantité:'),
                 Text(
-                  '$_selectedQuantity ticket${_selectedQuantity > 1 ? 's' : ''}',
+                  KoumbayaLexicon.ticketCount(_selectedQuantity),
                 ),
               ],
             ),
@@ -470,7 +491,7 @@ class _TicketPurchasePageState extends State<TicketPurchasePage> {
               '• Vous serez redirigé vers le paiement Mobile Money\n'
               '• Opérateurs supportés: Airtel Money, Moov Money\n'
               '• Suivez les instructions sur votre téléphone\n'
-              '• Vos tickets seront créés après paiement confirmé',
+              '• Vos ${KoumbayaLexicon.tickets.toLowerCase()} seront créés après paiement confirmé',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.blue[700]),

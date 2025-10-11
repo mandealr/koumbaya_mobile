@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../models/user.dart';
@@ -426,8 +427,19 @@ class AuthProvider extends ChangeNotifier {
         _setError(response.message ?? 'Erreur de connexion avec Google');
         return false;
       }
+    } on PlatformException catch (e) {
+      debugPrint('Google Sign-In PlatformException: ${e.code} - ${e.message}');
+      if (e.code == 'sign_in_failed' || e.code == 'network_error') {
+        _setError('Erreur de connexion Google. Vérifiez votre configuration ou votre connexion internet.');
+      } else if (e.code == 'sign_in_canceled') {
+        _setError('Connexion Google annulée');
+      } else {
+        _setError('Erreur Google: ${e.message ?? e.code}');
+      }
+      return false;
     } catch (e) {
-      _setError(_getErrorMessage(e));
+      debugPrint('Google Sign-In error: $e');
+      _setError('La connexion avec Google n\'est pas encore configurée. Veuillez utiliser l\'email et le mot de passe.');
       return false;
     } finally {
       _setLoading(false);

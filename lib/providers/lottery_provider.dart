@@ -59,19 +59,27 @@ class LotteryProvider extends ChangeNotifier {
   }
 
   // Buy lottery ticket
+  String? _lastTransactionReference;
+  String? get lastTransactionReference => _lastTransactionReference;
+
   Future<bool> buyTicket(int lotteryId, int quantity) async {
     try {
       _setPurchasing(true);
       _clearMessages();
 
-      await _apiService.buyLotteryTicket(lotteryId, quantity);
-      
+      final response = await _apiService.buyLotteryTicket(lotteryId, quantity);
+
+      // Extraire la référence de transaction
+      if (response['transaction'] != null && response['transaction']['reference'] != null) {
+        _lastTransactionReference = response['transaction']['reference'];
+      }
+
       _setSuccess('Ticket(s) acheté(s) avec succès!');
-      
+
       // Refresh the lottery data
       await loadLottery(lotteryId);
       await loadActiveLotteries();
-      
+
       return true;
     } catch (e) {
       _setError(_getErrorMessage(e));

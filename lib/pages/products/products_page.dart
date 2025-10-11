@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/products_provider.dart';
 import '../../constants/app_constants.dart';
+import '../../constants/koumbaya_lexicon.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -47,8 +48,8 @@ class _ProductsPageState extends State<ProductsPage> {
       appBar: AppBar(
         title: Text(
           widget.categoryId != null
-              ? 'Articles de la catégorie'
-              : 'Tous les articles',
+              ? '${KoumbayaLexicon.articles} de la catégorie'
+              : KoumbayaLexicon.allArticles,
         ),
         backgroundColor: AppConstants.primaryColor,
         elevation: 1,
@@ -62,7 +63,7 @@ class _ProductsPageState extends State<ProductsPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Rechercher des articles...',
+                hintText: KoumbayaLexicon.searchArticles,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(
@@ -162,8 +163,8 @@ class _ProductsPageState extends State<ProductsPage> {
                 builder: (context, productsProvider, child) {
                   if (productsProvider.isLoading &&
                       productsProvider.products.isEmpty) {
-                    return const LoadingWidget(
-                      message: 'Chargement des articles...',
+                    return LoadingWidget(
+                      message: 'Chargement des ${KoumbayaLexicon.articles.toLowerCase()}...',
                     );
                   }
 
@@ -194,11 +195,11 @@ class _ProductsPageState extends State<ProductsPage> {
                       title:
                           _searchQuery.isNotEmpty
                               ? 'Aucun résultat trouvé'
-                              : 'Aucun article',
+                              : KoumbayaLexicon.noArticlesFound,
                       subtitle:
                           _searchQuery.isNotEmpty
                               ? 'Essayez avec d\'autres mots-clés'
-                              : 'Les articles apparaîtront ici',
+                              : 'Les ${KoumbayaLexicon.articles.toLowerCase()} apparaîtront ici',
                       icon:
                           _searchQuery.isNotEmpty
                               ? Icons.search_off
@@ -219,7 +220,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Text(
-                            '${filteredProducts.length} article${filteredProducts.length > 1 ? 's' : ''} trouvé${filteredProducts.length > 1 ? 's' : ''}',
+                            KoumbayaLexicon.articleCount(filteredProducts.length),
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: Colors.grey[600]),
                           ),

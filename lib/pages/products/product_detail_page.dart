@@ -7,8 +7,10 @@ import '../../providers/lottery_provider.dart';
 import '../../providers/purchase_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
+import '../../constants/koumbaya_lexicon.dart';
 import '../../widgets/loading_widget.dart';
 import '../payments/payment_method_selection_page.dart';
+import '../lottery/ticket_purchase_page.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final int productId;
@@ -43,33 +45,39 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
 
     final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    final lotteryProvider = Provider.of<LotteryProvider>(context, listen: false);
-    
     final product = productsProvider.selectedProduct;
-    if (product?.hasLottery != true) return;
 
-    // Acheter un seul ticket pour "tenter sa chance"
-    final success = await lotteryProvider.buyTicket(
-      product!.activeLottery!.id,
-      1, // Un seul ticket pour "tenter sa chance"
+    if (product?.hasLottery != true || product!.activeLottery == null) return;
+
+    // Rediriger vers la page d'achat de tickets
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TicketPurchasePage(
+          lottery: product.activeLottery!,
+        ),
+      ),
     );
 
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.casino, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Expanded(child: Text('Bonne chance ! Votre ticket a été acheté !')),
-            ],
-          ),
-          backgroundColor: AppConstants.primaryColor,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-      // Refresh product data
+    // Si l'achat est réussi, rafraîchir les données du produit
+    if (result == true && mounted) {
       await _loadProduct();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.casino, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(child: Text('Bonne chance ! Vos ${KoumbayaLexicon.tickets.toLowerCase()} ont été achetés !')),
+              ],
+            ),
+            backgroundColor: AppConstants.lotteryColor,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -128,7 +136,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Êtes-vous sûr de vouloir acheter ce produit ?'),
+            Text('Êtes-vous sûr de vouloir acheter cet ${KoumbayaLexicon.article.toLowerCase()} ?'),
             const SizedBox(height: 16),
             Text(
               product.displayName,
@@ -136,7 +144,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Prix: ${product.formattedPrice}',
+              '${KoumbayaLexicon.directPrice}: ${product.formattedPrice}',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -225,7 +233,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppConstants.primaryColor,
+                              color: product.hasLottery
+                                  ? AppConstants.lotteryColor
+                                  : AppConstants.primaryColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -271,7 +281,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppConstants.primaryColor,
+                                color: AppConstants.lotteryColor,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Text(
@@ -287,6 +297,75 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 24),
+
+                      // Vendeur Section
+                      if (product.merchant != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: product.hasLottery
+                                ? AppConstants.lightLotteryColor
+                                : AppConstants.lightAccentColor,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: product.hasLottery
+                                  ? AppConstants.lotteryColor.withValues(alpha: 0.3)
+                                  : AppConstants.primaryColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: product.hasLottery
+                                    ? AppConstants.lotteryColor
+                                    : AppConstants.primaryColor,
+                                radius: 24,
+                                child: Text(
+                                  (product.merchant!.businessName?.isNotEmpty == true
+                                    ? product.merchant!.businessName![0]
+                                    : product.merchant!.firstName[0]).toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.merchant!.businessName ?? product.merchant!.fullName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                        color: product.hasLottery
+                                            ? AppConstants.lotteryColor
+                                            : AppConstants.primaryColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      KoumbayaLexicon.seller,
+                                      style: TextStyle(
+                                        color: product.hasLottery
+                                            ? AppConstants.lotteryColor.withValues(alpha: 0.7)
+                                            : AppConstants.primaryColor.withValues(alpha: 0.7),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
 
                       // Description
                       Text(
@@ -336,8 +415,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         LinearProgressIndicator(
                           value: product.activeLottery!.completionPercentage / 100,
                           backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppConstants.primaryColor,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            product.hasLottery
+                                ? AppConstants.lotteryColor
+                                : AppConstants.primaryColor,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -347,17 +428,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           children: [
                             Expanded(
                               child: _buildStatCard(
-                                'Billets vendus',
+                                '${KoumbayaLexicon.tickets} vendus',
                                 '${product.activeLottery!.soldTickets}',
                                 Icons.confirmation_number,
+                                product,
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: _buildStatCard(
-                                'Billets restants',
+                                KoumbayaLexicon.ticketsRemaining,
                                 '${product.activeLottery!.remainingTickets}',
                                 Icons.inventory,
+                                product,
                               ),
                             ),
                           ],
@@ -365,9 +448,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
 
                         _buildStatCard(
-                          'Prix par ticket',
+                          KoumbayaLexicon.ticketPrice,
                           product.activeLottery!.formattedTicketPrice,
                           Icons.local_offer,
+                          product,
                           fullWidth: true,
                         ),
 
@@ -393,9 +477,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
           final hasLottery = product.hasLottery;
           final totalPrice = hasLottery ? product.activeLottery!.ticketPrice : product.price;
-          final buttonText = hasLottery ? 'Tenter votre chance' : 'Acheter maintenant';
+          final buttonText = hasLottery ? 'Tenter votre chance' : KoumbayaLexicon.buyDirectly;
           final buttonIcon = hasLottery ? Icons.casino : Icons.shopping_cart;
-          final priceLabel = hasLottery ? 'Prix du ticket' : 'Prix';
+          final priceLabel = hasLottery ? KoumbayaLexicon.ticketPrice : KoumbayaLexicon.directPrice;
 
           return Container(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -425,10 +509,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       Text(
                         '${totalPrice.toStringAsFixed(0)} FCFA',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppConstants.primaryColor,
+                          color: hasLottery
+                              ? AppConstants.lotteryColor
+                              : AppConstants.primaryColor,
                         ),
                       ),
                     ],
@@ -443,7 +529,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           child: ElevatedButton(
                             onPressed: (lotteryProvider.isPurchasing || purchaseProvider.isPurchasing) ? null : (hasLottery ? _tryLuck : _buyDirectly),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppConstants.primaryColor,
+                              backgroundColor: hasLottery
+                                  ? AppConstants.lotteryColor
+                                  : AppConstants.primaryColor,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
@@ -491,21 +579,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, {bool fullWidth = false}) {
+  Widget _buildStatCard(String title, String value, IconData icon, Product product, {bool fullWidth = false}) {
+    final color = product.hasLottery ? AppConstants.lotteryColor : AppConstants.primaryColor;
+    final bgColor = product.hasLottery ? AppConstants.lightLotteryColor : AppConstants.lightAccentColor;
+
     return Container(
       width: fullWidth ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: bgColor,
         borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
         children: [
           Icon(
             icon,
-            color: AppConstants.primaryColor,
+            color: color,
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -516,15 +607,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               Text(
                 title,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: color.withValues(alpha: 0.7),
                   fontSize: 12,
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
+                  color: color,
                 ),
               ),
             ],

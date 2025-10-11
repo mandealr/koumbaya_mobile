@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../constants/app_constants.dart';
+import '../../constants/koumbaya_lexicon.dart';
 
 class BecomeSellerPage extends StatefulWidget {
   const BecomeSellerPage({super.key});
@@ -25,12 +26,12 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
 
     try {
       final response = await _apiService.becomeSeller('individual');
-      
+
       if (response['success'] == true) {
         // Refresh user data
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         await authProvider.refreshUser();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -39,18 +40,31 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
               duration: const Duration(seconds: 4),
             ),
           );
-          
+
           // Navigate back to profile
           context.pop();
         }
       } else {
+        // Refresh user data même en cas d'erreur (peut-être déjà vendeur)
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.refreshUser();
+
         if (mounted) {
+          // Vérifier si l'utilisateur est déjà vendeur
+          final isAlreadySeller = response['message']?.toString().toLowerCase().contains('déjà') ?? false;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response['message'] ?? 'Une erreur est survenue'),
-              backgroundColor: Colors.red,
+              backgroundColor: isAlreadySeller ? Colors.orange : Colors.red,
+              duration: Duration(seconds: isAlreadySeller ? 3 : 4),
             ),
           );
+
+          // Si déjà vendeur, retourner au profil
+          if (isAlreadySeller) {
+            context.pop();
+          }
         }
       }
     } catch (e) {
@@ -76,10 +90,10 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Devenir vendeur individuel'),
-          content: const Text(
-            'Êtes-vous sûr de vouloir devenir un vendeur individuel ? '
-            'Vous pourrez créer des tirages spéciaux avec 500 tickets fixes.',
+          title: Text('Devenir ${KoumbayaLexicon.seller}'),
+          content: Text(
+            'Êtes-vous sûr de vouloir devenir un ${KoumbayaLexicon.seller} ? '
+            'Vous pourrez créer des ${KoumbayaLexicon.specialDrawShort.toLowerCase()} avec 500 ${KoumbayaLexicon.tickets.toLowerCase()} fixes.',
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
@@ -110,7 +124,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Devenir vendeur'),
+        title: Text(KoumbayaLexicon.becomeSeller),
         backgroundColor: AppConstants.primaryColor,
         elevation: 1,
         foregroundColor: Colors.white,
@@ -135,27 +149,27 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
                 ),
                 borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
               ),
-              child: const Column(
+              child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.storefront,
                     size: 80,
                     color: Colors.white,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
-                    'Devenez vendeur individuel',
-                    style: TextStyle(
+                    'Devenez ${KoumbayaLexicon.seller}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Vendez vos articles et créez des tirages spéciaux',
-                    style: TextStyle(
+                    'Vendez vos ${KoumbayaLexicon.articles.toLowerCase()} et créez des ${KoumbayaLexicon.specialDrawShort.toLowerCase()}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
@@ -168,9 +182,9 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
             const SizedBox(height: 32),
 
             // Avantages du vendeur individuel
-            const Text(
-              'Avantages du vendeur individuel',
-              style: TextStyle(
+            Text(
+              'Avantages du ${KoumbayaLexicon.seller}',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: AppConstants.primaryColor,
@@ -180,35 +194,35 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
 
             _buildAdvantageCard(
               icon: Icons.confirmation_number,
-              title: '500 tickets par tirage spécial',
-              description: 'Nombre de tickets optimisé pour maximiser vos ventes',
+              title: '500 ${KoumbayaLexicon.tickets} par ${KoumbayaLexicon.specialDrawShort}',
+              description: 'Nombre de ${KoumbayaLexicon.tickets.toLowerCase()} optimisé pour maximiser vos ventes',
               color: Colors.blue,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildAdvantageCard(
               icon: Icons.monetization_on,
               title: 'Prix minimum: 200 FCFA',
-              description: 'Vendez vos articles à partir de 200 FCFA par ticket',
+              description: 'Vendez vos ${KoumbayaLexicon.articles.toLowerCase()} à partir de 200 FCFA par ${KoumbayaLexicon.ticket.toLowerCase()}',
               color: Colors.orange,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildAdvantageCard(
               icon: Icons.speed,
               title: 'Configuration simplifiée',
-              description: 'Création d\'articles et tirages spéciaux en quelques clics',
+              description: 'Création d\'${KoumbayaLexicon.articles.toLowerCase()} et ${KoumbayaLexicon.specialDrawShort.toLowerCase()} en quelques clics',
               color: Colors.green,
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildAdvantageCard(
               icon: Icons.people,
               title: 'Accès aux clients',
-              description: 'Rejoignez la communauté des vendeurs Koumbaya',
+              description: 'Rejoignez la communauté des ${KoumbayaLexicon.sellers.toLowerCase()} ${KoumbayaLexicon.platformName}',
               color: Colors.purple,
             ),
 
@@ -227,28 +241,28 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
 
             _buildProcessStep(
               step: '1',
-              title: 'Devenez vendeur',
+              title: 'Devenez ${KoumbayaLexicon.seller}',
               description: 'Cliquez sur le bouton ci-dessous pour activer votre statut',
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildProcessStep(
               step: '2',
-              title: 'Créez vos articles',
-              description: 'Ajoutez vos articles avec photos et descriptions',
+              title: 'Créez vos ${KoumbayaLexicon.articles}',
+              description: 'Ajoutez vos ${KoumbayaLexicon.articles.toLowerCase()} avec photos et descriptions',
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildProcessStep(
               step: '3',
-              title: 'Lancez des tirages spéciaux',
-              description: 'Créez des tirages spéciaux avec 500 tickets automatiquement',
+              title: 'Lancez des ${KoumbayaLexicon.specialDrawShort}',
+              description: 'Créez des ${KoumbayaLexicon.specialDrawShort.toLowerCase()} avec 500 ${KoumbayaLexicon.tickets.toLowerCase()} automatiquement',
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             _buildProcessStep(
               step: '4',
               title: 'Recevez vos gains',
@@ -293,14 +307,14 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
                           ),
                         ],
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.storefront, size: 24),
-                          SizedBox(width: 12),
+                          const Icon(Icons.storefront, size: 24),
+                          const SizedBox(width: 12),
                           Text(
-                            'Devenir vendeur individuel',
-                            style: TextStyle(
+                            'Devenir ${KoumbayaLexicon.seller}',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
@@ -331,7 +345,7 @@ class _BecomeSellerPageState extends State<BecomeSellerPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'En devenant vendeur individuel, vous acceptez les conditions générales de vente et vous engagez à respecter la politique de qualité de Koumbaya.',
+                      'En devenant ${KoumbayaLexicon.seller}, vous acceptez les conditions générales de vente et vous engagez à respecter la politique de qualité de ${KoumbayaLexicon.platformName}.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.blue.shade700,

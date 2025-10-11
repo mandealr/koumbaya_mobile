@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
+import '../../constants/koumbaya_lexicon.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -170,12 +171,20 @@ class ProfilePage extends StatelessWidget {
 
                 // Show "Become Seller" button only for non-merchants
                 if (!user.isMerchant) ...[
-                  _buildActionButton(
-                    context,
-                    Icons.storefront,
-                    'Devenir vendeur',
-                    () => context.go('/become-seller'),
-                    color: Colors.green,
+                  Builder(
+                    builder: (context) {
+                      // Debug: Print user roles
+                      print('👤 User roles: ${user.roles.map((r) => r.name).toList()}');
+                      print('👤 isMerchant: ${user.isMerchant}');
+                      print('👤 isCustomer: ${user.isCustomer}');
+                      return _buildActionButton(
+                        context,
+                        Icons.storefront,
+                        KoumbayaLexicon.becomeSeller,
+                        () => context.go('/become-seller'),
+                        color: Colors.green,
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                 ],

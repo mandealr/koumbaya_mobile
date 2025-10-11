@@ -368,8 +368,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Boutons Social Auth
-                Consumer<AuthProvider>(
+                // Boutons Social Auth - Temporairement désactivés (configuration requise)
+                // TODO: Configurer GoogleService-Info.plist (iOS) et google-services.json (Android)
+                const SizedBox.shrink(),
+                /*Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return Column(
                       children: [
@@ -385,14 +387,14 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 },
                           icon: Image.asset(
-                            'assets/icons/google.png',
+                            'assets/images/google.png',
                             height: 24,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(Icons.login, size: 24, color: Colors.red),
                           ),
                           label: const Text('Continuer avec Google'),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black87,
                             side: BorderSide(color: Colors.grey[300]!),
@@ -417,14 +419,14 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 },
                           icon: Image.asset(
-                            'assets/icons/facebook.png',
+                            'assets/images/facebook.png',
                             height: 24,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(Icons.facebook, size: 24, color: Colors.blue),
                           ),
                           label: const Text('Continuer avec Facebook'),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black87,
                             side: BorderSide(color: Colors.grey[300]!),
@@ -438,7 +440,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     );
                   },
-                ),
+                ),*/
 
                 const SizedBox(height: 24),
 

@@ -144,12 +144,6 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.pushNamed(context, '/products'),
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add_shopping_cart),
-        label: const Text('Nouvelle commande'),
-      ),
     );
   }
 

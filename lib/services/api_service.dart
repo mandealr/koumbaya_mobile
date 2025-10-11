@@ -369,6 +369,7 @@ class ApiService {
       queryParameters: {
         'page': page.toString(),
         'per_page': perPage.toString(),
+        'with': 'merchant,category',
       },
     );
 
@@ -418,8 +419,14 @@ class ApiService {
   }
 
   Future<List<Product>> getFeaturedProducts() async {
+    final uri = Uri.parse(ApiConstants.featuredProducts).replace(
+      queryParameters: {
+        'with': 'merchant,category',
+      },
+    );
+
     final response = await _client.get(
-      Uri.parse(ApiConstants.featuredProducts),
+      uri,
       headers: await _getHeaders(includeAuth: false),
     );
 
@@ -468,8 +475,14 @@ class ApiService {
   }
 
   Future<Product> getProduct(int id) async {
+    final uri = Uri.parse(ApiConstants.product(id)).replace(
+      queryParameters: {
+        'with': 'merchant,category,activeLottery',
+      },
+    );
+
     final response = await _client.get(
-      Uri.parse(ApiConstants.product(id)),
+      uri,
       headers: await _getHeaders(includeAuth: false),
     );
 
@@ -481,13 +494,13 @@ class ApiService {
           return Product.fromJson(data as Map<String, dynamic>);
         }
       }
-      
+
       // Fallback to old structure
       final productData = json['product'];
       if (productData != null) {
         return Product.fromJson(productData as Map<String, dynamic>);
       }
-      
+
       throw Exception('No product data found in response');
     });
   }
@@ -874,7 +887,7 @@ class ApiService {
 
   /// Annuler une commande
   Future<ApiResponse<Map<String, dynamic>>> cancelOrder(String orderNumber) async {
-    final response = await _client.patch(
+    final response = await _client.post(
       Uri.parse('${ApiConstants.baseUrl}/orders/$orderNumber/cancel'),
       headers: await _getHeaders(),
     );

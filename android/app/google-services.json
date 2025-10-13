@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "315022777995",
+    "project_id": "koumbaya-fb2f1",
+    "storage_bucket": "koumbaya-fb2f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315022777995:android:c8635512cde4b0fa2d3e8e",
+        "android_client_info": {
+          "package_name": "com.koumbaya.koumbaya_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315022777995-pjob2416i3ntq5528vd24c1l76clcjcs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwXXY5vwbLJCXAwtw9xLptPMbjRTqfIjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315022777995-pjob2416i3ntq5528vd24c1l76clcjcs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

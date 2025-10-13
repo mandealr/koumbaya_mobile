@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'providers/auth_provider.dart';
 import 'providers/app_provider.dart';
 import 'providers/products_provider.dart';
@@ -14,7 +15,13 @@ import 'constants/app_constants.dart';
 import 'themes/app_themes.dart';
 import 'utils/router.dart';
 
-void main() {
+void main() async {
+  // Assurer que les widgets Flutter sont initialisés
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialiser Firebase
+  await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 

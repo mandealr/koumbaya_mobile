@@ -44,6 +44,8 @@ class Language {
   final String name;
   @JsonKey(fromJson: _parseString)
   final String code;
+  @JsonKey(fromJson: _parseNullableString)
+  final String? flag;
   @JsonKey(name: 'native_name', fromJson: _parseNullableString)
   final String? nativeName;
   @JsonKey(name: 'is_active', fromJson: _parseBool)
@@ -59,6 +61,7 @@ class Language {
     required this.id,
     required this.name,
     required this.code,
+    this.flag,
     this.nativeName,
     required this.isActive,
     required this.isDefault,

@@ -368,10 +368,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Boutons Social Auth - Temporairement désactivés (configuration requise)
-                // TODO: Configurer GoogleService-Info.plist (iOS) et google-services.json (Android)
-                const SizedBox.shrink(),
-                /*Consumer<AuthProvider>(
+                // Boutons Social Auth
+                Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return Column(
                       children: [
@@ -387,7 +385,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 },
                           icon: Image.asset(
-                            'assets/images/google.png',
+                            'assets/icons/google.png',
                             height: 24,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(Icons.login, size: 24, color: Colors.red),
@@ -419,7 +417,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 },
                           icon: Image.asset(
-                            'assets/images/facebook.png',
+                            'assets/icons/facebook.png',
                             height: 24,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(Icons.facebook, size: 24, color: Colors.blue),
@@ -440,7 +438,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     );
                   },
-                ),*/
+                ),
 
                 const SizedBox(height: 24),
 

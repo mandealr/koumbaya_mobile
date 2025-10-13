@@ -54,6 +54,8 @@ class Country {
   final String? currencySymbol;
   @JsonKey(fromJson: _parseNullableString)
   final String? flag;
+  @JsonKey(name: 'flag_emoji', fromJson: _parseNullableString)
+  final String? flagEmoji;
   @JsonKey(name: 'is_active', fromJson: _parseBool)
   final bool isActive;
   @JsonKey(name: 'created_at', fromJson: _parseNullableDateTime)
@@ -70,6 +72,7 @@ class Country {
     this.currencyCode,
     this.currencySymbol,
     this.flag,
+    this.flagEmoji,
     required this.isActive,
     this.createdAt,
     this.updatedAt,

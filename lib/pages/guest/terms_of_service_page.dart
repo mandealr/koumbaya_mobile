@@ -44,7 +44,7 @@ class TermsOfServicePage extends StatelessWidget {
               'En créant un compte et en utilisant notre Service, vous confirmez que :\n\n'
               '• Vous avez au moins 13 ans\n'
               '• Vous avez la capacité juridique de conclure ces Conditions\n'
-              '• Vous n\'êtes pas une personne interdite de recevoir des services en vertu des lois du Cameroun ou d\'autres juridictions applicables\n'
+              '• Vous n\'êtes pas une personne interdite de recevoir des services en vertu des lois du Gabon ou d\'autres juridictions applicables\n'
               '• Vous fournirez des informations véridiques et exactes lors de l\'inscription\n'
               '• Vous maintiendrez la sécurité de votre compte et mot de passe',
             ),
@@ -177,7 +177,7 @@ class TermsOfServicePage extends StatelessWidget {
             ),
             _buildSection(
               '13. Droit applicable',
-              'Ces Conditions sont régies et interprétées conformément aux lois du Cameroun, sans égard à ses dispositions relatives '
+              'Ces Conditions sont régies et interprétées conformément aux lois du Gabon, sans égard à ses dispositions relatives '
               'aux conflits de lois. Notre défaut d\'appliquer un droit ou une disposition de ces Conditions ne sera pas considéré '
               'comme une renonciation à ces droits.',
             ),
@@ -190,8 +190,8 @@ class TermsOfServicePage extends StatelessWidget {
               '15. Contact',
               'Pour toute question concernant ces Conditions, veuillez nous contacter :\n\n'
               '• Par e-mail : legal@koumbaya.com\n'
-              '• Par téléphone : +237 XXX XXX XXX\n'
-              '• Par courrier : Koumbaya, [Adresse complète], Cameroun',
+              '• Par téléphone : +241 XXX XXX XXX\n'
+              '• Par courrier : Koumbaya, [Adresse complète], Gabon',
             ),
             const SizedBox(height: 40),
           ],

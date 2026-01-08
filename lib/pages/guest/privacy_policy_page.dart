@@ -98,9 +98,9 @@ class PrivacyPolicyPage extends StatelessWidget {
               '4. Transfert de données',
               'Vos informations, y compris les données personnelles, peuvent être transférées et conservées sur des ordinateurs '
               'situés en dehors de votre état, province, pays ou autre juridiction gouvernementale où les lois sur la protection '
-              'des données peuvent différer de celles de votre juridiction. Si vous êtes situé en dehors du Cameroun et que vous '
+              'des données peuvent différer de celles de votre juridiction. Si vous êtes situé en dehors du Gabon et que vous '
               'choisissez de nous fournir des informations, veuillez noter que nous transférons les données, y compris les données '
-              'personnelles, au Cameroun et les traitons là-bas. Votre consentement à cette politique de confidentialité suivi de '
+              'personnelles, au Gabon et les traitons là-bas. Votre consentement à cette politique de confidentialité suivi de '
               'votre soumission de ces informations représente votre accord à ce transfert.',
             ),
             _buildSection(
@@ -170,8 +170,8 @@ class PrivacyPolicyPage extends StatelessWidget {
               '11. Nous contacter',
               'Si vous avez des questions concernant cette politique de confidentialité, veuillez nous contacter :\n\n'
               '• Par e-mail : privacy@koumbaya.com\n'
-              '• Par téléphone : +237 XXX XXX XXX\n'
-              '• Par courrier : Koumbaya, [Adresse complète], Cameroun\n'
+              '• Par téléphone : +241 XXX XXX XXX\n'
+              '• Par courrier : Koumbaya, [Adresse complète], Gabon\n'
               '• Via le formulaire de contact dans l\'application',
             ),
             const SizedBox(height: 40),
